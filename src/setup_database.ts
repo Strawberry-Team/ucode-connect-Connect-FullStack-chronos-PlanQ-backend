@@ -1,15 +1,13 @@
 import { createConnection, Connection } from 'mysql2/promise';
-import { exec } from 'child_process';
 import { rootConfig } from './config/database.root.config';
-import { appConfig } from './config/database.app.config';
+import databaseConfig from './config/database.app.config';
 
 async function setupDatabase(): Promise<void> {
     let connection: Connection | null = null;
 
     try {
-        if (!appConfig.database) {
-            throw new Error('Database name is not defined in the configuration.');
-        }
+        // Get the configuration using the default export function
+        const config = databaseConfig();
 
         connection = await createConnection({
             host: rootConfig.host,
@@ -17,12 +15,12 @@ async function setupDatabase(): Promise<void> {
             password: rootConfig.password
         });
 
-        await connection.query(`CREATE DATABASE IF NOT EXISTS \`${appConfig.database}\``);
-        console.log(`Database "${appConfig.database}" created successfully.`);
+        await connection.query(`CREATE DATABASE IF NOT EXISTS \`${config.database.name}\``);
+        console.log(`Database "${config.database.name}" created successfully.`);
 
-        await connection.query(`GRANT ALL PRIVILEGES ON \`${appConfig.database}\`.* TO '${appConfig.user}'@'${appConfig.host}'`);
+        await connection.query(`GRANT ALL PRIVILEGES ON \`${config.database.name}\`.* TO '${config.database.username}'@'${config.database.host}'`);
         await connection.query(`FLUSH PRIVILEGES`);
-        console.log(`Privileges granted to user "${appConfig.user}"`);
+        console.log(`Privileges granted to user "${config.database.username}"`);
     } catch (error) {
         console.error('Error setting up the database:', error);
     } finally {

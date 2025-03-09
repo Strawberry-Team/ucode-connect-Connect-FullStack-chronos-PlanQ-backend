@@ -3,14 +3,6 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-export interface DatabaseAppConfig {
-    host: string;
-    user: string;
-    password: string;
-    database: string;
-    connectionLimit: number;
-}
-
 // Validate required environment variables
 function validateEnv(name: string): string {
     const value = process.env[name];
@@ -20,10 +12,14 @@ function validateEnv(name: string): string {
     return value;
 }
 
-export const appConfig: DatabaseAppConfig = {
-    host: validateEnv('DB_APP_HOST'),
-    user: validateEnv('DB_APP_USER'),
-    password: validateEnv('DB_APP_PASSWORD'),
-    database: validateEnv('DB_APP_DATABASE'),
-    connectionLimit: Number(validateEnv('DB_APP_CONNECTION_LIMIT')),
-};
+export default () => ({
+    database: {
+        host: validateEnv('DB_APP_HOST'),
+        port: parseInt(validateEnv('DB_APP_PORT'), 10),
+        username: validateEnv('DB_APP_USER'),
+        password: validateEnv('DB_APP_PASSWORD'),
+        name: validateEnv('DB_APP_DATABASE'),
+        connectionLimit: Number(validateEnv('DB_APP_CONNECTION_LIMIT')),
+    }
+});
+
