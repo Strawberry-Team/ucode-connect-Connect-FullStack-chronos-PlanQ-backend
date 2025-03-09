@@ -12,7 +12,7 @@ export class User {
     id: number;
 
     @Column({ length: 255 })
-    password: string;
+    password?: string;
 
     @Column({ name: 'first_name', length: 100 })
     firstName: string;
@@ -30,8 +30,8 @@ export class User {
     })
     profilePictureName: string;
 
-    @Column({ name: 'email_verified', type: 'tinyint', default: 0 })
-    emailVerified: number; // 0 или 1
+    @Column({ name: 'email_verified', type: 'bit', width: 1, default: () => "b'0'" })
+    emailVerified: boolean;
 
     @Column({ name: 'country_code', type: 'char', length: 2 })
     countryCode: string;

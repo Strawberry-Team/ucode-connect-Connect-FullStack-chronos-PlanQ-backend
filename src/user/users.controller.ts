@@ -7,19 +7,16 @@ import {
     BadRequestException, Post,
 } from '@nestjs/common';
 import { BaseCrudController } from '../common/base-crud.controller';
-import { User } from './entities/user.entity';
+import { User } from './entity/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { Express } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import {createFileUploadInterceptor} from "../common/interceptor/file-upload.interceptor";
 
 
 
-@Controller('api/users')
+@Controller('users')
 @UsePipes(new ValidationPipe({ whitelist: true }))
 export class UsersController extends BaseCrudController<
     User,
@@ -33,7 +30,7 @@ export class UsersController extends BaseCrudController<
     // Реализация абстрактных методов
 
     protected async findById(id: number): Promise<User> {
-        return await this.usersService.getUserById(id);
+        return await this.usersService.getUserByIdWithoutPassword(id);
     }
 
     protected async createEntity(dto: CreateUserDto): Promise<User> {
@@ -44,6 +41,13 @@ export class UsersController extends BaseCrudController<
         id: number,
         dto: UpdateUserDto,
     ): Promise<User> {
+        if (dto.oldPassword || dto.newPassword) {
+            if (!dto.oldPassword || !dto.newPassword) {
+                throw new BadRequestException(
+                    'Both old and new passwords are required to update password',
+                );
+            }
+        }
         return await this.usersService.updateUser(id, dto);
     }
 
@@ -51,31 +55,13 @@ export class UsersController extends BaseCrudController<
         return await this.usersService.deleteUser(id);
     }
 
-    // Дополнительный эндпоинт: загрузка аватарки
     @Post('upload-avatar')
     @UseInterceptors(
-        FileInterceptor('file', {
-            storage: diskStorage({
-                destination: './public/uploads/avatars',
-                filename: (req, file, callback) => {
-                    // Using UUID instead of timestamp-random
-                    const fileName = `${uuidv4()}${extname(file.originalname)}`;
-                    callback(null, fileName);
-                },
-            }),
-            fileFilter: (req, file, callback) => {
-                if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-                    return callback(
-                        new BadRequestException('Only image files are allowed!'),
-                        false,
-                    );
-                }
-                callback(null, true);
-            },
-            limits: {
-                fileSize: 5 * 1024 * 1024, // ограничение 5 МБ
-            },
-        }),
+        createFileUploadInterceptor({
+            destination: './public/uploads/avatars',
+            allowedTypes: /\/(jpg|jpeg|png)$/,
+            maxSize: 5 * 1024 * 1024,
+        })
     )
     async uploadAvatar(
         @UploadedFile() file: Express.Multer.File,
@@ -83,7 +69,6 @@ export class UsersController extends BaseCrudController<
         if (!file) {
             throw new BadRequestException('No file uploaded.');
         }
-        // Возвращаем только название файла для фронтенда
         return { server_filename: file.filename };
     }
 }

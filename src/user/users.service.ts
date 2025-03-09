@@ -8,18 +8,24 @@ import { UsersRepository } from './users.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
-import { User } from './entities/user.entity';
+import { User } from './entity/user.entity';
 
 @Injectable()
 export class UsersService {
     constructor(private readonly usersRepository: UsersRepository) {}
 
-    async getUserById(id: number): Promise<User> {
+    private async getUserById(id: number): Promise<User> {
         const user = await this.usersRepository.findById(id);
         if (!user) {
             throw new NotFoundException('User not found');
         }
         return user;
+    } //TODO подумать делать ли проверку на null тут
+
+    async getUserByIdWithoutPassword(id: number): Promise<User> {
+        const result = await this.getUserById(id);
+        delete result.password;
+        return result;
     }
 
     async createUser(dto: CreateUserDto): Promise<User> {
@@ -36,28 +42,28 @@ export class UsersService {
             password: hashedPassword,
             countryCode: dto.countryCode,
         };
-        return await this.usersRepository.createUser(userData);
+        const result = await this.usersRepository.createUser(userData);
+        delete result.password;
+        return result;
     }
 
     async updateUser(id: number, dto: UpdateUserDto): Promise<User> {
+        if (dto.email !== undefined) {
+            throw new BadRequestException('Email update is temporarily unavailable');
+        }
+
         const user = await this.getUserById(id);
         let result;
-        // Если требуется изменить пароль – проверяем, что оба поля переданы
         if (dto.oldPassword || dto.newPassword) {
-            // if (!dto.oldPassword || !dto.newPassword) {
-            //     throw new BadRequestException(
-            //         'Both old and new passwords are required to update password',
-            //     );
-            // } //TODO перенести в контроллер
             const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
             if (!isMatch) {
                 throw new UnauthorizedException('Old password does not match');
             }
             const hashedNewPassword = await bcrypt.hash(dto.newPassword, 10);
+            delete dto.oldPassword;
+            delete dto.newPassword;
             const updateData: Partial<User> = { ...dto };
-            if (dto.newPassword) {
-                updateData.password = hashedNewPassword;
-            }
+            updateData.password = hashedNewPassword;
             result = await this.usersRepository.updateUser(id, updateData);
         } else {
             result = await this.usersRepository.updateUser(id, dto);
@@ -65,6 +71,7 @@ export class UsersService {
         if (!result) {
             throw new NotFoundException('User not found');
         }
+        delete result.password;
         return result;
     }
 

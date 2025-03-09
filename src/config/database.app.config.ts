@@ -1,16 +1,9 @@
 // database.app.config.ts
 import * as dotenv from 'dotenv';
 
-dotenv.config();
+import { validateEnv } from '../common/utils/env.utils';
 
-// Validate required environment variables
-function validateEnv(name: string): string {
-    const value = process.env[name];
-    if (!value) {
-        throw new Error(`Missing required environment variable: ${name}`);
-    }
-    return value;
-}
+dotenv.config();
 
 export default () => ({
     database: {

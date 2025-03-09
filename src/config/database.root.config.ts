@@ -3,20 +3,14 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
+import { validateEnv } from '../common/utils/env.utils';
+
 export interface DatabaseRootConfig {
     host: string;
     user: string;
     password: string;
     connectionLimit: number;
-}
-
-// Validate required environment variables
-function validateEnv(name: string): string {
-    const value = process.env[name];
-    if (!value) {
-        throw new Error(`Missing required environment variable: ${name}`);
-    }
-    return value;
+    port: number;
 }
 
 export const rootConfig: DatabaseRootConfig = {
@@ -24,4 +18,5 @@ export const rootConfig: DatabaseRootConfig = {
     user: validateEnv('DB_ROOT_USER'),
     password: validateEnv('DB_ROOT_PASSWORD'),
     connectionLimit: Number(validateEnv('DB_ROOT_CONNECTION_LIMIT')),
+    port: Number(validateEnv('DB_ROOT_PORT')),
 };

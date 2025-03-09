@@ -6,15 +6,16 @@ import {
     MinLength,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class CreateUserDto //TODO написать один user.dto, базовый
+ {
     @IsString()
     @IsNotEmpty()
-    @Length(3, 30)
+    @Length(3, 100)
     firstName: string;
 
     @IsString()
     @IsNotEmpty()
-    @Length(3, 30)
+    @Length(3, 100)
     lastName: string;
 
     @IsEmail()
@@ -24,10 +25,10 @@ export class CreateUserDto {
     @IsString()
     @IsNotEmpty()
     @MinLength(6)
-    password: string;
+    password: string; //TODO проверять пароль на ...
 
     @IsString()
     @IsNotEmpty()
     @Length(2, 2)
-    countryCode: string;
+    countryCode: string; //TODO понять какие можно, и проверять
 }

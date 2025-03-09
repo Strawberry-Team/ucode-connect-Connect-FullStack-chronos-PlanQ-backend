@@ -9,12 +9,12 @@ import {
 export class UpdateUserDto {
     @IsOptional()
     @IsString()
-    @Length(3, 30)
+    @Length(3, 100)
     firstName?: string;
 
     @IsOptional()
     @IsString()
-    @Length(3, 30)
+    @Length(3, 100)
     lastName?: string;
 
     @IsOptional()
@@ -25,16 +25,16 @@ export class UpdateUserDto {
     @IsOptional()
     @IsString()
     @MinLength(6)
-    oldPassword?: string;
+    oldPassword?: string; //TODO проверять пароль на ...
 
     @IsOptional()
     @IsString()
     @MinLength(6)
-    newPassword?: string;
+    newPassword?: string; //TODO проверять пароль на ...
 
     @IsOptional()
     @IsString()
-    countryCode?: string;
+    countryCode?: string; //TODO понять какие можно, и проверять
 
     @IsOptional()
     @IsString()

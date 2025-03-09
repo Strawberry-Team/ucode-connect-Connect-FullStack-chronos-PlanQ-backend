@@ -3,12 +3,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './user/users.module';
 import databaseConfig from './config/database.app.config';
+import appConfig from "./config/app.config";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig],
+      load: [databaseConfig, appConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

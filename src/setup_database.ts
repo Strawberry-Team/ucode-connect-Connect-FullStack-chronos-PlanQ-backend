@@ -11,6 +11,7 @@ async function setupDatabase(): Promise<void> {
 
         connection = await createConnection({
             host: rootConfig.host,
+            port: rootConfig.port,
             user: rootConfig.user,
             password: rootConfig.password
         });
