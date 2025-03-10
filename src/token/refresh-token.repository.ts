@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Token } from './entities/token.entity';
+import { RefreshToken } from './entities/refresh-token.entity';
 import { User } from '../user/entity/user.entity';
 
 @Injectable()
-export class TokenRepository {
+export class RefreshTokenRepository {
     constructor(
-        @InjectRepository(Token)
-        private readonly tokenRepository: Repository<Token>,
+        @InjectRepository(RefreshToken)
+        private readonly tokenRepository: Repository<RefreshToken>,
 
         @InjectRepository(User) // Добавляем репозиторий для User
         private readonly userRepository: Repository<User>,
     ) { }
 
-    async saveToken(userId: number, token: string): Promise<Token> {
+    async saveToken(userId: number, token: string): Promise<RefreshToken> {
         // Ищем пользователя по userId
         const user = await this.userRepository.findOne({ where: { id: userId } });
 
@@ -32,7 +32,7 @@ export class TokenRepository {
     }
     
     // Метод для поиска токена
-    async findToken(token: string): Promise<Token | null> {
+    async findToken(token: string): Promise<RefreshToken | null> {
         return this.tokenRepository.findOne({ where: { refreshToken: token } });
     }
 

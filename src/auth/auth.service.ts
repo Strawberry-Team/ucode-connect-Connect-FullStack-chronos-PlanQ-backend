@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginDto } from '../auth/dto/login.dto';
-import { RefreshTokenDto } from '../token/dto/refresh-token.dto';
+// import { RefreshTokenDto } from '../token/dto/refresh-token.dto';
 import { ResetPasswordDto } from '../auth/dto/reset-password.dto';
-import { CreateTokenDto } from '../token/dto/create-token.dto';
+import { CreateRefreshTokenDto } from '../token/dto/create-refresh-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,17 +27,4 @@ export class AuthService {
     async resetPassword(ResetPasswordDto: ResetPasswordDto){
 
     }
-
-    async getTokenById(id: number){
-
-    }
-
-    async createToken(createTokenDto: CreateTokenDto){
-
-    }
-
-    async deleteToken(ResetPasswordDto: ResetPasswordDto){
-
-    }
-
 }

@@ -1,18 +1,18 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
-import { RefreshTokenDto } from '../token/dto/refresh-token.dto';
+// import { RefreshTokenDto } from '../token/dto/refresh-token.dto';
 import { ResetPasswordDto } from '../auth/dto/reset-password.dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-access.guard';
 import { BaseCrudController } from '../common/controller/base-crud.controller';
-import { Token } from '../token/entities/token.entity';
-import { CreateTokenDto } from '../token/dto/create-token.dto';
+import { RefreshToken } from '../token/entities/refresh-token.entity';
+import { CreateRefreshTokenDto } from '../token/dto/create-refresh-token.dto';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard'
 
 @Controller('auth')
-export class AuthController extends BaseCrudController<Token, CreateTokenDto, never> {
+export class AuthController {
     constructor(private readonly authService: AuthService) {
-        super();
     }
 
     @Post('register')
@@ -25,29 +25,20 @@ export class AuthController extends BaseCrudController<Token, CreateTokenDto, ne
         return this.authService.login(loginDto);
     }
 
-    @Post('refresh')
-    async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
-        return this.authService.refreshToken(refreshTokenDto);
+    @UseGuards(JwtRefreshGuard) 
+    @Post('logout')
+    async logout(@Request() req) {
+        return this.authService.logout(loginDto);
     }
 
-    @Post('remind-password')
+    @UseGuards(JwtRefreshGuard) 
+    @Post('/access-token/refresh')
+    async refreshToken(@Request() req) {
+        return this.authService.refreshToken(req.user.userId);
+    }
+
+    @Post('reset-password')
     async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
         return this.authService.resetPassword(resetPasswordDto);
-    }
-
-    protected async findById(id: number): Promise<Token> {
-        return this.authService.getTokenById(id);
-    }
-
-    protected async createEntity(dto: CreateTokenDto): Promise<Token> {
-        return this.authService.createToken(dto);
-    }
-
-    protected async updateEntity(): Promise<never> {
-        throw new Error('Update method is not implemented for tokens.');
-    }
-
-    protected async deleteEntity(id: number): Promise<void> {
-        return this.authService.deleteToken(id);
     }
 }
