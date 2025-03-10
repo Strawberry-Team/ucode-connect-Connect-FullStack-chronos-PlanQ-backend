@@ -2,14 +2,16 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './user/users.module';
+import { AuthModule } from './auth/auth.module'
 import databaseConfig from './config/database.app.config';
+import jwtConfig from './config/jwt.config';
 import appConfig from "./config/app.config";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, appConfig],
+      load: [databaseConfig, appConfig, jwtConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -26,6 +28,7 @@ import appConfig from "./config/app.config";
       }),
     }),
     UsersModule,
+    AuthModule
   ],
   controllers: [],
   providers: [],

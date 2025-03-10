@@ -20,7 +20,7 @@ export class UsersService {
             throw new NotFoundException('User not found');
         }
         return user;
-    } //TODO подумать делать ли проверку на null тут
+    } //TODO: подумать делать ли проверку на null тут
 
     async getUserByIdWithoutPassword(id: number): Promise<User> {
         const result = await this.getUserById(id);

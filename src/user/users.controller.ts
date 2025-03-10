@@ -6,7 +6,7 @@ import {
     UploadedFile,
     BadRequestException, Post,
 } from '@nestjs/common';
-import { BaseCrudController } from '../common/base-crud.controller';
+import { BaseCrudController } from '../common/controller/base-crud.controller';
 import { User } from './entity/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
