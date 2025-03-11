@@ -13,7 +13,7 @@ import { CreateRefreshTokenDto } from '../token/dto/create-refresh-token.dto';
 import { newPasswordDto } from './dto/new-password.dto';
 import { UsersService } from 'src/user/users.service';
 import { RefreshTokenService } from 'src/token/refresh-token.service';
-import { JwtUtils } from 'src/common/utils/token.utils';
+import { JwtUtils } from '../jwt/jwt-token.utils';
 
 
 @Injectable()
@@ -36,14 +36,13 @@ export class AuthService {
 
         // Генерируем access и refresh токены
         const accessToken = this.jwtUtils.generateToken({ sub: user.id }, 'access');
-        const refreshToken = this.jwtUtils.generateToken({ sub: user.id }, 'refresh',);
+        const refreshToken = this.jwtUtils.generateToken({ sub: user.id }, 'refresh');
 
         // Сохраняем refresh-токен через RefreshTokenService
         await this.refreshTokenService.createToken({
             userId: user.id,
             refreshToken: refreshToken,
         } as CreateRefreshTokenDto);
-
         // Возвращаем данные пользователя (без пароля) и токены
         return { user: user, accessToken, refreshToken };
     }

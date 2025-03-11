@@ -7,6 +7,7 @@ import databaseConfig from './config/database.app.config';
 import jwtConfig from './config/jwt.config';
 import appConfig from "./config/app.config";
 import { RefreshTokenModule } from './token/refresh-token.module';
+import { JwtConfigModule } from './jwt/jwt.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { RefreshTokenModule } from './token/refresh-token.module';
         synchronize: true, // Для продакшена отключите данную опцию
       }),
     }),
+    JwtConfigModule,
     UsersModule,
     AuthModule,
     RefreshTokenModule

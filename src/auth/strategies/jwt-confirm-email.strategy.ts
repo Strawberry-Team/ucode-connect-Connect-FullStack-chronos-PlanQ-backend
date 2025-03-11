@@ -1,27 +1,18 @@
-import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ConfigService } from '@nestjs/config';
+// src/auth/strategies/jwt-confirm-email.strategy.ts
+import { createJwtStrategy } from '../../jwt/jwt-strategy.factory';
 
-// Функция-извлекатель для refresh токена из тела запроса
-const confirmEmailExtractor = (req: any) => {
-    return req?.params?.confirm_token;
+const confirmEmailExtractor = (req: any): string | null => {
+    // Получаем токен из параметра URL
+    return req?.params?.confirm_token || null;
 };
 
-@Injectable()
-export class JwtConfirmEmailStrategy extends PassportStrategy(
-    Strategy,
-    'jwt-confirm-email'
-) {
-    constructor(private configService: ConfigService) {
-        super({
-            jwtFromRequest: confirmEmailExtractor,
-            ignoreExpiration: false,
-            secretOrKey: String(configService.get<string>('jwt.secrets.confirmEmail')),
-        });
-    }
+const confirmEmailValidateFn = (payload: any) => {
+    return { userId: payload.sub };
+};
 
-    validate(payload: any) {
-        return { userId: payload.sub };
-    }
-}
+export const JwtConfirmEmailStrategy = createJwtStrategy({
+    strategyName: 'jwt-confirm-email',
+    tokenType: 'confirmEmail',
+    extractor: confirmEmailExtractor,
+    validateFn: confirmEmailValidateFn,
+});

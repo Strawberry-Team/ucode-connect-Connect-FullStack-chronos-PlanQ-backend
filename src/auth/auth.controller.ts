@@ -4,15 +4,12 @@ import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 // import { RefreshTokenDto } from '../token/dto/refresh-token.dto';
 import { ResetPasswordDto } from '../auth/dto/reset-password.dto';
-import { JwtAuthGuard } from './guards/jwt-access.guard';
 import { BaseCrudController } from '../common/controller/base-crud.controller';
 import { RefreshToken } from '../token/entities/refresh-token.entity';
 import { CreateRefreshTokenDto } from '../token/dto/create-refresh-token.dto';
 import { RefreshTokenDto } from '../token/dto/refresh-token.dto';
-import { JwtRefreshGuard } from './guards/jwt-refresh.guard'
-import { JwtResetPasswordGuard } from './guards/jwt-reset-password.guard'
-import { JwtConfirmEmailGuard } from './guards/jwt-confirm-email.guard'
 import { newPasswordDto } from './dto/new-password.dto'
+import { JwtRefreshGuard, JwtResetPasswordGuard, JwtConfirmEmailGuard } from './guards/auth.jwt-guards';
 
 @Controller('auth')
 export class AuthController {

@@ -1,27 +1,18 @@
-import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ConfigService } from '@nestjs/config';
+// src/auth/strategies/jwt-reset-password.strategy.ts
+import { createJwtStrategy } from '../../jwt/jwt-strategy.factory';
 
-// Функция-извлекатель для refresh токена из тела запроса
-const passwordResetExtractor = (req: any) => {
-    return req?.params?.confirm_token;
+const passwordResetExtractor = (req: any): string | null => {
+    // Извлекаем токен для сброса пароля из параметров запроса
+    return req?.params?.confirm_token || null;
 };
 
-@Injectable()
-export class JwtResetPasswordStrategy extends PassportStrategy(
-    Strategy,
-    'jwt-password-reset'
-) {
-    constructor(private configService: ConfigService) {
-        super({
-            jwtFromRequest: passwordResetExtractor,
-            ignoreExpiration: false,
-            secretOrKey: String(configService.get<string>('jwt.secrets.resetPassword')),
-        });
-    }
+const resetPasswordValidateFn = (payload: any) => {
+    return { userId: payload.sub };
+};
 
-    validate(payload: any) {
-        return { userId: payload.sub };
-    }
-}
+export const JwtResetPasswordStrategy = createJwtStrategy({
+    strategyName: 'jwt-password-reset',
+    tokenType: 'resetPassword',
+    extractor: passwordResetExtractor,
+    validateFn: resetPasswordValidateFn,
+});

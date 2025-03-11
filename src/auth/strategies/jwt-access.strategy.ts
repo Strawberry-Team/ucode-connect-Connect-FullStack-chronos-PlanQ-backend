@@ -1,20 +1,17 @@
-import { PassportStrategy } from "@nestjs/passport";
-import { ExtractJwt, Strategy } from "passport-jwt";
-import JWTConfig from "../../config/jwt.config"
-import { ConfigService } from "@nestjs/config";
-import { Injectable } from "@nestjs/common";
+// src/auth/strategies/jwt-access.strategy.ts
 
-@Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, "jwt-access"){
-    constructor (private readonly jwtConfig: ConfigService) {
-        super({ 
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            ignoreExpiration: false,
-            secretOrKey: String(jwtConfig.get<string>('jwt.secretKey'))
-        })
-    }
+import { createJwtStrategy } from '../../jwt/jwt-strategy.factory';
+import { ExtractJwt } from 'passport-jwt';
 
-    validate(payload: any): unknown {
-        return { userId: payload.sub, username: payload.username };
-    }
-}
+const accessExtractor = ExtractJwt.fromAuthHeaderAsBearerToken();
+
+const accessValidateFn = (payload: any) => ({
+    userId: payload.sub,
+});
+
+export const JwtAccessStrategy = createJwtStrategy({
+    strategyName: 'jwt-access',
+    tokenType: 'access',
+    extractor: accessExtractor,
+    validateFn: accessValidateFn,
+});

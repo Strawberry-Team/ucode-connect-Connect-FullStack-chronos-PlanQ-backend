@@ -11,17 +11,20 @@ async function bootstrap() {
       new ValidationPipe({ whitelist: true, transform: true }),
   );
 
+  const configService = app.get(ConfigService);
+  const globalPrefix = String(configService.get<string>('app.globalPrefix'));
+  const port = Number(configService.get<number>('app.port'));
+  const host = String(configService.get<number>('app.host'));
+  const protocol = String(configService.get<number>('app.protocol'));
+
   // Глобальный префикс для API
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(globalPrefix);
 
   // Раздача статики (например, для аватарок)
   app.useStaticAssets('public');
 
-  const configService = app.get(ConfigService);
-  const port = Number(configService.get<number>('app.port'));
-
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}/api`);
+  console.log(`Application is running on: ${protocol}://${host}:${port}/${globalPrefix}`);
 }
 
 bootstrap();

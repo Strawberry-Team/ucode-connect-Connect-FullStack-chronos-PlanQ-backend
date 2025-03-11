@@ -1,29 +1,20 @@
-import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ConfigService } from '@nestjs/config';
+// src/auth/strategies/jwt-refresh.strategy.ts
+import { createJwtStrategy } from '../../jwt/jwt-strategy.factory';
 
-// Функция-извлекатель для refresh токена из тела запроса
-const refreshTokenExtractor = (req: any) => {
-  console.log(req?.body?.refreshToken);
-  return req?.body?.refreshToken;
+const refreshTokenExtractor = (req: any): string | null => {
+  // Принимаем refresh-токен из тела запроса
+  return req?.body?.refreshToken || null;
 };
 
-@Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(
-  Strategy,
-  'jwt-refresh'
-) {
-  constructor(private configService: ConfigService) {
-    super({
-      jwtFromRequest: refreshTokenExtractor,
-      ignoreExpiration: false,
-      secretOrKey: String(configService.get<string>('jwt.secrets.refresh')),
-    });
-  }
+const refreshValidateFn = (payload: any) => {
+  // Можно добавить доп. проверку или логику, например, сверку с БД
+  //TODO: проверить есть ли refresh в БД!!!!!!!!!!!!!!!!!!!!!!
+  return { userId: payload.sub };
+};
 
-  validate(payload: any) { //TODO: проверить есть ли refresh в БД!!!!!!!!!!!!!!!!!!!!!!
-    console.log("logout");
-    return { userId: payload.sub};
-  }
-}
+export const JwtRefreshStrategy = createJwtStrategy({
+  strategyName: 'jwt-refresh',
+  tokenType: 'refresh',
+  extractor: refreshTokenExtractor,
+  validateFn: refreshValidateFn,
+});
