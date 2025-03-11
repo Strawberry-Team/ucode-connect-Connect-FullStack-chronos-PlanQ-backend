@@ -17,7 +17,7 @@ export class JwtResetPasswordStrategy extends PassportStrategy(
         super({
             jwtFromRequest: passwordResetExtractor,
             ignoreExpiration: false,
-            secretOrKey: String(configService.get<string>('jwt.secrets.passwordReset')),
+            secretOrKey: String(configService.get<string>('jwt.secrets.resetPassword')),
         });
     }
 

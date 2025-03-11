@@ -1,5 +1,5 @@
 // token.module.ts
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RefreshTokenService } from './refresh-token.service';
 import { RefreshTokenRepository } from './refresh-token.repository';
@@ -8,16 +8,20 @@ import { JwtStrategy } from '../auth/strategies/jwt-access.strategy';
 //import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 //import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { AuthModule } from 'src/auth/auth.module';
+import { UsersModule } from 'src/user/users.module';
+// import { UsersRepository } from 'src/user/users.repository';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([RefreshToken]),
     JwtModule.register({
-
     }),
+    forwardRef(() => AuthModule),
+    UsersModule
   ],
-  controllers: [],
+controllers: [],
   providers: [RefreshTokenService, RefreshTokenRepository, JwtStrategy],
-  exports: [RefreshTokenService],
+    exports: [RefreshTokenService],
 })
-export class RefreshTokenModule {}
+export class RefreshTokenModule { }

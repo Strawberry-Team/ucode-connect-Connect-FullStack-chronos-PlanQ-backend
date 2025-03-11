@@ -81,7 +81,8 @@ export class AuthService {
         } as CreateRefreshTokenDto);
 
         // Возвращаем пользователя (без пароля) и токены
-        return { user: user, accessToken, refreshToken };
+        const { password, ...userWithoutPass } = user;
+        return { user: userWithoutPass, accessToken, refreshToken };
     }
 
     /**
@@ -135,13 +136,14 @@ export class AuthService {
    * Инициация сброса пароля.
    */
     async resetPassword(resetPasswordDto: ResetPasswordDto) {
-        throw new BadRequestException(
-            
-            'Password reset initiation not implemented.',
-        );
+        const user = await this.usersService.getUserByEmail(resetPasswordDto.email);
+        const passwordResetToken = this.jwtUtils.generateToken({ sub: user.id }, 'resetPassword');
+
+        return {passwordResetToken: passwordResetToken}
     }
 
     async confirmEmail(userId: number) {
-
+        // await this.usersService.confirmEmail(userId);
+        return { message: 'Email confirmed successfully' };
     }
 }

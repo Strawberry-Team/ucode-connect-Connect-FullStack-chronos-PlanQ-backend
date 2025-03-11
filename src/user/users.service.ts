@@ -72,11 +72,11 @@ export class UsersService {
         const user = await this.getUserById(id);
         let result;
         if (dto.oldPassword || dto.newPassword) {
-            const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
+            const isMatch = await bcrypt.compare(String(dto.oldPassword), String(user.password));
             if (!isMatch) {
                 throw new UnauthorizedException('Old password does not match');
             }
-            const hashedNewPassword = await bcrypt.hash(dto.newPassword, 10);
+            const hashedNewPassword = await bcrypt.hash(String(dto.newPassword), 10);
             delete dto.oldPassword;
             delete dto.newPassword;
             const updateData: Partial<User> = { ...dto };

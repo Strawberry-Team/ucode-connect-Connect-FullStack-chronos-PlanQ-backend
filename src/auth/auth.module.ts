@@ -1,5 +1,5 @@
 // auth.module.ts
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
@@ -14,14 +14,18 @@ import { JwtResetPasswordStrategy } from './strategies/jwt-reset-password.stateg
 import { JwtConfirmEmailStrategy } from './strategies/jwt-confirm-email.strategy';
 import { JwtResetPasswordGuard } from './guards/jwt-reset-password.guard';
 import { JwtConfirmEmailGuard } from './guards/jwt-confirm-email.guard';
+import { UsersModule } from '../user/users.module'
+import { JwtUtils } from 'src/common/utils/token.utils';
+import { RefreshTokenModule } from 'src/token/refresh-token.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([RefreshToken]),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '15m' },
     }),
+    UsersModule,
+    forwardRef(() => RefreshTokenModule),
   ],
   controllers: [AuthController],
   providers: [AuthService,
@@ -32,8 +36,11 @@ import { JwtConfirmEmailGuard } from './guards/jwt-confirm-email.guard';
               JwtAuthGuard,
               JwtRefreshGuard, 
               JwtResetPasswordGuard, 
-              JwtConfirmEmailGuard
+              JwtConfirmEmailGuard,
+              JwtUtils,
             ],
   exports: [AuthService],
 })
 export class AuthModule {}
+
+

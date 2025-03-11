@@ -3,25 +3,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { User } from '../user/entity/user.entity';
+import { UsersRepository } from 'src/user/users.repository';
 
 @Injectable()
 export class RefreshTokenRepository {
     constructor(
         @InjectRepository(RefreshToken)
-        private readonly refreshTokenRepo: Repository<RefreshToken>,
-
-        @InjectRepository(User) // Добавляем репозиторий для User
-        private readonly userRepository: Repository<User>,
+        private readonly refreshTokenRepo: Repository<RefreshToken>
     ) { }
 
     async saveToken(data: Partial<RefreshToken>): Promise<RefreshToken> {
-        // Ищем пользователя по userId
-        const user = await this.userRepository.findOne({ where: { id: data.userId } });
-
-        if (!user) {
-            throw new NotFoundException(`User with id ${data.userId} not found`);
-        }
-
         return this.refreshTokenRepo.save(data); // Сохраняем токен
     }
 

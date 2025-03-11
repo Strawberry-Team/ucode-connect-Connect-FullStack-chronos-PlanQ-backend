@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
 
-export type TokenType = 'access' | 'refresh' | 'email' | 'passwordReset';
+export type TokenType = 'access' | 'refresh' | 'email' | 'resetPassword';
 
 @Injectable()
 export class JwtUtils {
@@ -14,18 +14,19 @@ export class JwtUtils {
       access: String(this.configService.get<string>('jwt.secrets.access')),
       refresh: String(this.configService.get<string>('jwt.secrets.refresh')),
       email: String(this.configService.get<string>('jwt.secrets.email')),
-      passwordReset: String(this.configService.get<string>('jwt.secrets.passwordReset')),
+      resetPassword: String(this.configService.get<string>('jwt.secrets.resetPassword')),
     };
 
     this.expirationTimes = {
       access: String(this.configService.get<string>('jwt.expiresIn.access')),
       refresh: String(this.configService.get<string>('jwt.expiresIn.refresh')),
       email: String(this.configService.get<string>('jwt.expiresIn.email')),
-      passwordReset: String(this.configService.get<string>('jwt.expiresIn.passwordReset')),
+      resetPassword: String(this.configService.get<string>('jwt.expiresIn.resetPassword')),
     };
   }
 
   generateToken(payload: Record<string, any>, type: TokenType): string {
+    console.log("passwordReset: ", this.expirationTimes[type])
     return jwt.sign(payload, this.secrets[type], {
       expiresIn: this.expirationTimes[type],
     });

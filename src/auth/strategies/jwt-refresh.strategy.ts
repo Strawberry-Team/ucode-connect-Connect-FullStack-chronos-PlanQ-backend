@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 
 // Функция-извлекатель для refresh токена из тела запроса
 const refreshTokenExtractor = (req: any) => {
+  console.log(req?.body?.refreshToken);
   return req?.body?.refreshToken;
 };
 
@@ -22,6 +23,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   validate(payload: any) { //TODO: проверить есть ли refresh в БД!!!!!!!!!!!!!!!!!!!!!!
+    console.log("logout");
     return { userId: payload.sub};
   }
 }

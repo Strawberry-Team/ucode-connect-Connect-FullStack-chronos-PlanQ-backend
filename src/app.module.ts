@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module'
 import databaseConfig from './config/database.app.config';
 import jwtConfig from './config/jwt.config';
 import appConfig from "./config/app.config";
+import { RefreshTokenModule } from './token/refresh-token.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import appConfig from "./config/app.config";
       }),
     }),
     UsersModule,
-    AuthModule
+    AuthModule,
+    RefreshTokenModule
   ],
   controllers: [],
   providers: [],
