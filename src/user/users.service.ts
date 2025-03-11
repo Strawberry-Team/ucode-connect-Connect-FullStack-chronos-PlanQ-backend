@@ -28,6 +28,22 @@ export class UsersService {
         return result;
     }
 
+    
+    async getUserByEmail(email: string): Promise<User> {
+        const result = await this.usersRepository.findByEmail(email);
+        if (!result) {
+            throw new NotFoundException('User not found');
+        }
+        return result;
+    }
+
+    async getUserByEmailWithoutPassword(email: string): Promise<User> {
+        const result = await this.getUserByEmail(email);
+        delete result.password;
+        return result;
+    }
+
+
     async createUser(dto: CreateUserDto): Promise<User> {
         // Проверка на дублирование email
         const existing = await this.usersRepository.findByEmail(dto.email);
@@ -35,14 +51,15 @@ export class UsersService {
             throw new BadRequestException('Email already in use');
         }
         const hashedPassword = await bcrypt.hash(dto.password, 10);
-        const userData: Partial<User> = {
-            firstName: dto.firstName,
-            lastName: dto.lastName,
-            email: dto.email,
-            password: hashedPassword,
-            countryCode: dto.countryCode,
-        };
-        const result = await this.usersRepository.createUser(userData);
+        // const userData: Partial<User> = {
+        //     firstName: dto.firstName,
+        //     lastName: dto.lastName,
+        //     email: dto.email,
+        //     password: hashedPassword,
+        //     countryCode: dto.countryCode,
+        // };
+        dto.password = hashedPassword
+        const result = await this.usersRepository.createUser(dto);
         delete result.password;
         return result;
     }

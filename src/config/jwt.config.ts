@@ -8,14 +8,14 @@ export default () => ({
     secrets: {
       access: validateEnv('JWT_ACCESS_SECRET'),
       refresh: validateEnv('JWT_REFRESH_SECRET'),
-      email: validateEnv('JWT_EMAIL_SECRET'),
-      passwordReset: validateEnv('JWT_PASSWORD_RESET_SECRET'),
+      confirmEmail: validateEnv('JWT_CONFIRM_EMAIL_SECRET'),
+      resetPassword: validateEnv('JWT_RESET_PASSWORD_SECRET'),
     },
     expiresIn: {
       access: validateEnv('JWT_ACCESS_EXPIRES_IN'),
       refresh: validateEnv('JWT_REFRESH_EXPIRES_IN'),
-      email: validateEnv('JWT_EMAIL_EXPIRES_IN'),
-      passwordReset: validateEnv('JWT_PASSWORD_RESET_EXPIRES_IN'),
+      confirmEmail: validateEnv('JWT_CONFIRM_EMAIL_EXPIRES_IN'),
+      resetPassword: validateEnv('JWT_RESET_PASSWORD_EXPIRES_IN'),
     },
   },
 });

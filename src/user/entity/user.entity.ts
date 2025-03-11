@@ -4,7 +4,9 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    OneToMany
 } from 'typeorm';
+import { RefreshToken } from 'src/token/entities/refresh-token.entity';
 
 @Entity('users')
 export class User {
@@ -41,4 +43,9 @@ export class User {
 
     @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
     updatedAt: Date;
+
+    @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user, {
+        cascade: true,
+    })
+    refreshTokens: Promise<RefreshToken[]>;
 }

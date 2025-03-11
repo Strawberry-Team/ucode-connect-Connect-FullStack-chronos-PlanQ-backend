@@ -10,6 +10,10 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { JwtAuthGuard } from './guards/jwt-access.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { RefreshToken } from '../token/entities/refresh-token.entity';
+import { JwtResetPasswordStrategy } from './strategies/jwt-reset-password.stategy';
+import { JwtConfirmEmailStrategy } from './strategies/jwt-confirm-email.strategy';
+import { JwtResetPasswordGuard } from './guards/jwt-reset-password.guard';
+import { JwtConfirmEmailGuard } from './guards/jwt-confirm-email.guard';
 
 @Module({
   imports: [
@@ -20,7 +24,16 @@ import { RefreshToken } from '../token/entities/refresh-token.entity';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard, JwtRefreshStrategy, JwtRefreshGuard],
+  providers: [AuthService,
+              JwtStrategy,
+              JwtResetPasswordStrategy,
+              JwtConfirmEmailStrategy, 
+              JwtRefreshStrategy, 
+              JwtAuthGuard,
+              JwtRefreshGuard, 
+              JwtResetPasswordGuard, 
+              JwtConfirmEmailGuard
+            ],
   exports: [AuthService],
 })
 export class AuthModule {}

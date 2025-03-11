@@ -8,7 +8,11 @@ import { JwtAuthGuard } from './guards/jwt-access.guard';
 import { BaseCrudController } from '../common/controller/base-crud.controller';
 import { RefreshToken } from '../token/entities/refresh-token.entity';
 import { CreateRefreshTokenDto } from '../token/dto/create-refresh-token.dto';
+import { RefreshTokenDto } from '../token/dto/refresh-token.dto';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard'
+import { JwtResetPasswordGuard } from './guards/jwt-reset-password.guard'
+import { JwtConfirmEmailGuard } from './guards/jwt-confirm-email.guard'
+import { newPasswordDto } from './dto/new-password.dto'
 
 @Controller('auth')
 export class AuthController {
@@ -27,14 +31,26 @@ export class AuthController {
 
     @UseGuards(JwtRefreshGuard) 
     @Post('logout')
-    async logout(@Request() req) {
-        return this.authService.logout(loginDto);
+    async logout(@Request() req, @Body() refreshToken: RefreshTokenDto) {
+        return this.authService.logout(req.userId, refreshToken);
     }
 
     @UseGuards(JwtRefreshGuard) 
     @Post('/access-token/refresh')
     async refreshToken(@Request() req) {
         return this.authService.refreshToken(req.user.userId);
+    }
+
+    @UseGuards(JwtResetPasswordGuard)
+    @Post('reset-password/:confirm_token')
+    async resetPasswordWithConfirmToken(@Body() newPasswordDto: newPasswordDto, @Request() req) {
+        return this.authService.resetPasswordWithConfirmToken(newPasswordDto, req.user.userId);
+    }
+
+    @UseGuards(JwtConfirmEmailGuard)
+    @Post('confirm-email/:confirm_token')
+    async verifyEmailWithConfirmToken(@Request() req) {
+        return this.authService.confirmEmail(req.user.userId);
     }
 
     @Post('reset-password')

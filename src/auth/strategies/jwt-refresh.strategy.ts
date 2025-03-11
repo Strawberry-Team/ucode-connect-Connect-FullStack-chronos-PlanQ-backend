@@ -22,6 +22,6 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   validate(payload: any) { //TODO: проверить есть ли refresh в БД!!!!!!!!!!!!!!!!!!!!!!
-    return { userId: payload.userId};
+    return { userId: payload.sub};
   }
 }

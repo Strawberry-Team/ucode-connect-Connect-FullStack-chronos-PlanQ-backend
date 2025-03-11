@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
@@ -8,41 +8,43 @@ import { User } from '../user/entity/user.entity';
 export class RefreshTokenRepository {
     constructor(
         @InjectRepository(RefreshToken)
-        private readonly tokenRepository: Repository<RefreshToken>,
+        private readonly refreshTokenRepo: Repository<RefreshToken>,
 
         @InjectRepository(User) // Добавляем репозиторий для User
         private readonly userRepository: Repository<User>,
     ) { }
 
-    async saveToken(userId: number, token: string): Promise<RefreshToken> {
+    async saveToken(data: Partial<RefreshToken>): Promise<RefreshToken> {
         // Ищем пользователя по userId
-        const user = await this.userRepository.findOne({ where: { id: userId } });
+        const user = await this.userRepository.findOne({ where: { id: data.userId } });
 
         if (!user) {
-            throw new Error('User not found');
+            throw new NotFoundException(`User with id ${data.userId} not found`);
         }
 
-        // Создаем токен с привязкой к найденному пользователю
-        const newToken = this.tokenRepository.create({
-            user,  // Связываем токен с пользователем
-            refreshToken: token, // Присваиваем refreshToken
-        });
-
-        return this.tokenRepository.save(newToken); // Сохраняем токен
+        return this.refreshTokenRepo.save(data); // Сохраняем токен
     }
-    
+
     // Метод для поиска токена
-    async findToken(token: string): Promise<RefreshToken | null> {
-        return this.tokenRepository.findOne({ where: { refreshToken: token } });
+    async findByTokenAndUserId(userId: number, token: string): Promise<RefreshToken | null> {
+        return this.refreshTokenRepo.findOne({ where: { refreshToken: token, user: { id: userId }} });
     }
 
-    // Метод для удаления токена
-    async deleteToken(token: string): Promise<void> {
-        await this.tokenRepository.delete({ refreshToken: token });
-    }
+    // async findByUserId(userId: number): Promise<RefreshToken | null> {
+    //     return this.refreshTokenRepo.findOne({ where: { user: { id: userId } } });
+    // }
+
+    // // Метод для удаления токена
+    // async deleteToken(token: string): Promise<void> {
+    //     await this.refreshTokenRepo.delete({ refreshToken: token });
+    // }
 
     // Метод для удаления всех токенов пользователя
-    async deleteTokensByUser(userId: number): Promise<void> {
-        await this.tokenRepository.delete({ user: { id: userId } });
+    async deleteTokensByUserId(userId: number): Promise<void> {
+        await this.refreshTokenRepo.delete({ userId: userId});
+    }
+
+    async deleteTokenById(tokenId: number): Promise<void> {
+        await this.refreshTokenRepo.delete({ id: tokenId });
     }
 }

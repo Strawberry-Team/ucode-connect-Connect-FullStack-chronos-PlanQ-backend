@@ -1,5 +1,5 @@
 import {
-    IsNumber, IsString, IsDate
+    IsNumber, IsString
 } from 'class-validator';
 
 export class CreateRefreshTokenDto {
@@ -7,5 +7,5 @@ export class CreateRefreshTokenDto {
     userId: number;
 
     @IsString()
-    token: string;
+    refreshToken: string;
 }

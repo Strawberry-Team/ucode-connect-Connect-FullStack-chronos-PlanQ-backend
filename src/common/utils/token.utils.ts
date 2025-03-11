@@ -31,11 +31,11 @@ export class JwtUtils {
     });
   }
 
-  verifyToken(token: string, type: TokenType): any {
-    try {
-      return jwt.verify(token, this.secrets[type]);
-    } catch (error) {
-      return null;
-    }
-  }
+  // verifyToken(token: string, type: TokenType): any {
+  //   try {
+  //     return jwt.verify(token, this.secrets[type]);
+  //   } catch (error) {
+  //     return null;
+  //   }
+  // } TODO: REMOVE
 }
