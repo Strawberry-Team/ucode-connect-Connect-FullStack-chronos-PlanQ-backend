@@ -57,6 +57,7 @@ export class UsersService {
         dto.password = await this.passwordService.hash(dto.password);
         const result = await this.usersRepository.createUser(dto);
         delete result.password;
+        delete result.emailVerified;
         return result;
     }
 
@@ -85,6 +86,19 @@ export class UsersService {
             throw new NotFoundException('User not found');
         }
         delete result.password;
+        delete result.emailVerified;
+        return result;
+    }
+
+    async updatePassword(id: number, newPassword: string): Promise<User> {
+        const hashedPassword = await this.passwordService.hash(newPassword);
+        const updateData: Partial<User> = {password: hashedPassword};
+        const result = await this.usersRepository.updateUser(id, updateData);
+        if (!result) {
+            throw new NotFoundException('User not found');
+        }
+        delete result.password;
+        delete result.emailVerified;
         return result;
     }
 

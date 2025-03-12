@@ -41,8 +41,13 @@ export function IsUserPassword(isOptional: boolean) {
     }
 }
 
-export function IsUserProfilePicture(isOptional: boolean) {
-    const decorators = [IsUUID()];
+export function IsUserProfilePicture(isOptional: boolean) { //TODO: типы для файлов вынести в .env(и еще где-то эти типы встречаются)
+    const uuidWithExtensionPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.(jpg|jpeg|png)$/i;
+
+    const decorators = [Matches(uuidWithExtensionPattern, {
+        message: 'Profile picture must be in format {uuid}.jpg, {uuid}.jpeg, or {uuid}.png'
+    })];
+
     if (isOptional) {
         return applyDecorators(IsOptional(), ...decorators);
     } else {

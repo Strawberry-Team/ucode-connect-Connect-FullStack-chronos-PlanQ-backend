@@ -28,18 +28,11 @@ export class AuthService {
     async register(createUserDto: CreateUserDto) {
         const user = await this.usersService.createUser(createUserDto);
 
-        const accessToken = this.jwtUtils.generateToken({sub: user.id}, 'access');
-        const refreshToken = this.jwtUtils.generateToken({sub: user.id}, 'refresh');
-
         const result = this.jwtUtils.generateToken({sub: user.id}, 'confirmEmail');
         //TODO: send email with link
         const link = 'localhost:3000/api/auth/confirm-email/' + result;
 
-        await this.refreshTokenService.createToken({
-            userId: user.id,
-            refreshToken: refreshToken,
-        } as CreateRefreshTokenDto);
-        return {user: user, accessToken, refreshToken, confirmEmailLink: link};
+        return {user: user, confirmEmailLink: link};
     }
 
     async login(loginDto: LoginDto) {
@@ -62,6 +55,8 @@ export class AuthService {
             refreshToken: refreshToken,
         } as CreateRefreshTokenDto);
 
+        delete user.emailVerified;
+
         const {password, ...userWithoutPass} = user;
         return {user: userWithoutPass, accessToken, refreshToken};
     }
@@ -78,7 +73,7 @@ export class AuthService {
         }
 
         await this.refreshTokenService.deleteTokenByUserID(tokenEntity.id);
-        return {message: 'Logged out successfully'};
+        return {message: 'Logged out successfully'}; //TODO: поменять статус ответа на 204
     }
 
     async refreshToken(userId: number) {
@@ -87,8 +82,7 @@ export class AuthService {
     }
 
     async resetPasswordWithConfirmToken(newPasswordDto: newPasswordDto, userId: number) {
-        const hashedPassword = await this.passwordService.hash(newPasswordDto.newPassword);
-        await this.usersService.updateUser(userId, {newPassword: hashedPassword});
+        await this.usersService.updatePassword(userId, newPasswordDto.newPassword);
         await this.refreshTokenService.deleteTokensByUserID(userId);
         return {message: 'Password has been reset successfully'};
     }

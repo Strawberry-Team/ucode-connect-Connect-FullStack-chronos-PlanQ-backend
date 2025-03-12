@@ -5,7 +5,7 @@ import {
     UseInterceptors,
     UploadedFile,
     BadRequestException, Post,
-    Body, Req, NotImplementedException, Param,
+    Body, Req, NotImplementedException, Param, Patch, Delete,
 } from '@nestjs/common';
 import {BaseCrudController} from '../common/controller/base-crud.controller';
 import {User} from './entity/user.entity';
@@ -53,16 +53,19 @@ export class UsersController extends BaseCrudController<
         return await this.usersService.deleteUser(id);
     }
 
+    @Post()
     async create(@Body() dto: CreateUserDto, @Req() req: Request): Promise<User> {
         throw new NotImplementedException();
     }
 
     //TODO: add guards
+    @Patch(':id')
     async update(@Param('id') id: number, @Body() dto: UpdateUserDto): Promise<User> {
         return super.update(id, dto);
     }
 
     //TODO: add guards
+    @Delete(':id')
     async delete(@Param('id') id: number): Promise<void> {
         return super.delete(id);
     }

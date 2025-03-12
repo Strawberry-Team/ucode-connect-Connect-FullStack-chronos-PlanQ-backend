@@ -33,7 +33,7 @@ export class User {
     profilePictureName: string;
 
     @Column({name: 'email_verified', type: 'bit', width: 1, default: () => "b'0'"})
-    emailVerified: boolean;
+    emailVerified?: boolean;
 
     @Column({name: 'country_code', type: 'char', length: 2})
     countryCode: string;

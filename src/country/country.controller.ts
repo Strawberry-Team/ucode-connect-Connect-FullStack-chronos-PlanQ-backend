@@ -2,7 +2,7 @@ import {Controller, Get, NotImplementedException, Query, Res} from '@nestjs/comm
 import {CountryService} from './country.service';
 import {Response} from 'express';
 
-@Controller('country')
+@Controller('countries')
 export class CountryController {
     constructor(private readonly countriesService: CountryService) {
     }
