@@ -1,42 +1,27 @@
 import {
-    IsEmail,
-    IsOptional,
-    IsString,
-    MinLength,
-    Length,
-} from 'class-validator';
+    IsUserEmail,
+    IsUserName, IsUserPassword, IsUserProfilePicture,
+
+} from '../users.validator';
 
 export class UpdateUserDto {
-    @IsOptional()
-    @IsString()
-    @Length(3, 100)
+    @IsUserName(true)
     firstName?: string;
 
-    @IsOptional()
-    @IsString()
-    @Length(3, 100)
+    @IsUserName(true)
     lastName?: string;
 
-    @IsOptional()
-    @IsEmail()
+    @IsUserEmail(true)
     email?: string;
 
-    // Если требуется изменить пароль – оба поля обязательны
-    @IsOptional()
-    @IsString()
-    @MinLength(6)
-    oldPassword?: string; //TODO проверять пароль на ...
+    @IsUserPassword(true)
+    oldPassword?: string;
 
-    @IsOptional()
-    @IsString()
-    @MinLength(6)
-    newPassword?: string; //TODO проверять пароль на ...
+    @IsUserPassword(true)
+    newPassword?: string;
 
-    @IsOptional()
-    @IsString()
-    countryCode?: string; //TODO понять какие можно, и проверять
+    countryCode?: string; //TODO: add validation
 
-    @IsOptional()
-    @IsString()
+    @IsUserProfilePicture(true)
     profilePictureName?: string;
 }

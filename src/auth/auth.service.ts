@@ -14,6 +14,7 @@ import { newPasswordDto } from './dto/new-password.dto';
 import { UsersService } from 'src/user/users.service';
 import { RefreshTokenService } from 'src/token/refresh-token.service';
 import { JwtUtils } from '../jwt/jwt-token.utils';
+import {PasswordService} from "../user/passwords.service";
 
 
 @Injectable()
@@ -22,6 +23,7 @@ export class AuthService {
         private readonly usersService: UsersService,
         private readonly refreshTokenService: RefreshTokenService,
         private readonly jwtUtils: JwtUtils,
+        private readonly passwordService: PasswordService,
     ) { }
 
 
@@ -56,16 +58,14 @@ export class AuthService {
         // Находим пользователя по email
         const user = await this.usersService.getUserByEmail(loginDto.email);
         if (!user) {
-            throw new UnauthorizedException('Invalid credentials');
+            throw new NotFoundException('User with this email not found');
         }
 
         // Проверяем корректность пароля
-        const passwordValid = await bcrypt.compare(
-            loginDto.password,
-            String(user.password),
-        );
+        const passwordValid = await this.passwordService.compare(loginDto.password, String(user.password));
+
         if (!passwordValid) {
-            throw new UnauthorizedException('Invalid credentials');
+            throw new UnauthorizedException('Invalid password');
         }
 
         // Генерируем access и refresh токены
@@ -100,7 +100,6 @@ export class AuthService {
             );
         }
 
-        // Удаляем конкретный refresh-токен из БД
         await this.refreshTokenService.deleteTokenByUserID(tokenEntity.id);
         return { message: 'Logged out successfully' };
     }
@@ -118,7 +117,8 @@ export class AuthService {
     }
 
     async resetPasswordWithConfirmToken(newPasswordDto: newPasswordDto, userId: number) {
-        const hashedPassword = await bcrypt.hash(newPasswordDto.newPassword, 10);
+        // Хешируем новый пароль
+        const hashedPassword = await this.passwordService.hash(newPasswordDto.newPassword);
 
         // Обновляем пароль пользователя.
         // Здесь предполагается, что в UsersService реализован метод,

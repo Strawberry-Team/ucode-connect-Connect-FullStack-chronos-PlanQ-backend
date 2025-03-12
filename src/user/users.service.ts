@@ -2,17 +2,20 @@ import {
     Injectable,
     BadRequestException,
     NotFoundException,
-    UnauthorizedException,
+    UnauthorizedException, ConflictException,
 } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import * as bcrypt from 'bcrypt';
 import { User } from './entity/user.entity';
+import {PasswordService} from "./passwords.service";
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly usersRepository: UsersRepository) {}
+    constructor(
+        private readonly usersRepository: UsersRepository,
+        private readonly passwordService: PasswordService
+    ) {}
 
     private async getUserById(id: number): Promise<User> {
         const user = await this.usersRepository.findById(id);
@@ -45,20 +48,11 @@ export class UsersService {
 
 
     async createUser(dto: CreateUserDto): Promise<User> {
-        // Проверка на дублирование email
         const existing = await this.usersRepository.findByEmail(dto.email);
         if (existing) {
-            throw new BadRequestException('Email already in use');
+            throw new ConflictException('Email already in use');
         }
-        const hashedPassword = await bcrypt.hash(dto.password, 10);
-        // const userData: Partial<User> = {
-        //     firstName: dto.firstName,
-        //     lastName: dto.lastName,
-        //     email: dto.email,
-        //     password: hashedPassword,
-        //     countryCode: dto.countryCode,
-        // };
-        dto.password = hashedPassword
+        dto.password = await this.passwordService.hash(dto.password);
         const result = await this.usersRepository.createUser(dto);
         delete result.password;
         return result;
@@ -72,11 +66,11 @@ export class UsersService {
         const user = await this.getUserById(id);
         let result;
         if (dto.oldPassword || dto.newPassword) {
-            const isMatch = await bcrypt.compare(String(dto.oldPassword), String(user.password));
+            const isMatch = await this.passwordService.compare(String(dto.oldPassword), String(user.password));
             if (!isMatch) {
                 throw new UnauthorizedException('Old password does not match');
             }
-            const hashedNewPassword = await bcrypt.hash(String(dto.newPassword), 10);
+            const hashedNewPassword = await this.passwordService.hash(String(dto.newPassword));
             delete dto.oldPassword;
             delete dto.newPassword;
             const updateData: Partial<User> = { ...dto };
@@ -93,7 +87,6 @@ export class UsersService {
     }
 
     async deleteUser(id: number): Promise<void> {
-        await this.getUserById(id);
         await this.usersRepository.deleteUser(id);
     }
 }
