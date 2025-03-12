@@ -4,12 +4,15 @@ import {
     Get,
     HttpException,
     HttpStatus,
+    InternalServerErrorException, NotFoundException,
     Param,
-    Post,
     Patch,
+    Post,
     Req,
+    UseGuards,
 } from '@nestjs/common';
-import { Request } from 'express';
+import {Request} from 'express';
+import {JwtAuthGuard} from "../../auth/guards/auth.jwt-guards";
 
 /**
  * Универсальный абстрактный контроллер для CRUD-операций.
@@ -25,6 +28,7 @@ import { Request } from 'express';
  * @template CreateDto — тип DTO для создания
  * @template UpdateDto — тип DTO для обновления
  */
+@UseGuards(JwtAuthGuard)
 export abstract class BaseCrudController<
     T,
     CreateDto,
@@ -59,27 +63,13 @@ export abstract class BaseCrudController<
 
     @Get(':id')
     async getById(@Param('id') id: number): Promise<T> {
-        try {
-            return await this.findById(id);
-        } catch (error) {
-            throw new HttpException(
-                error.message || 'Entity not found',
-                HttpStatus.NOT_FOUND,
-            );
-        }
+        return await this.findById(id);
+
     }
 
     @Post()
     async create(@Body() dto: CreateDto, @Req() req: Request): Promise<T> {
-        try {
-            const entity = await this.createEntity(dto);
-            return entity;
-        } catch (error) {
-            throw new HttpException(
-                error.message || 'Creation failed',
-                error.status || HttpStatus.BAD_REQUEST,
-            );
-        }
+        return await this.createEntity(dto);
     }
 
     @Patch(':id')
@@ -87,25 +77,19 @@ export abstract class BaseCrudController<
         @Param('id') id: number,
         @Body() dto: UpdateDto,
     ): Promise<T> {
-        try {
-            return await this.updateEntity(id, dto);
-        } catch (error) {
-            throw new HttpException(
-                error.message || 'Update failed',
-                error.status || HttpStatus.BAD_REQUEST,
-            );
+        const existing = await this.findById(id);
+        if (!existing) {
+            throw new NotFoundException("Entity not found");
         }
+        return await this.updateEntity(id, dto);
     }
 
     @Delete(':id')
     async delete(@Param('id') id: number): Promise<void> {
-        try {
-            await this.deleteEntity(id);
-        } catch (error) {
-            throw new HttpException(
-                error.message || 'Deletion failed',
-                error.status || HttpStatus.BAD_REQUEST,
-            );
+        const existing = await this.findById(id);
+        if (!existing) {
+            throw new NotFoundException("Entity not found");
         }
+        await this.deleteEntity(id);
     }
 }

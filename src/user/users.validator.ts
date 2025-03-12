@@ -15,7 +15,7 @@ import {
  * - Если указан, то является строкой
  * - Имеет длину от 3 до 100 символов.
  */
-export function isUserName(isOptional: boolean) {
+export function IsUserName(isOptional: boolean) {
     const decorators = [Matches(/^[a-zA-Z-]+$/), Length(3, 100)];
 
     if (isOptional) {
@@ -30,11 +30,12 @@ export function isUserName(isOptional: boolean) {
  * Проверяет, что значение:
  * - Если указано, то является строкой в формате электронной почты.
  */
-export function isUserEmail(isOptional: boolean) {
+export function IsUserEmail(isOptional: boolean) {
+    const decorators = [IsEmail()];
     if (isOptional) {
-        return applyDecorators(IsOptional(), IsEmail());
+        return applyDecorators(IsOptional(), ...decorators);
     } else {
-        return applyDecorators(IsEmail());
+        return applyDecorators(...decorators);
     }
 }
 
@@ -44,7 +45,7 @@ export function isUserEmail(isOptional: boolean) {
  * - Если указано, то является строкой
  * - И имеет не менее 6 символов.
  */
-export function isUserPassword(isOptional: boolean) {
+export function IsUserPassword(isOptional: boolean) {
     const decorators = [IsStrongPassword({
         minLength: 8,
         minLowercase: 1,
@@ -61,18 +62,10 @@ export function isUserPassword(isOptional: boolean) {
 }
 
 /**
- * Декоратор для проверки кода страны.
- * Предполагается, что код страны представлен 2 символами (например, ISO 3166-1 alpha-2).
- */
-// export function CountryCode() {
-//     return applyDecorators(IsOptional(), IsString(), Length(2, 2));
-// }
-
-/**
  * Декоратор для проверки имени файла профиля.
  * Проверяет, что значение, если указано, является строкой.
  */
-export function isUserProfilePicture(isOptional: boolean) {
+export function IsUserProfilePicture(isOptional: boolean) {
     const decorators = [IsUUID()];
     if (isOptional) {
         return applyDecorators(IsOptional(), ...decorators);

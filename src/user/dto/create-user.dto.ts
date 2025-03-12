@@ -1,35 +1,22 @@
-import {
-    IsEmail,
-    IsString,
-    IsNotEmpty,
-    Length,
-    MinLength, IsOptional,
-} from 'class-validator';
 import { IsValidCountryCode } from 'src/country/country.validator';
+import {IsUserEmail, IsUserName, IsUserPassword} from "../users.validator";
 
-export class CreateUserDto //TODO: написать один user.dto, базовый
- {
-    @IsString()
-    @IsNotEmpty()
-    @Length(3, 100)
+export class CreateUserDto {
+    @IsUserName(false)
     firstName: string;
 
-    @IsOptional()
-    @Length(3, 100)
+    @IsUserName(true)
     lastName?: string;
 
-    @IsEmail()
-    @IsNotEmpty()
+    @IsUserEmail(false)
     email: string;
 
-    @IsString()
-    @IsNotEmpty()
-    @MinLength(6)
-    password: string; //TODO: проверять пароль на ...
+    @IsUserPassword(false)
+    password: string;
 
     @IsValidCountryCode()
     @IsString()
     @IsNotEmpty()
     @Length(2, 2)
-    countryCode: string; //TODO: понять какие можно, и проверять
+    countryCode: string;
 }
