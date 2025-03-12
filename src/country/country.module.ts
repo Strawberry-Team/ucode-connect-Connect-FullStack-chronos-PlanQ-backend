@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { CountryService } from '../country.service'; // Adjust the import path as necessary
-import { CountryController } from './country.controller';
 import { CountryService } from './country.service';
+import { CountryController } from './country.controller';
+import { IsValidCountryCodeConstraint } from './country.validator';
 
 @Module({
-    providers: [CountryService,],
-    exports: [CountryService],
+
     controllers: [CountryController],
-})
-export class CountryModule {}
+    providers: [CountryController, IsValidCountryCodeConstraint, CountryService],
+    exports: [CountryController, IsValidCountryCodeConstraint, CountryService],
+}) 
+export class CountryModule { }

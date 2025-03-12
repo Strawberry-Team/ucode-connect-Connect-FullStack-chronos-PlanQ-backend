@@ -4,6 +4,8 @@ import {
 
 } from '../users.validator';
 
+import { IsValidCountryCode } from "../../country/country.validator"
+
 export class UpdateUserDto {
     @IsUserName(true)
     firstName?: string;
@@ -20,7 +22,11 @@ export class UpdateUserDto {
     @IsUserPassword(true)
     newPassword?: string;
 
-    countryCode?: string; //TODO: add validation
+
+    @IsValidCountryCode()
+    @IsOptional()
+    @IsString()
+    countryCode?: string; //TODO понять какие можно, и проверять
 
     @IsUserProfilePicture(true)
     profilePictureName?: string;

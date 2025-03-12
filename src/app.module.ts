@@ -8,6 +8,7 @@ import jwtConfig from './config/jwt.config';
 import appConfig from "./config/app.config";
 import { RefreshTokenModule } from './token/refresh-token.module';
 import { JwtConfigModule } from './jwt/jwt.module';
+import { CountryModule } from './country/country.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { JwtConfigModule } from './jwt/jwt.module';
     JwtConfigModule,
     UsersModule,
     AuthModule,
-    RefreshTokenModule
+    RefreshTokenModule,
+    CountryModule
   ],
   controllers: [],
   providers: [],
