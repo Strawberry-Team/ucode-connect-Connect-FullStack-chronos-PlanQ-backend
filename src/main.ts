@@ -1,30 +1,28 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { ConfigService } from '@nestjs/config';
+import {NestFactory} from '@nestjs/core';
+import {AppModule} from './app.module';
+import {ValidationPipe} from '@nestjs/common';
+import {NestExpressApplication} from '@nestjs/platform-express';
+import {ConfigService} from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, transform: true }),
-  );
+    app.useGlobalPipes(
+        new ValidationPipe({whitelist: true, transform: true}),
+    );
 
-  const configService = app.get(ConfigService);
-  const globalPrefix = String(configService.get<string>('app.globalPrefix'));
-  const port = Number(configService.get<number>('app.port'));
-  const host = String(configService.get<number>('app.host'));
-  const protocol = String(configService.get<number>('app.protocol'));
+    const configService = app.get(ConfigService);
+    const globalPrefix = String(configService.get<string>('app.globalPrefix'));
+    const port = Number(configService.get<number>('app.port'));
+    const host = String(configService.get<number>('app.host'));
+    const protocol = String(configService.get<number>('app.protocol'));
 
-  // Глобальный префикс для API
-  app.setGlobalPrefix(globalPrefix);
+    app.setGlobalPrefix(globalPrefix);
 
-  // Раздача статики (например, для аватарок)
-  app.useStaticAssets('public');
+    app.useStaticAssets('public');
 
-  await app.listen(port);
-  console.log(`Application is running on: ${protocol}://${host}:${port}/${globalPrefix}`);
+    await app.listen(port);
+    console.log(`Application is running on: ${protocol}://${host}:${port}/${globalPrefix}`);
 }
 
 bootstrap();

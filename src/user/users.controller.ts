@@ -5,22 +5,19 @@ import {
     UseInterceptors,
     UploadedFile,
     BadRequestException, Post,
-    Body, Req, NotImplementedException, UseGuards, HttpException, HttpStatus, Param,
+    Body, Req, NotImplementedException, Param,
 } from '@nestjs/common';
-import { BaseCrudController } from '../common/controller/base-crud.controller';
-import { User } from './entity/user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UsersService } from './users.service';
-import { Express } from 'express';
-import { Request } from 'express';
+import {BaseCrudController} from '../common/controller/base-crud.controller';
+import {User} from './entity/user.entity';
+import {CreateUserDto} from './dto/create-user.dto';
+import {UpdateUserDto} from './dto/update-user.dto';
+import {UsersService} from './users.service';
+import {Express} from 'express';
+import {Request} from 'express';
 import {createFileUploadInterceptor} from "../common/interceptor/file-upload.interceptor";
-import {JwtAuthGuard} from "../auth/guards/auth.jwt-guards";
-
-
 
 @Controller('users')
-@UsePipes(new ValidationPipe({ whitelist: true }))
+@UsePipes(new ValidationPipe({whitelist: true}))
 export class UsersController extends BaseCrudController<
     User,
     CreateUserDto,
@@ -29,8 +26,6 @@ export class UsersController extends BaseCrudController<
     constructor(private readonly usersService: UsersService) {
         super();
     }
-
-    // Реализация абстрактных методов
 
     protected async findById(id: number): Promise<User> {
         return await this.usersService.getUserByIdWithoutPassword(id);
@@ -86,6 +81,6 @@ export class UsersController extends BaseCrudController<
         if (!file) {
             throw new BadRequestException('No file uploaded.');
         }
-        return { server_filename: file.filename };
+        return {server_filename: file.filename};
     }
 }

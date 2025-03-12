@@ -1,4 +1,4 @@
-import { IsValidCountryCode } from 'src/country/country.validator';
+import {IsValidCountryCode} from 'src/country/country.validator';
 import {IsUserEmail, IsUserName, IsUserPassword} from "../users.validator";
 
 export class CreateUserDto {

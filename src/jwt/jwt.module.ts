@@ -1,7 +1,6 @@
-// src/common/modules/jwt.module.ts
-import { Module, Global } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { JwtUtils } from './jwt-token.utils';
+import {Module, Global} from '@nestjs/common';
+import {JwtModule} from '@nestjs/jwt';
+import {JwtUtils} from './jwt-token.utils';
 
 @Global()
 @Module({
@@ -11,4 +10,5 @@ import { JwtUtils } from './jwt-token.utils';
     providers: [JwtUtils],
     exports: [JwtUtils, JwtModule],
 })
-export class JwtConfigModule {}
+export class JwtConfigModule {
+}

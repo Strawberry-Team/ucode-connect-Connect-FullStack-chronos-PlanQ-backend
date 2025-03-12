@@ -1,18 +1,21 @@
-import { Body, Controller, Post, UseGuards, Request, UsePipes, ValidationPipe } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { CreateUserDto } from '../user/dto/create-user.dto';
-import { LoginDto } from './dto/login.dto';
-// import { RefreshTokenDto } from '../token/dto/refresh-token.dto';
-import { ResetPasswordDto } from '../auth/dto/reset-password.dto';
-import { BaseCrudController } from '../common/controller/base-crud.controller';
-import { RefreshToken } from '../token/entities/refresh-token.entity';
-import { CreateRefreshTokenDto } from '../token/dto/create-refresh-token.dto';
-import { RefreshTokenDto } from '../token/dto/refresh-token.dto';
-import { newPasswordDto } from './dto/new-password.dto'
-import { JwtRefreshGuard, JwtResetPasswordGuard, JwtConfirmEmailGuard } from './guards/auth.jwt-guards';
+import {Body, Controller, Post, UseGuards, Request, UsePipes, ValidationPipe} from '@nestjs/common';
+import {AuthService} from './auth.service';
+import {CreateUserDto} from '../user/dto/create-user.dto';
+import {LoginDto} from './dto/login.dto';
+import {ResetPasswordDto} from './dto/reset-password.dto';
+import {RefreshTokenDto} from '../token/dto/refresh-token.dto';
+import {newPasswordDto} from './dto/new-password.dto'
+import {JwtRefreshGuard, JwtResetPasswordGuard, JwtConfirmEmailGuard} from './guards/auth.jwt-guards';
+import {Request as ExpressRequest} from 'express';
+
+interface RequestWithUser extends ExpressRequest {
+    user: {
+        userId: number;
+    };
+}
 
 @Controller('auth')
-@UsePipes(new ValidationPipe({ whitelist: true }))
+@UsePipes(new ValidationPipe({whitelist: true}))
 export class AuthController {
     constructor(private readonly authService: AuthService) {
     }
@@ -27,30 +30,30 @@ export class AuthController {
         return this.authService.login(loginDto);
     }
 
-    @UseGuards(JwtRefreshGuard) 
+    @UseGuards(JwtRefreshGuard)
     @Post('logout')
-    async logout(@Request() req, @Body() refreshToken: RefreshTokenDto) {
-        return this.authService.logout(req.userId, refreshToken);
+    async logout(@Request() req: RequestWithUser, @Body() refreshToken: RefreshTokenDto) {
+        return this.authService.logout(req.user.userId, refreshToken);
     }
 
-    @UseGuards(JwtRefreshGuard) 
+    @UseGuards(JwtRefreshGuard)
     @Post('/access-token/refresh')
-    async refreshToken(@Request() req) {
+    async refreshToken(@Request() req: RequestWithUser) {
         return this.authService.refreshToken(req.user.userId);
     }
 
     @UseGuards(JwtResetPasswordGuard)
     @Post('reset-password/:confirm_token')
-    async resetPasswordWithConfirmToken(@Body() newPasswordDto: newPasswordDto, @Request() req) {
+    async resetPasswordWithConfirmToken(@Body() newPasswordDto: newPasswordDto, @Request() req: RequestWithUser) {
         return this.authService.resetPasswordWithConfirmToken(newPasswordDto, req.user.userId);
     }
 
     @UseGuards(JwtConfirmEmailGuard)
     @Post('confirm-email/:confirm_token')
-    async verifyEmailWithConfirmToken(@Request() req) {
+    async verifyEmailWithConfirmToken(@Request() req: RequestWithUser) {
         return this.authService.confirmEmail(req.user.userId);
     }
-    
+
     @Post('reset-password')
     async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
         return this.authService.resetPassword(resetPasswordDto);

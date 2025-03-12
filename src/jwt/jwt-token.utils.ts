@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { TokenType, JwtContext, TOKEN_CONTEXT_MAP, JwtPayload } from './jwt.types';
+import {Injectable} from '@nestjs/common';
+import {ConfigService} from '@nestjs/config';
+import {JwtService} from '@nestjs/jwt';
+import {TokenType, JwtContext, TOKEN_CONTEXT_MAP, JwtPayload} from './jwt.types';
 
 @Injectable()
 export class JwtUtils {
@@ -30,7 +30,6 @@ export class JwtUtils {
         this.issuers = {} as Record<JwtContext, string>;
         this.audiences = {} as Record<JwtContext, string>;
 
-        // Инициализация настроек из конфига
         tokenTypes.forEach(type => {
             this.secrets[type] = String(this.configService.get<string>(`jwt.secrets.${type}`));
             this.expirationTimes[type] = String(this.configService.get<string>(`jwt.expiresIn.${type}`));

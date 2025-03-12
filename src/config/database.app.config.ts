@@ -1,7 +1,6 @@
-// database.app.config.ts
 import * as dotenv from 'dotenv';
 
-import { validateEnv } from '../common/utils/env.utils';
+import {validateEnv} from '../common/utils/env.utils';
 
 dotenv.config();
 

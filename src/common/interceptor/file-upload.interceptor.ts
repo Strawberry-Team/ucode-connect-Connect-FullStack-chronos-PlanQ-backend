@@ -1,9 +1,8 @@
-// src/common/utils/file-upload.utils.ts
-import { BadRequestException } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import {BadRequestException} from '@nestjs/common';
+import {FileInterceptor} from '@nestjs/platform-express';
+import {diskStorage} from 'multer';
+import {extname} from 'path';
+import {v4 as uuidv4} from 'uuid';
 
 export interface FileUploadOptions {
     destination: string;
@@ -22,7 +21,6 @@ export function createFileUploadInterceptor(options: FileUploadOptions) {
         }),
     };
 
-    // Add fileFilter only if allowedTypes is provided
     if (options.allowedTypes) {
         interceptorOptions.fileFilter = (req, file, callback) => {
             if (!file.mimetype.match(options.allowedTypes)) {
@@ -35,7 +33,6 @@ export function createFileUploadInterceptor(options: FileUploadOptions) {
         };
     }
 
-    // Add limits only if maxSize is provided
     if (options.maxSize) {
         interceptorOptions.limits = {
             fileSize: options.maxSize

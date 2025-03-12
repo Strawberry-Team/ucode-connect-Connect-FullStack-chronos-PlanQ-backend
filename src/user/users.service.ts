@@ -1,13 +1,14 @@
 import {
-    Injectable,
     BadRequestException,
+    ConflictException,
+    Injectable,
     NotFoundException,
-    UnauthorizedException, ConflictException,
+    UnauthorizedException,
 } from '@nestjs/common';
-import { UsersRepository } from './users.repository';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entity/user.entity';
+import {UsersRepository} from './users.repository';
+import {CreateUserDto} from './dto/create-user.dto';
+import {UpdateUserDto} from './dto/update-user.dto';
+import {User} from './entity/user.entity';
 import {PasswordService} from "./passwords.service";
 
 @Injectable()
@@ -15,7 +16,8 @@ export class UsersService {
     constructor(
         private readonly usersRepository: UsersRepository,
         private readonly passwordService: PasswordService
-    ) {}
+    ) {
+    }
 
     private async getUserById(id: number): Promise<User> {
         const user = await this.usersRepository.findById(id);
@@ -23,7 +25,7 @@ export class UsersService {
             throw new NotFoundException('User not found');
         }
         return user;
-    } //TODO: подумать делать ли проверку на null тут
+    }
 
     async getUserByIdWithoutPassword(id: number): Promise<User> {
         const result = await this.getUserById(id);
@@ -73,7 +75,7 @@ export class UsersService {
             const hashedNewPassword = await this.passwordService.hash(String(dto.newPassword));
             delete dto.oldPassword;
             delete dto.newPassword;
-            const updateData: Partial<User> = { ...dto };
+            const updateData: Partial<User> = {...dto};
             updateData.password = hashedNewPassword;
             result = await this.usersRepository.updateUser(id, updateData);
         } else {
@@ -91,10 +93,7 @@ export class UsersService {
     }
 
     async confirmEmail(userId: number) {
-        const updateData: Partial<User> = { emailVerified: true };
-        
-        const result = await this.usersRepository.updateUser(userId, updateData);
-
-        return result;
+        const updateData: Partial<User> = {emailVerified: true};
+        return await this.usersRepository.updateUser(userId, updateData);
     }
 }

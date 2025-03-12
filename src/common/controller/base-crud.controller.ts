@@ -2,9 +2,7 @@ import {
     Body,
     Delete,
     Get,
-    HttpException,
-    HttpStatus,
-    InternalServerErrorException, NotFoundException,
+    NotFoundException,
     Param,
     Patch,
     Post,
@@ -14,51 +12,21 @@ import {
 import {Request} from 'express';
 import {JwtAuthGuard} from "../../auth/guards/auth.jwt-guards";
 
-/**
- * Универсальный абстрактный контроллер для CRUD-операций.
- * Ключевые методы:
- *   getById – получение сущности по ID;
- *   create – создание новой сущности;
- *   update – обновление сущности (частичное или полное);
- *   delete – удаление сущности.
- *
- * Абстрактные методы должны быть реализованы наследниками.
- *
- * @template T — тип сущности (например, User)
- * @template CreateDto — тип DTO для создания
- * @template UpdateDto — тип DTO для обновления
- */
 @UseGuards(JwtAuthGuard)
 export abstract class BaseCrudController<
     T,
     CreateDto,
     UpdateDto
 > {
-    /**
-     * Возвращает сущность по ID.
-     * Если сущность не найдена, выбрасывается HttpException (Not Found).
-     */
     protected abstract findById(id: number): Promise<T>;
 
-    /**
-     * Создаёт новую сущность.
-     * Если происходит ошибка (например, дублирование), выбрасывается HttpException.
-     */
     protected abstract createEntity(dto: CreateDto): Promise<T>;
 
-    /**
-     * Обновляет сущность по ID.
-     * Если обновление невозможно или сущность не найдена, выбрасывается HttpException.
-     */
     protected abstract updateEntity(
         id: number,
         dto: UpdateDto,
     ): Promise<T>;
 
-    /**
-     * Удаляет сущность по ID.
-     * Если сущность не найдена — выбрасывается HttpException.
-     */
     protected abstract deleteEntity(id: number): Promise<void>;
 
     @Get(':id')

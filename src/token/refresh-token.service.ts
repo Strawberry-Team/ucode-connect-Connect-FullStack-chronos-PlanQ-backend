@@ -1,22 +1,17 @@
 import {
     Injectable,
-    BadRequestException,
     NotFoundException,
-    UnauthorizedException,
 } from '@nestjs/common';
-import { CreateUserDto } from '../user/dto/create-user.dto';
-import { LoginDto } from '../auth/dto/login.dto';
-// import { RefreshTokenDto } from './dto/refresh-token.dt';
-import { ResetPasswordDto } from '../auth/dto/reset-password.dto';
-import { CreateRefreshTokenDto } from './dto/create-refresh-token.dto';
-import { RefreshToken } from './entities/refresh-token.entity';
-import { RefreshTokenRepository } from './refresh-token.repository';
+import {CreateRefreshTokenDto} from './dto/create-refresh-token.dto';
+import {RefreshToken} from './entities/refresh-token.entity';
+import {RefreshTokenRepository} from './refresh-token.repository';
 
 @Injectable()
 export class RefreshTokenService {
     constructor(
         private readonly refreshTokenRepository: RefreshTokenRepository
-    ) { }
+    ) {
+    }
 
     async getTokenByTokenAndUserId(userId: number, token: string): Promise<RefreshToken> {
         const tokenRes = await this.refreshTokenRepository.findByTokenAndUserId(userId, token);

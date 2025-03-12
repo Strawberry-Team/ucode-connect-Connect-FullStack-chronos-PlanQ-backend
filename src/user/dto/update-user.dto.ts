@@ -1,10 +1,9 @@
 import {
     IsUserEmail,
     IsUserName, IsUserPassword, IsUserProfilePicture,
-
 } from '../users.validator';
 
-import { IsValidCountryCode } from "../../country/country.validator"
+import {IsValidCountryCode} from "../../country/country.validator"
 
 export class UpdateUserDto {
     @IsUserName(true)

@@ -1,12 +1,11 @@
-import { createConnection, Connection } from 'mysql2/promise';
-import { rootConfig } from './config/database.root.config';
+import {createConnection, Connection} from 'mysql2/promise';
+import {rootConfig} from './config/database.root.config';
 import databaseConfig from './config/database.app.config';
 
 async function setupDatabase(): Promise<void> {
     let connection: Connection | null = null;
 
     try {
-        // Get the configuration using the default export function
         const config = databaseConfig();
 
         connection = await createConnection({

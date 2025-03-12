@@ -1,5 +1,10 @@
-// jwt.types.ts
-export type TokenType = 'access' | 'refresh' | 'confirmEmail' | 'resetPassword' | 'confirmCalendar' | 'confirmArrangement';
+export type TokenType =
+    'access'
+    | 'refresh'
+    | 'confirmEmail'
+    | 'resetPassword'
+    | 'confirmCalendar'
+    | 'confirmArrangement';
 export type JwtContext = 'auth' | 'calendar' | 'event';
 
 export const TOKEN_CONTEXT_MAP: Record<TokenType, JwtContext> = {

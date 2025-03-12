@@ -1,7 +1,5 @@
-// src/auth/strategies/jwt-access.strategy.ts
-
-import { createJwtStrategy } from '../../jwt/jwt-strategy.factory';
-import { ExtractJwt } from 'passport-jwt';
+import {createJwtStrategy} from '../../jwt/jwt-strategy.factory';
+import {ExtractJwt} from 'passport-jwt';
 
 const accessExtractor = ExtractJwt.fromAuthHeaderAsBearerToken();
 
