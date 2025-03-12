@@ -1,8 +1,6 @@
-import {
-    IsStrongPassword
-} from 'class-validator';
+import {IsUserPassword} from "../../user/users.validator";
 
 export class newPasswordDto {
-    @IsStrongPassword()
+    @IsUserPassword(false)
     newPassword: string;
 }

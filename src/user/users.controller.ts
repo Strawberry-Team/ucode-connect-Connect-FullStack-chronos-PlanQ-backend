@@ -5,6 +5,7 @@ import {
     UseInterceptors,
     UploadedFile,
     BadRequestException, Post,
+    Body, Req, NotImplementedException, UseGuards, HttpException, HttpStatus, Param,
 } from '@nestjs/common';
 import { BaseCrudController } from '../common/controller/base-crud.controller';
 import { User } from './entity/user.entity';
@@ -12,7 +13,9 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { Express } from 'express';
+import { Request } from 'express';
 import {createFileUploadInterceptor} from "../common/interceptor/file-upload.interceptor";
+import {JwtAuthGuard} from "../auth/guards/auth.jwt-guards";
 
 
 
@@ -53,6 +56,20 @@ export class UsersController extends BaseCrudController<
 
     protected async deleteEntity(id: number): Promise<void> {
         return await this.usersService.deleteUser(id);
+    }
+
+    async create(@Body() dto: CreateUserDto, @Req() req: Request): Promise<User> {
+        throw new NotImplementedException();
+    }
+
+    //TODO: add guards
+    async update(@Param('id') id: number, @Body() dto: UpdateUserDto): Promise<User> {
+        return super.update(id, dto);
+    }
+
+    //TODO: add guards
+    async delete(@Param('id') id: number): Promise<void> {
+        return super.delete(id);
     }
 
     @Post('upload-avatar')
