@@ -5,6 +5,7 @@ import {
     Length,
     MinLength, IsOptional,
 } from 'class-validator';
+import { IsValidCountryCode } from 'src/country/country.validator';
 
 export class CreateUserDto //TODO: написать один user.dto, базовый
  {
@@ -26,6 +27,7 @@ export class CreateUserDto //TODO: написать один user.dto, базо�
     @MinLength(6)
     password: string; //TODO: проверять пароль на ...
 
+    @IsValidCountryCode()
     @IsString()
     @IsNotEmpty()
     @Length(2, 2)

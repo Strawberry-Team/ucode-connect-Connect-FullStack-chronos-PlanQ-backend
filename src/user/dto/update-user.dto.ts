@@ -6,6 +6,8 @@ import {
     Length,
 } from 'class-validator';
 
+import { IsValidCountryCode } from "../../country/country.validator"
+
 export class UpdateUserDto {
     @IsOptional()
     @IsString()
@@ -32,6 +34,7 @@ export class UpdateUserDto {
     @MinLength(6)
     newPassword?: string; //TODO проверять пароль на ...
 
+    @IsValidCountryCode()
     @IsOptional()
     @IsString()
     countryCode?: string; //TODO понять какие можно, и проверять

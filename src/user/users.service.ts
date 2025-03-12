@@ -12,7 +12,7 @@ import { User } from './entity/user.entity';
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly usersRepository: UsersRepository) {}
+    constructor(private readonly usersRepository: UsersRepository) { }
 
     private async getUserById(id: number): Promise<User> {
         const user = await this.usersRepository.findById(id);
@@ -28,7 +28,7 @@ export class UsersService {
         return result;
     }
 
-    
+
     async getUserByEmail(email: string): Promise<User> {
         const result = await this.usersRepository.findByEmail(email);
         if (!result) {
@@ -95,5 +95,13 @@ export class UsersService {
     async deleteUser(id: number): Promise<void> {
         await this.getUserById(id);
         await this.usersRepository.deleteUser(id);
+    }
+
+    async confirmEmail(userId: number) {
+        const updateData: Partial<User> = { emailVerified: true };
+        
+        const result = await this.usersRepository.updateUser(userId, updateData);
+
+        return result;
     }
 }

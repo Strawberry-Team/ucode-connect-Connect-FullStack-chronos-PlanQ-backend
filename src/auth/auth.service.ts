@@ -38,13 +38,23 @@ export class AuthService {
         const accessToken = this.jwtUtils.generateToken({ sub: user.id }, 'access');
         const refreshToken = this.jwtUtils.generateToken({ sub: user.id }, 'refresh');
 
+        ///
+
+        const result = this.jwtUtils.generateToken({ sub: user.id }, 'confirmEmail');
+
+        const link = 'localhost:3000/api/auth/confirm-email/' + result;
+
+        // return { confirmEmailLink: result};
+
+        ///
+
         // Сохраняем refresh-токен через RefreshTokenService
         await this.refreshTokenService.createToken({
             userId: user.id,
             refreshToken: refreshToken,
         } as CreateRefreshTokenDto);
         // Возвращаем данные пользователя (без пароля) и токены
-        return { user: user, accessToken, refreshToken };
+        return { user: user, accessToken, refreshToken, confirmEmailLink: link};
     }
 
     /**
@@ -136,13 +146,20 @@ export class AuthService {
    */
     async resetPassword(resetPasswordDto: ResetPasswordDto) {
         const user = await this.usersService.getUserByEmail(resetPasswordDto.email);
-        const passwordResetToken = this.jwtUtils.generateToken({ sub: user.id }, 'resetPassword');
 
-        return {passwordResetToken: passwordResetToken}
+        if (!user) {
+            throw new NotFoundException('User with this email not found');
+        }
+
+        const passwordResetToken = this.jwtUtils.generateToken({ sub: user.id }, 'resetPassword');
+        const link = 'localhost:3000/api/auth/reset-password/' + passwordResetToken;
+
+        return {passwordResetLink: link}
     }
 
     async confirmEmail(userId: number) {
-        // await this.usersService.confirmEmail(userId);
+        await this.usersService.confirmEmail(userId);
+        
         return { message: 'Email confirmed successfully' };
     }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
@@ -12,6 +12,7 @@ import { newPasswordDto } from './dto/new-password.dto'
 import { JwtRefreshGuard, JwtResetPasswordGuard, JwtConfirmEmailGuard } from './guards/auth.jwt-guards';
 
 @Controller('auth')
+@UsePipes(new ValidationPipe({ whitelist: true }))
 export class AuthController {
     constructor(private readonly authService: AuthService) {
     }
@@ -49,7 +50,7 @@ export class AuthController {
     async verifyEmailWithConfirmToken(@Request() req) {
         return this.authService.confirmEmail(req.user.userId);
     }
-
+    
     @Post('reset-password')
     async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
         return this.authService.resetPassword(resetPasswordDto);
