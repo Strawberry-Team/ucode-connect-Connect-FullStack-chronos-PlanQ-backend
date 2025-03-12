@@ -22,11 +22,8 @@ export class UpdateUserDto {
     @IsUserPassword(true)
     newPassword?: string;
 
-
     @IsValidCountryCode()
-    @IsOptional()
-    @IsString()
-    countryCode?: string; //TODO понять какие можно, и проверять
+    countryCode?: string;
 
     @IsUserProfilePicture(true)
     profilePictureName?: string;

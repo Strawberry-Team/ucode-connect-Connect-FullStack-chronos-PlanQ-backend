@@ -15,8 +15,5 @@ export class CreateUserDto {
     password: string;
 
     @IsValidCountryCode()
-    @IsString()
-    @IsNotEmpty()
-    @Length(2, 2)
     countryCode: string;
 }
