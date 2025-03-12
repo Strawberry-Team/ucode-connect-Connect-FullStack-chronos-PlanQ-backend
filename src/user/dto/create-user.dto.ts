@@ -3,7 +3,7 @@ import {
     IsString,
     IsNotEmpty,
     Length,
-    MinLength,
+    MinLength, IsOptional,
 } from 'class-validator';
 
 export class CreateUserDto //TODO: написать один user.dto, базовый
@@ -13,10 +13,9 @@ export class CreateUserDto //TODO: написать один user.dto, базо�
     @Length(3, 100)
     firstName: string;
 
-    @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     @Length(3, 100)
-    lastName: string;
+    lastName?: string;
 
     @IsEmail()
     @IsNotEmpty()
