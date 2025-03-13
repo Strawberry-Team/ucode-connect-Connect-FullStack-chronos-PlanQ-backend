@@ -13,6 +13,10 @@ export class RefreshTokenService {
     ) {
     }
 
+    async getAll(time?: number): Promise<RefreshToken[]> {
+        return await this.refreshTokenRepository.getAll(time);
+    }
+    
     async getTokenByTokenAndUserId(userId: number, token: string): Promise<RefreshToken> {
         const tokenRes = await this.refreshTokenRepository.findByTokenAndUserId(userId, token);
         if (!tokenRes) {
@@ -31,7 +35,7 @@ export class RefreshTokenService {
         return await this.refreshTokenRepository.deleteTokensByUserId(userId);
     }
 
-    async deleteTokenByUserID(tokenId: number): Promise<void> {
+    async deleteTokenByTokenID(tokenId: number): Promise<void> {
         return await this.refreshTokenRepository.deleteTokenById(tokenId);
     }
 }

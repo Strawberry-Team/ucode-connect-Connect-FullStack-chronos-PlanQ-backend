@@ -111,4 +111,8 @@ export class UsersService {
         const updateData: Partial<User> = {emailVerified: true};
         return await this.usersRepository.updateUser(userId, updateData);
     }
+
+    async getAllUnactivatedUsers(time: number): Promise<User[]> {
+        return await this.usersRepository.getAllUnactivatedUsers(time)
+    }
 }

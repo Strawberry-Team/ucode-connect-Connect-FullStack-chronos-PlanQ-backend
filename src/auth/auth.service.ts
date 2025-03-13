@@ -72,7 +72,7 @@ export class AuthService {
             );
         }
 
-        await this.refreshTokenService.deleteTokenByUserID(tokenEntity.id);
+        await this.refreshTokenService.deleteTokenByTokenID(tokenEntity.id);
         return {message: 'Logged out successfully'};
     }
 
