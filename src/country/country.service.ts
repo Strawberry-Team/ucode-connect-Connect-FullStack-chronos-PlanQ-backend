@@ -7,24 +7,13 @@ import {firstValueFrom} from "rxjs";
 
 @Injectable()
 export class CountryService {
-    private readonly COUNTRIES_FILENAME = 'countries.json';
-    private readonly filePath = path.join(__dirname, '..', 'data', this.COUNTRIES_FILENAME);
+    private static readonly COUNTRIES_FILENAME = 'countries.json';
+    private static readonly filePath = path.join(__dirname, '..', 'data', CountryService.COUNTRIES_FILENAME);
 
     constructor(
         private readonly httpService: HttpService,
         private readonly configService: ConfigService
     ) {}
-
-    async getCountries(): Promise<any[]> {
-        try {
-            const data = await fs.readFile(this.filePath, 'utf8');
-            return JSON.parse(data);
-        } catch (error) {
-            await this.refreshCountries();
-            const data = await fs.readFile(this.filePath, 'utf8');
-            return JSON.parse(data);
-        }
-    }
 
     async refreshCountries(): Promise<void> {
         try {
@@ -35,16 +24,25 @@ export class CountryService {
                 code: country.cca2,
                 flag: country.flags?.png ?? null,
             }));
-            const dataDir = path.dirname(this.filePath);
+            const dataDir = path.dirname(CountryService.filePath);
             await fs.mkdir(dataDir, {recursive: true});
-            await fs.writeFile(this.filePath, JSON.stringify(countries, null, 2));
+            await fs.writeFile(CountryService.filePath, JSON.stringify(countries, null, 2));
         } catch (error) {
             throw new InternalServerErrorException('Error refreshing countries data.');
         }
     }
 
-    async getValidCountryCodes(): Promise<string[]> {
-        const countries = await this.getCountries();
+    static async getCountries(): Promise<any[]> {
+        try {
+            const data = await fs.readFile(CountryService.filePath, 'utf8');
+            return JSON.parse(data);
+        } catch (error) {
+            throw new Error('Countries file not found');
+        }
+    }
+
+    static async getValidCountryCodes(): Promise<string[]> {
+        const countries = await CountryService.getCountries();
         return countries.map((country) => country.code);
     }
 }

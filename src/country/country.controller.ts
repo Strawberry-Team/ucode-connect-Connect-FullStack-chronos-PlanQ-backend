@@ -9,7 +9,7 @@ export class CountryController {
 
     @Get()
     async getAllCountries(): Promise<any> {
-        return await this.countriesService.getCountries();
+        return await CountryService.getCountries();
     }
 
 

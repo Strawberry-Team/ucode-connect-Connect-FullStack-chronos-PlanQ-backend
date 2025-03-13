@@ -19,9 +19,11 @@ export default () => {
             frontendHost,
             frontendPort,
             frontendLink: `${frontendProtocol}://${frontendHost}:${frontendPort}`,
+            nodeEnv: String(validateEnv('APP_NODE_ENV')),
             cors: {
                 methods: String(validateEnv('APP_CORS_METHODS')).split(','),
                 allowedHeaders: String(validateEnv('APP_CORS_ALLOWED_HEADERS')).split(','),
+                credentials: Boolean(validateEnv('APP_CORS_CREDENTIALS')),
             },
             csrf: {
                 cookie: {

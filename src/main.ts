@@ -22,40 +22,30 @@ async function bootstrap() {
     const protocol = String(configService.get<number>('app.protocol'));
     const frontendOrigin = String(configService.get<string>('app.frontendLink'));
     const csrfConfig = configService.get('app.csrf');
-    console.log('csrfConfig', csrfConfig);
+    const corsConfig = configService.get('app.cors');
+    const nodeEnv = String(configService.get('app.nodeEnv'));
 
     app.setGlobalPrefix(globalPrefix);
 
     app.useStaticAssets('public');
 
-    const csrfProtection = csurf({
-        cookie: csrfConfig.cookie,
-        ignoreMethods: csrfConfig.ignoreMethods
-    });
-
-    // Apply CSRF middleware
-    app.use((req, res, next) => {
-        // Only apply to non-ignored methods (POST, PUT, DELETE, etc.)
-        if (!csrfConfig.ignoreMethods.includes(req.method)) {
-            return csrfProtection(req, res, next);
-        }
-        next();
-    });
-
-    // Set CSRF token in cookie for GET requests
-    app.use((req, res, next) => {
-        if (req.method === 'GET') {
-            res.cookie(csrfConfig.cookie.key, req.csrfToken());
-        }
-        next();
-    });
-
     app.enableCors({
         origin: frontendOrigin,
-        methods: configService.get('app.cors.methods'),
-        allowedHeaders: configService.get('app.cors.allowedHeaders'),
-        credentials: true, // Required to send cookies cross-origin
+        methods: corsConfig.methods,
+        allowedHeaders: corsConfig.allowedHeaders,
+        credentials: corsConfig.credentials, // Required to send cookies cross-origin
     });
+
+    // app.use(
+    //     csurf({
+    //         cookie: {
+    //             httpOnly: true, //Not available via JS
+    //             secure: nodeEnv === 'production', //cookies are only transmitted via HTTPS
+    //             sameSite: 'strict', //Cookies will only be sent for requests originating from the same domain (site)
+    //         },
+    //         ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
+    //     }),
+    // );
 
     await app.listen(port);
     console.log(`Application is running on: ${protocol}://${host}:${port}/${globalPrefix}`);
