@@ -10,9 +10,12 @@ import {RefreshTokenModule} from './token/refresh-token.module';
 import {JwtConfigModule} from './jwt/jwt.module';
 import {CountryModule} from './country/country.module';
 import apiConfig from "./config/api.config";
+import { SchedulerTasksModule } from './schedulerTasks/tasks.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
     imports: [
+        ScheduleModule.forRoot(),
         ConfigModule.forRoot({
             isGlobal: true,
             load: [databaseConfig, appConfig, jwtConfig, apiConfig],
@@ -35,10 +38,11 @@ import apiConfig from "./config/api.config";
         UsersModule,
         AuthModule,
         RefreshTokenModule,
-        CountryModule
+        CountryModule,
+        SchedulerTasksModule
     ],
     controllers: [],
-    providers: [],
+    providers: [], 
 })
 export class AppModule {
 }
