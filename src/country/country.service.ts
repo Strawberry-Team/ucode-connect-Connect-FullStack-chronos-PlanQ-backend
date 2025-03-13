@@ -7,7 +7,8 @@ import {firstValueFrom} from "rxjs";
 
 @Injectable()
 export class CountryService {
-    private readonly filePath = path.join(__dirname, '..', 'data', 'countries.json');
+    private readonly COUNTRIES_FILENAME = 'countries.json';
+    private readonly filePath = path.join(__dirname, '..', 'data', this.COUNTRIES_FILENAME);
 
     constructor(
         private readonly httpService: HttpService,
