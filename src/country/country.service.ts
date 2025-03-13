@@ -1,11 +1,18 @@
 import {Injectable, InternalServerErrorException, Logger} from '@nestjs/common';
 import * as path from 'path';
 import {promises as fs} from 'fs';
-import axios from 'axios';
+import { HttpService } from '@nestjs/axios'
+import {ConfigService} from "@nestjs/config";
+import {firstValueFrom} from "rxjs";
 
 @Injectable()
 export class CountryService {
     private readonly filePath = path.join(__dirname, '..', 'data', 'countries.json');
+
+    constructor(
+        private readonly httpService: HttpService,
+        private readonly configService: ConfigService
+    ) {}
 
     async getCountries(): Promise<any[]> {
         try {
@@ -20,9 +27,8 @@ export class CountryService {
 
     async refreshCountries(): Promise<void> {
         try {
-            const response = await axios.get( //TODO: посмотреть как в nestJS api
-                'https://restcountries.com/v3.1/all?fields=name,cca2,flags' //TODO: in config
-            );
+            const apiUrl = String(this.configService.get<string>('api.countryApiUrl'));
+            const response = await firstValueFrom(this.httpService.get(apiUrl));
             const countries = response.data.map((country) => ({
                 name: country.name.common,
                 code: country.cca2,

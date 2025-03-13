@@ -30,6 +30,7 @@ export class UsersService {
     async getUserByIdWithoutPassword(id: number): Promise<User> {
         const result = await this.getUserById(id);
         delete result.password;
+        delete result.emailVerified;
         return result;
     }
 

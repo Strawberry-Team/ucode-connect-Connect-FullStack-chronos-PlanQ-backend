@@ -73,7 +73,7 @@ export class AuthService {
         }
 
         await this.refreshTokenService.deleteTokenByUserID(tokenEntity.id);
-        return {message: 'Logged out successfully'}; //TODO: поменять статус ответа на 204
+        return {message: 'Logged out successfully'};
     }
 
     async refreshToken(userId: number) {

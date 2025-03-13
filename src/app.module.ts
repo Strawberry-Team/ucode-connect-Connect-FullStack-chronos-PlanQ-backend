@@ -9,12 +9,13 @@ import appConfig from "./config/app.config";
 import {RefreshTokenModule} from './token/refresh-token.module';
 import {JwtConfigModule} from './jwt/jwt.module';
 import {CountryModule} from './country/country.module';
+import apiConfig from "./config/api.config";
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
-            load: [databaseConfig, appConfig, jwtConfig],
+            load: [databaseConfig, appConfig, jwtConfig, apiConfig],
         }),
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],
@@ -27,7 +28,7 @@ import {CountryModule} from './country/country.module';
                 password: configService.get<string>('database.password'),
                 database: configService.get<string>('database.name'),
                 entities: [__dirname + '/**/*.entity{.ts,.js}'],
-                synchronize: true, // Для продакшена отключите данную опцию TODO: понять, что это значит
+                synchronize: true, // TODO: For production, disable this option
             }),
         }),
         JwtConfigModule,

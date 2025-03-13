@@ -19,7 +19,7 @@ export class CountryController {
         @Query('lang') lang: string,
         @Res() res: Response,
     ): Promise<any> {
-        //TODO: В будущем здесь можно реализовать вызов другого API для получения праздников.
+        //TODO: В будущем здесь можно реализовать вызов другого Calendar Google API для получения праздников.
         throw new NotImplementedException('National holidays endpoint not supported yet.');
     }
 

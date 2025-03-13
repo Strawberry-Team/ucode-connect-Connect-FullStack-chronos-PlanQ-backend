@@ -11,11 +11,9 @@ import {CountryService} from './country.service';
 @ValidatorConstraint({async: true})
 @Injectable()
 export class IsValidCountryCodeConstraint implements ValidatorConstraintInterface {
-    private readonly countryService: CountryService
-
-    constructor() {
-        this.countryService = new CountryService()
-    }
+    constructor(
+        @Inject(CountryService) private readonly countryService: CountryService
+    ) {}
 
     async validate(countryCode: string, args: ValidationArguments) {
         const validCodes = await this.countryService.getValidCountryCodes();
