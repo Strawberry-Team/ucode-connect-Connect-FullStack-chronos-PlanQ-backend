@@ -35,17 +35,19 @@ async function bootstrap() {
         allowedHeaders: corsConfig.allowedHeaders,
         credentials: corsConfig.credentials, // Required to send cookies cross-origin
     });
-    //
-    // app.use(
-    //     csurf({
-    //         cookie: {
-    //             httpOnly: true, //Not available via JS
-    //             secure: nodeEnv === 'production', //cookies are only transmitted via HTTPS
-    //             sameSite: 'strict', //Cookies will only be sent for requests originating from the same domain (site)
-    //         },
-    //         ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
-    //     }),
-    // );
+
+    app.use(
+        csurf({
+            cookie: {
+                key: csrfConfig.cookie.key,
+                httpOnly: false,
+                // httpOnly: csrfConfig.cookie.httpOnly, //Not available via JS
+                secure: nodeEnv === 'production', //cookies are only transmitted via HTTPS
+                sameSite: csrfConfig.cookie.sameSite, //Cookies will only be sent for requests originating from the same domain (site)
+            },
+            ignoreMethods: csrfConfig.ignoreMethods,
+        }),
+    );
 
     await app.listen(port);
     console.log(`Application is running on: ${protocol}://${host}:${port}/${globalPrefix}`);

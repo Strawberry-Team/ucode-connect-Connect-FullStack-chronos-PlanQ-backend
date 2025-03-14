@@ -1,18 +1,28 @@
 import {applyDecorators} from '@nestjs/common';
 import {
+    Allow,
     IsEmail,
     IsOptional,
     IsStrongPassword, IsUUID,
-    Length, Matches, MaxLength,
+    Length, Matches, MaxLength, ValidateIf,
 } from 'class-validator';
 
-export function IsUserName(isOptional: boolean) {
-    const decorators = [Matches(/^[a-zA-Z-]+$/), Length(3, 100)];
+export function IsUserName(isOptional: boolean, allowNull: boolean = false) {
+    const baseDecorators = [Matches(/^[a-zA-Z-]+$/), Length(3, 100)];
 
-    if (isOptional) {
-        return applyDecorators(IsOptional(), ...decorators);
+    if (allowNull) {
+        // Если разрешаем null, используем IsOptional() и добавляем проверку на null
+        return applyDecorators(
+            ValidateIf(value => value !== null),
+            ...baseDecorators,
+            IsOptional()
+        );
+    } else if (isOptional) {
+        // Если просто опционально (но не null)
+        return applyDecorators(IsOptional(), ...baseDecorators);
     } else {
-        return applyDecorators(...decorators);
+        // Если обязательное и не null
+        return applyDecorators(...baseDecorators);
     }
 }
 
