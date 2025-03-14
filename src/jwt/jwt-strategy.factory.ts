@@ -10,7 +10,7 @@ export interface JwtStrategyConfig {
     strategyName: string;
     tokenType: TokenType;
     extractor: (req: any) => any;
-    validateFn: (payload: any) => any;
+    validateFn: (payload: any, req?: any) => any;
 }
 
 export function createJwtStrategy(
@@ -35,8 +35,8 @@ export function createJwtStrategy(
             super(strategyOptions);
         }
 
-        validate(payload: any): any {
-            return config.validateFn(payload);
+        validate(payload: any, req?: any): any {
+            return config.validateFn(payload, req);
         }
     }
 

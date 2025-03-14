@@ -5,6 +5,7 @@ import {
     ValidationArguments,
     registerDecorator,
     ValidationOptions,
+    IsOptional,
 } from 'class-validator';
 import {CountryService} from './country.service';
 
@@ -21,14 +22,17 @@ export class IsValidCountryCodeConstraint implements ValidatorConstraintInterfac
     }
 }
 
-export function IsValidCountryCode(validationOptions?: ValidationOptions) {
-    return function (object: Object, propertyName: string) {
-        registerDecorator({
-            target: object.constructor,
-            propertyName,
-            options: validationOptions,
-            constraints: [],
-            validator: IsValidCountryCodeConstraint,
-        });
-    };
+export function IsValidCountryCode(validationOptions?: ValidationOptions, isOptional: boolean = false) {
+    return applyDecorators(
+        ...(isOptional ? [IsOptional()] : []), // Добавляем IsOptional() только если isOptional === true
+        function (object: Object, propertyName: string) {
+            registerDecorator({
+                target: object.constructor,
+                propertyName,
+                options: validationOptions,
+                constraints: [],
+                validator: IsValidCountryCodeConstraint,
+            });
+        }
+    );
 }

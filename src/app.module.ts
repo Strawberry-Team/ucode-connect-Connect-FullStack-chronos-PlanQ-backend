@@ -1,14 +1,14 @@
-import {Module} from '@nestjs/common';
-import {ConfigModule, ConfigService} from '@nestjs/config';
-import {TypeOrmModule} from '@nestjs/typeorm';
-import {UsersModule} from './user/users.module';
-import {AuthModule} from './auth/auth.module'
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './user/users.module';
+import { AuthModule } from './auth/auth.module'
 import databaseConfig from './config/database.app.config';
 import jwtConfig from './config/jwt.config';
 import appConfig from "./config/app.config";
-import {RefreshTokenModule} from './token/refresh-token.module';
-import {JwtConfigModule} from './jwt/jwt.module';
-import {CountryModule} from './country/country.module';
+import { RefreshTokenModule } from './token/refresh-token.module';
+import { JwtConfigModule } from './jwt/jwt.module';
+import { CountryModule } from './country/country.module';
 import apiConfig from "./config/api.config";
 import { SchedulerTasksModule } from './schedulerTasks/tasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -34,6 +34,9 @@ import { ScheduleModule } from '@nestjs/schedule';
                 synchronize: true, // TODO: For production, disable this option
             }),
         }),
+        ConfigModule.forRoot({
+            isGlobal: true, // ✅ Доступен во всём приложении
+        }),
         JwtConfigModule,
         UsersModule,
         AuthModule,
@@ -42,7 +45,7 @@ import { ScheduleModule } from '@nestjs/schedule';
         SchedulerTasksModule
     ],
     controllers: [],
-    providers: [], 
+    providers: [],
 })
 export class AppModule {
 }

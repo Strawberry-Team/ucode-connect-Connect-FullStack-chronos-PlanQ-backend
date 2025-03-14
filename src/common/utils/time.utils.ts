@@ -1,4 +1,10 @@
-export function convertToSeconds(time: number, timeType: string){
+export function convertToSeconds(time: string):number{
+    const separateTime = parseTimeString(time);
+
+    if(!separateTime){
+        throw new Error(`IllegalArgumentException: Invalid time format: ${time}`);
+    }
+
     const timeMap: Record<string, number> = {
         s: 1,
         m: 60,
@@ -7,11 +13,22 @@ export function convertToSeconds(time: number, timeType: string){
         w: 604800,
     };
 
-    const multiplier = timeMap[timeType];
+    const multiplier = timeMap[String(separateTime?.unit)];
 
     if (!multiplier) {
-        throw new Error(`Unsupported type: ${timeType}`);
+        throw new Error(`Unsupported type: ${separateTime?.unit}`);
     }
 
-    return time * multiplier;
+    return separateTime?.value * multiplier;
 }
+
+function parseTimeString(timeString: string): { value: number; unit: string } | null {
+    const match = timeString.match(/^(\d+)([smhd])$/);
+    
+    if (!match) return null;
+  
+    return {
+      value: parseInt(match[1], 10),
+      unit: match[2]
+    };
+  }
