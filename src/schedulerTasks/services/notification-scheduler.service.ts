@@ -6,24 +6,26 @@ import { convertToSeconds } from 'src/common/utils/time.utils';
 import { RefreshTokenService } from 'src/token/refresh-token.service';
 import { User } from 'src/user/entity/user.entity';
 import { UsersService } from 'src/user/users.service';
+import { SchedulerConfig } from '../../config/scheduler.config';
 
 @Injectable()
 export class NotificationSchedulerService {
   constructor(
     private readonly usersService: UsersService,
     private configService: ConfigService,
+    private readonly schedulerConfig: SchedulerConfig
   ) {
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(SchedulerConfig.prototype.calendarNotification)
   calendarNotification() {
     console.log('NotificationSchedulerService: Выполняется каждую минуту');
   }
-
-  @Cron(CronExpression["EVERY_30_MINUTES"]) //TODO: перенести в .env, если получится
+ 
+  @Cron(SchedulerConfig.prototype.unactivatedAccountNotification) //TODO: перенести в .env, если получится
   async unactivatedAccountNotification() {
-    const EXPIRATION_TIME = convertToSeconds(parseInt(String(this.configService.get<string>(`jwt.expiresIn.confirmEmail`))), 'h');
-    // console.log("EXPIRATION_DAYS = ", EXPIRATION_TIME)
+    const EXPIRATION_TIME = convertToSeconds(String(this.configService.get<string>(`jwt.expiresIn.confirmEmail`)));
+    console.log("EXPIRATION_DAYS = ", EXPIRATION_TIME)
     const users: User[] = await this.usersService.getAllUnactivatedUsers(EXPIRATION_TIME);
     // console.log("refreshTokens = ", refreshTokens)
     const now = new Date();

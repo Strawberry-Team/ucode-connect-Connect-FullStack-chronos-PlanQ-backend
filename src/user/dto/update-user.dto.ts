@@ -21,7 +21,7 @@ export class UpdateUserDto {
     @IsUserPassword(true)
     newPassword?: string;
 
-    @IsValidCountryCode()
+    @IsValidCountryCode({ message: 'Invalid country code, must be cca2' }, true)
     countryCode?: string;
 
     @IsUserProfilePicture(true)

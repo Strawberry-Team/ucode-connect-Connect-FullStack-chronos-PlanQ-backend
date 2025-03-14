@@ -6,6 +6,7 @@ import {
     UploadedFile,
     BadRequestException, Post,
     Body, Req, NotImplementedException, Param, Patch, Delete,
+    UseGuards,
 } from '@nestjs/common';
 import {BaseCrudController} from '../common/controller/base-crud.controller';
 import {User} from './entity/user.entity';
@@ -15,6 +16,8 @@ import {UsersService} from './users.service';
 import {Express} from 'express';
 import {Request} from 'express';
 import {createFileUploadInterceptor} from "../common/interceptor/file-upload.interceptor";
+import { AvararConfig } from '../config/avarar.config';
+import { OwnAccountGuard } from './guards/own-account.guards';
 
 @Controller('users')
 @UsePipes(new ValidationPipe({whitelist: true}))
@@ -58,26 +61,27 @@ export class UsersController extends BaseCrudController<
         throw new NotImplementedException();
     }
 
-    //TODO: add guards
     @Patch(':id')
+    @UseGuards(OwnAccountGuard)
     async update(@Param('id') id: number, @Body() dto: UpdateUserDto): Promise<User> {
         return super.update(id, dto);
     }
 
-    //TODO: add guards
     @Delete(':id')
+    @UseGuards(OwnAccountGuard)
     async delete(@Param('id') id: number): Promise<void> {
         return super.delete(id);
     }
 
-    @Post('upload-avatar')
+    @Post('upload-avatar')//TODO: Удалять старые фотки при загрузке новых, сделать в Scheduler
     @UseInterceptors(
         createFileUploadInterceptor({
             destination: './public/uploads/avatars',
-            allowedTypes: /\/(jpg|jpeg|png)$/,
+            allowedTypes: AvararConfig.prototype.alowedTypesForInterceptor,
             maxSize: 5 * 1024 * 1024,
         })
     )
+
     async uploadAvatar(
         @UploadedFile() file: Express.Multer.File,
     ): Promise<{ server_filename: string }> {
@@ -86,4 +90,6 @@ export class UsersController extends BaseCrudController<
         }
         return {server_filename: file.filename};
     }
+
+    
 }

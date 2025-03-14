@@ -5,19 +5,21 @@ import { RefreshToken } from 'src/token/entities/refresh-token.entity';
 import { RefreshTokenService } from 'src/token/refresh-token.service';
 import {ConfigService} from '@nestjs/config';
 import { convertToSeconds } from 'src/common/utils/time.utils';
+import { SchedulerConfig } from 'src/config/scheduler.config';
 
 @Injectable()
 export class JwtCleanSchedulerService {
     constructor(
         private readonly refreshTokenService: RefreshTokenService,
         private configService: ConfigService,
+        private readonly schedulerConfig: SchedulerConfig
     ) {
     }
 
-    @Cron(CronExpression.EVERY_DAY_AT_10AM)
+    @Cron(SchedulerConfig.prototype.cleanRefreshTokensFromDb)
     @Timeout(10000)
     async cleanRefreshTokensFromDb() {
-        const EXPIRATION_TIME = convertToSeconds(parseInt(String(this.configService.get<string>(`jwt.expiresIn.refresh`))), 'd');
+        const EXPIRATION_TIME = convertToSeconds((String(this.configService.get<string>(`jwt.expiresIn.refresh`))));
         // console.log("EXPIRATION_DAYS = ", EXPIRATION_TIME)
         const refreshTokens: RefreshToken[] = await this.refreshTokenService.getAll(EXPIRATION_TIME);
         // console.log("refreshTokens = ", refreshTokens)
@@ -27,7 +29,6 @@ export class JwtCleanSchedulerService {
             await Promise.all(refreshTokens.map(token => 
                 this.refreshTokenService.deleteTokenByTokenID(token.id)
             ));
-
             // console.log(`Удалено просроченных refresh-токенов: ${refreshTokens.length}`);
         } else {
             // console.log('Нет просроченных refresh-токенов');
