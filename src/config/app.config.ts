@@ -28,9 +28,8 @@ export default () => {
             csrf: {
                 cookie: {
                     key: String(validateEnv('CSRF_COOKIE_KEY')),
-                    httpOnly: validateEnv('CSRF_COOKIE_HTTP_ONLY') === 'true',
+                    httpOnly: Boolean(validateEnv('CSRF_COOKIE_HTTP_ONLY')),
                     sameSite: String(validateEnv('CSRF_COOKIE_SAME_SITE')),
-                    secure: validateEnv('CSRF_COOKIE_SECURE') === 'true',
                 },
                 ignoreMethods: String(validateEnv('CSRF_IGNORE_METHODS')).split(','),
             }

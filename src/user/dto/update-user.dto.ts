@@ -9,7 +9,7 @@ export class UpdateUserDto {
     @IsUserName(true)
     firstName?: string;
 
-    @IsUserName(true)
+    @IsUserName(true, true)
     lastName?: string;
 
     @IsUserEmail(true)

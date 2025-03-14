@@ -1,11 +1,11 @@
-import {Body, Controller, Post, UseGuards, Request, UsePipes, ValidationPipe, HttpCode} from '@nestjs/common';
+import {Body, Controller, Post, UseGuards, Request, UsePipes, ValidationPipe, HttpCode, Get, Req} from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {CreateUserDto} from '../user/dto/create-user.dto';
 import {LoginDto} from './dto/login.dto';
 import {ResetPasswordDto} from './dto/reset-password.dto';
 import {RefreshTokenDto} from '../token/dto/refresh-token.dto';
 import {newPasswordDto} from './dto/new-password.dto'
-import {JwtRefreshGuard, JwtResetPasswordGuard, JwtConfirmEmailGuard} from './guards/auth.jwt-guards';
+import {JwtRefreshGuard, JwtResetPasswordGuard, JwtConfirmEmailGuard, JwtAuthGuard} from './guards/auth.jwt-guards';
 import {Request as ExpressRequest} from 'express';
 
 interface RequestWithUser extends ExpressRequest {
@@ -29,6 +29,13 @@ export class AuthController {
     @Post('login')
     async login(@Body() loginDto: LoginDto) {
         return this.authService.login(loginDto);
+    }
+
+    // @UseGuards(JwtAuthGuard)
+    @Get('csrf-token')
+    getCsrf(@Req() req: ExpressRequest): { csrfToken: string } {
+        const token = req.csrfToken();
+        return { csrfToken: token };
     }
 
     @HttpCode(204)
