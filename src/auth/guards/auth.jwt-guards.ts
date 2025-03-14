@@ -16,14 +16,13 @@ export class JwtRefreshGuard extends AuthGuard('jwt-refresh') implements CanActi
         if (!canActivate) return false;
 
         const request = context.switchToHttp().getRequest();
-        const user = request.user;
         const refreshToken = request.body.refreshToken;
 
-        const allTokens = await this.refreshTokenService.getAll();
-        const onlyTokens = allTokens.map(token => token.refreshToken);
-        const tokenExists: boolean = onlyTokens.includes(refreshToken);
+        // const allTokens = await this.refreshTokenService.getAll();
+        // const onlyTokens = allTokens.map(token => token.refreshToken);
+        // const tokenExists: boolean = onlyTokens.includes(refreshToken);
         
-        if (!tokenExists) {
+        if (!await this.refreshTokenService.getTokenByTokenAndUserId(request.user.userId, refreshToken)) {
             throw new ForbiddenException('Invalid or expired refresh token');
         }
 
@@ -31,6 +30,3 @@ export class JwtRefreshGuard extends AuthGuard('jwt-refresh') implements CanActi
     }
 } 
     
-    
-    
-    //TODO: настроить при невалидном токене правильный ответ //TODO когда остается 29 дней - обновляет и отозвать тот, который он передал.

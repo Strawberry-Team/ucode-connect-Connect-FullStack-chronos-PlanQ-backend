@@ -14,7 +14,7 @@ export class RefreshToken {
     user: User;
 
     @Column({name: 'refresh_token', type: 'text'})
-    refreshToken: string;
+    refreshToken: string; //TODO: change on nonce
 
     @Column({type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', name: 'created_at'})
     createdAt: Date;

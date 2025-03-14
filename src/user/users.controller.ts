@@ -73,7 +73,7 @@ export class UsersController extends BaseCrudController<
         return super.delete(id);
     }
 
-    @Post('upload-avatar')//TODO: Удалять старые фотки при загрузке новых, сделать в Scheduler
+    @Post('upload-avatar')
     @UseInterceptors(
         createFileUploadInterceptor({
             destination: './public/uploads/avatars',
@@ -85,6 +85,7 @@ export class UsersController extends BaseCrudController<
     async uploadAvatar(
         @UploadedFile() file: Express.Multer.File,
     ): Promise<{ server_filename: string }> {
+        //TODO: Удалять старые фотки(которые человек просто загружал) сделать в Scheduler
         if (!file) {
             throw new BadRequestException('No file uploaded.');
         }

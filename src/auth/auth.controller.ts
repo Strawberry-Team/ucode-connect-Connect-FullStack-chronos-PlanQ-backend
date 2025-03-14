@@ -11,6 +11,8 @@ import {Request as ExpressRequest} from 'express';
 interface RequestWithUser extends ExpressRequest {
     user: {
         userId: number;
+        expiresIn?: number;
+        createdAt?: number;
     };
 }
 
@@ -25,7 +27,6 @@ export class AuthController {
         return this.authService.register(createUserDto);
     }
 
-    //TODO: add email verification guard by boolean field
     @Post('login')
     async login(@Body() loginDto: LoginDto) {
         return this.authService.login(loginDto);
@@ -47,8 +48,8 @@ export class AuthController {
 
     @UseGuards(JwtRefreshGuard)
     @Post('/access-token/refresh')
-    async refreshToken(@Request() req: RequestWithUser) {
-        return this.authService.refreshToken(req.user.userId);
+    async refreshToken(@Request() req: RequestWithUser, @Body() refreshToken: RefreshTokenDto) {
+        return this.authService.refreshToken(req.user.userId, Number(req.user.expiresIn), Number(req.user.createdAt), refreshToken);
     }
 
     @UseGuards(JwtResetPasswordGuard)
@@ -57,7 +58,7 @@ export class AuthController {
         return this.authService.resetPasswordWithConfirmToken(newPasswordDto, req.user.userId);
     }
 
-    //TODO: add email verification guard. 1 time use
+    //TODO: add email verification guard for 1 time use(redis)
     @UseGuards(JwtConfirmEmailGuard)
     @Post('confirm-email/:confirm_token')
     async verifyEmailWithConfirmToken(@Request() req: RequestWithUser) {

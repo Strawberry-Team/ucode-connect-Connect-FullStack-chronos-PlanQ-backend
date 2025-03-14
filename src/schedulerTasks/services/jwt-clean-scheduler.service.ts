@@ -22,7 +22,7 @@ export class JwtCleanSchedulerService {
 
         if (refreshTokens.length > 0) {
             await Promise.all(refreshTokens.map(token =>
-                this.refreshTokenService.deleteTokenByTokenID(token.id)
+                this.refreshTokenService.deleteTokenByTokenId(token.id)
             ));
         } else {
         }

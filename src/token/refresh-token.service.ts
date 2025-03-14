@@ -35,7 +35,7 @@ export class RefreshTokenService {
         return await this.refreshTokenRepository.deleteTokensByUserId(userId);
     }
 
-    async deleteTokenByTokenID(tokenId: number): Promise<void> {
+    async deleteTokenByTokenId(tokenId: number): Promise<void> {
         return await this.refreshTokenRepository.deleteTokenById(tokenId);
     }
 }

@@ -14,6 +14,7 @@ import {UsersService} from 'src/user/users.service';
 import {RefreshTokenService} from 'src/token/refresh-token.service';
 import {JwtUtils} from '../jwt/jwt-token.utils';
 import {PasswordService} from "../user/passwords.service";
+import {convertToSeconds} from "../common/utils/time.utils";
 
 
 @Injectable()
@@ -45,8 +46,6 @@ export class AuthService {
             throw new UnauthorizedException('Invalid password');
         }
 
-        console.log("user.emailVerified: ", user.emailVerified)
-
         if (!Boolean(user.emailVerified?.[0])) {
             throw new ForbiddenException('Please verify your email.');
         }
@@ -76,12 +75,24 @@ export class AuthService {
             );
         }
 
-        await this.refreshTokenService.deleteTokenByTokenID(tokenEntity.id);
+        await this.refreshTokenService.deleteTokenByTokenId(tokenEntity.id);
         return {message: 'Logged out successfully'};
     }
 
-    async refreshToken(userId: number) {
+    async refreshToken(userId: number, expiresIn: number, createdAt: number, refreshTokenDto: RefreshTokenDto) {
         const accessToken = this.jwtUtils.generateToken({sub: userId}, 'access');
+        const time: number = new Date().getTime() / 1000;
+        if (time - createdAt > convertToSeconds("1d")) {
+            const newRefreshToken = this.jwtUtils.generateToken({sub: userId}, 'refresh');
+            await this.refreshTokenService.createToken({
+                userId: userId,
+                refreshToken: newRefreshToken,
+            } as CreateRefreshTokenDto);
+            const tokenId: number = await this.refreshTokenService.getTokenByTokenAndUserId(userId, refreshTokenDto.refreshToken).then(token => token.id);
+            await this.refreshTokenService.deleteTokenByTokenId(tokenId);
+            return {accessToken, newRefreshToken};
+        }
+
         return {accessToken};
     }
 
