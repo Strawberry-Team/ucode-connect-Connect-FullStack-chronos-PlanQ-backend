@@ -1,4 +1,5 @@
 import {
+    ForbiddenException,
     Injectable,
     NotFoundException,
     UnauthorizedException,
@@ -37,14 +38,17 @@ export class AuthService {
 
     async login(loginDto: LoginDto) {
         const user = await this.usersService.getUserByEmail(loginDto.email);
-        if (!user) {
-            throw new NotFoundException('User with this email not found');
-        }
-
+    
         const passwordValid = await this.passwordService.compare(loginDto.password, String(user.password));
 
         if (!passwordValid) {
             throw new UnauthorizedException('Invalid password');
+        }
+
+        console.log("user.emailVerified: ", user.emailVerified)
+
+        if (!Boolean(user.emailVerified?.[0])) {
+            throw new ForbiddenException('Please verify your email.');
         }
 
         const accessToken = this.jwtUtils.generateToken({sub: user.id}, 'access');

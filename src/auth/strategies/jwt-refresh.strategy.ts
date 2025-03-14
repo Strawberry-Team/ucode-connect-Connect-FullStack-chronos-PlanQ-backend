@@ -6,6 +6,7 @@ const refreshTokenExtractor = (req: any): string | null => {
 
 const refreshValidateFn = (payload: any) => {
     //TODO: проверить есть ли refresh в БД!!!!!!!!!!!!!!!!!!!!!! а лучше nonce
+    
     return {userId: payload.sub};
 };
 

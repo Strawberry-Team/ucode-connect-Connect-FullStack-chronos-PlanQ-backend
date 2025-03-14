@@ -38,7 +38,7 @@ export class UsersService {
     async getUserByEmail(email: string): Promise<User> {
         const result = await this.usersRepository.findByEmail(email);
         if (!result) {
-            throw new NotFoundException('User not found');
+            throw new NotFoundException('User with this email not found');
         }
         return result;
     }
@@ -75,7 +75,7 @@ export class UsersService {
                 throw new UnauthorizedException('Old password does not match');
             }
             const hashedNewPassword = await this.passwordService.hash(String(dto.newPassword));
-            delete dto.oldPassword;
+            delete dto.oldPassword; 
             delete dto.newPassword;
             const updateData: Partial<User> = {...dto};
             updateData.password = hashedNewPassword;
