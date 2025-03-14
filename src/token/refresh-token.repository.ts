@@ -11,9 +11,9 @@ export class RefreshTokenRepository {
     ) {
     }
 
-    async getAll(seconsd?: number): Promise<RefreshToken[]> {
+    async getAll(seconds?: number): Promise<RefreshToken[]> {
         const thresholdDate = new Date();
-        thresholdDate.setSeconds(thresholdDate.getSeconds() - Number(seconsd));
+        thresholdDate.setSeconds(thresholdDate.getSeconds() - Number(seconds));
 
         return this.refreshTokenRepo.find({
             where: {

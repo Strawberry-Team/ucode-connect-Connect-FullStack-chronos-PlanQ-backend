@@ -27,11 +27,11 @@ export default () => {
             },
             csrf: {
                 cookie: {
-                    key: String(validateEnv('CSRF_COOKIE_KEY')),
-                    httpOnly: Boolean(validateEnv('CSRF_COOKIE_HTTP_ONLY')),
-                    sameSite: String(validateEnv('CSRF_COOKIE_SAME_SITE')),
+                    key: String(validateEnv('APP_CSRF_COOKIE_KEY')),
+                    httpOnly: Boolean(validateEnv('APP_CSRF_COOKIE_HTTP_ONLY')),
+                    sameSite: String(validateEnv('APP_CSRF_COOKIE_SAME_SITE')),
                 },
-                ignoreMethods: String(validateEnv('CSRF_IGNORE_METHODS')).split(','),
+                ignoreMethods: String(validateEnv('APP_CSRF_IGNORE_METHODS')).split(','),
             }
         }
     };

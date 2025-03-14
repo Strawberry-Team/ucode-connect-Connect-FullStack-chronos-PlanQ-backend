@@ -16,7 +16,7 @@ import {UsersService} from './users.service';
 import {Express} from 'express';
 import {Request} from 'express';
 import {createFileUploadInterceptor} from "../common/interceptor/file-upload.interceptor";
-import { AvararConfig } from '../config/avarar.config';
+import { AvatarConfig } from '../config/avatar.config';
 import { OwnAccountGuard } from './guards/own-account.guards';
 
 @Controller('users')
@@ -77,7 +77,7 @@ export class UsersController extends BaseCrudController<
     @UseInterceptors(
         createFileUploadInterceptor({
             destination: './public/uploads/avatars',
-            allowedTypes: AvararConfig.prototype.alowedTypesForInterceptor,
+            allowedTypes: AvatarConfig.prototype.allowedTypesForInterceptor,
             maxSize: 5 * 1024 * 1024,
         })
     )

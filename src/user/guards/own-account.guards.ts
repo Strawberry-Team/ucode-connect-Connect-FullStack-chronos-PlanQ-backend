@@ -1,5 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, ForbiddenException } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import {CanActivate, ExecutionContext, Injectable, ForbiddenException} from '@nestjs/common';
 
 @Injectable()
 export class OwnAccountGuard implements CanActivate {
@@ -7,9 +6,6 @@ export class OwnAccountGuard implements CanActivate {
         const request = context.switchToHttp().getRequest();
         const user = request.user;
         const requestUserId: number = request.params.id;
-
-        console.log("user.userId: ", user.userId);
-        console.log("requestUserId: ", Number(requestUserId));
 
         if (!user || !requestUserId) {
             throw new ForbiddenException('Access denied');

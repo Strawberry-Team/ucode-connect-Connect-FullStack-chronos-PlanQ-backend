@@ -35,7 +35,7 @@ export class AuthController {
     @Get('csrf-token')
     getCsrf(@Req() req: ExpressRequest): { csrfToken: string } {
         const token = req.csrfToken();
-        return { csrfToken: token };
+        return {csrfToken: token};
     }
 
     @HttpCode(204)

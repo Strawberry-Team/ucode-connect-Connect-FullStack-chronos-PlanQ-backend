@@ -1,7 +1,7 @@
-export function convertToSeconds(time: string):number{
+export function convertToSeconds(time: string): number {
     const separateTime = parseTimeString(time);
 
-    if(!separateTime){
+    if (!separateTime) {
         throw new Error(`IllegalArgumentException: Invalid time format: ${time}`);
     }
 
@@ -24,11 +24,11 @@ export function convertToSeconds(time: string):number{
 
 function parseTimeString(timeString: string): { value: number; unit: string } | null {
     const match = timeString.match(/^(\d+)([smhd])$/);
-    
+
     if (!match) return null;
-  
+
     return {
-      value: parseInt(match[1], 10),
-      unit: match[2]
+        value: parseInt(match[1], 10),
+        unit: match[2]
     };
-  }
+}

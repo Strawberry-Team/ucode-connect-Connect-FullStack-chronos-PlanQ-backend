@@ -40,8 +40,7 @@ async function bootstrap() {
         csurf({
             cookie: {
                 key: csrfConfig.cookie.key,
-                httpOnly: false,
-                // httpOnly: csrfConfig.cookie.httpOnly, //Not available via JS
+                httpOnly: csrfConfig.cookie.httpOnly, //Not available via JS
                 secure: nodeEnv === 'production', //cookies are only transmitted via HTTPS
                 sameSite: csrfConfig.cookie.sameSite, //Cookies will only be sent for requests originating from the same domain (site)
             },
