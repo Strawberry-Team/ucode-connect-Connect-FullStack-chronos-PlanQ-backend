@@ -13,13 +13,12 @@ export class CountryController {
     }
 
 
-    @Get('holidays')
+    @Get('holidays') //TODO: перенести в контроллер calendars
     async getCountryHolidays(
-        @Query('countryCode') countryCode: string,
-        @Query('lang') lang: string,
         @Res() res: Response,
     ): Promise<any> {
-        //TODO: В будущем здесь можно реализовать вызов другого Calendar Google API для получения праздников.
+        //TODO: added another language support(apart from English)
+        //TODO: В будущем здесь можно реализовать вызов другого Calendar Google API для получения праздников. Возвращать и на английском, и на локальном
         throw new NotImplementedException('National holidays endpoint not supported yet.');
     }
 

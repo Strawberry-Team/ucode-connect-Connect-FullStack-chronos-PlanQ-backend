@@ -5,8 +5,8 @@ dotenv.config();
 
 export default () => {
     return {
-        api: {
-            countryApiUrl: String(validateEnv('COUNTRY_API_URL')),
+        countryApi: {
+            url: String(validateEnv('COUNTRY_API_URL')),
         },
     };
 };

@@ -10,6 +10,7 @@ export default () => {
 
     return {
         app: {
+            name: String(validateEnv('APP_NAME')),
             port: parseInt(String(validateEnv('APP_PORT')), 10),
             host: String(validateEnv('APP_HOST')),
             globalPrefix: String(validateEnv('APP_GLOBAL_PREFIX')),

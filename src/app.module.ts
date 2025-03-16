@@ -9,7 +9,7 @@ import appConfig from "./config/app.config";
 import { RefreshTokenModule } from './token/refresh-token.module';
 import { JwtConfigModule } from './jwt/jwt.module';
 import { CountryModule } from './country/country.module';
-import apiConfig from "./config/api.config";
+import apiConfig from "./config/country.api.config";
 import { SchedulerTasksModule } from './schedulerTasks/tasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
 

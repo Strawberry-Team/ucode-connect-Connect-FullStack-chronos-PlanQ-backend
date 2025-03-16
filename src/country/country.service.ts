@@ -17,7 +17,7 @@ export class CountryService {
 
     async refreshCountries(): Promise<void> {
         try {
-            const apiUrl = String(this.configService.get<string>('api.countryApiUrl'));
+            const apiUrl = String(this.configService.get<string>('countryApi.url'));
             const response = await firstValueFrom(this.httpService.get(apiUrl));
             const countries = response.data.map((country) => ({
                 name: country.name.common,
