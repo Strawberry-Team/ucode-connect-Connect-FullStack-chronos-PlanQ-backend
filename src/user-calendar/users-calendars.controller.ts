@@ -23,6 +23,7 @@ import { BaseCrudController } from '../common/controller/base-crud.controller';
 import {CalendarOwnerGuard, OnlyDirectOwner} from "../calendar/guards/own.calendar.guard";
 import {OwnUserCalendarGuard} from "./guards/own.user-calendar.guard";
 import {UpdateUserCalendarGuard} from "./guards/update.user-calendar.guard";
+import { CalendarParticipantGuard } from './guards/user-calendar-role.guard';
 
 @Controller('calendars/:calendarId/users')
 @UsePipes(new ValidationPipe({ whitelist: true }))
@@ -37,7 +38,7 @@ export class UsersCalendarsController extends BaseCrudController<
 
     protected async findById(id: number, req: RequestWithUser): Promise<UserCalendar> {
         const calendarId = parseInt(req.params.calendarId, 10);
-        return await this.usersCalendarsService.getUserCalendar(calendarId, id);
+        return await this.usersCalendarsService.getUserCalendar(id, calendarId);
     }
 
     protected async createEntity(dto: AddUserToCalendarDto, req: RequestWithUser): Promise<UserCalendar> {
@@ -68,6 +69,7 @@ export class UsersCalendarsController extends BaseCrudController<
         );
     }
 
+    @UseGuards(CalendarParticipantGuard)
     @Get() //TODO: add guard только участники календаря могут видеть список участников
     async getCalendarUsers(@Param('calendarId') calendarId: number, @Req() req: RequestWithUser): Promise<UserCalendar[]> {
         return await this.usersCalendarsService.getCalendarUsers(calendarId, req.user.userId);

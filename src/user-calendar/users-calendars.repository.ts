@@ -18,8 +18,9 @@ export class UsersCalendarsRepository {
     }
 
     async findByUserAndCalendar(userId: number, calendarId: number): Promise<UserCalendar | null> {
+        console.log("userId, calendarId:", userId," ",calendarId)
         return this.repo.findOne({
-            where: { userId, calendarId },
+            where: { userId, calendarId },//108 12
             relations: ['calendar']
         });
     }
