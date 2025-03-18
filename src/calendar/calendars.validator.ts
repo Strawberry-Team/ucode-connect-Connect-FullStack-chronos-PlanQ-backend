@@ -58,42 +58,9 @@ export function IsCalendarColor(isOptional: boolean) {
 /**
  * Декоратор для валидации ролей календаря
  * @param isOptional - является ли поле необязательным
- * @param includeOwner - включать ли роль OWNER в валидацию
  */
-export function IsCalendarRole(isOptional: boolean, includeOwner: boolean = false) {
-    let allowedRoles: CalendarRole[];
-
-    if (includeOwner) {
-        allowedRoles = Object.values(CalendarRole);
-    } else {
-        allowedRoles = [CalendarRole.EDITOR, CalendarRole.VIEWER];
-    }
-
-    const decorators = [
-        IsEnum(CalendarRole, {
-            message: includeOwner
-                ? 'Role must be owner, editor or viewer'
-                : 'Role must be either editor or viewer'
-        }),
-        (target: any, propertyKey: string) => {
-            // Проверка, что значение входит в разрешенный список ролей
-            registerDecorator({
-                name: 'isInAllowedRoles',
-                target: target.constructor,
-                propertyName: propertyKey,
-                options: {
-                    message: includeOwner
-                        ? 'Role must be owner, editor or viewer'
-                        : 'Role must be either editor or viewer'
-                },
-                validator: {
-                    validate(value: any) {
-                        return allowedRoles.includes(value);
-                    }
-                }
-            });
-        }
-    ];
+export function IsCalendarRole(isOptional: boolean) {
+    const decorators = [IsEnum(CalendarRole)];
 
     if (isOptional) {
         return applyDecorators(IsOptional(), ...decorators);
