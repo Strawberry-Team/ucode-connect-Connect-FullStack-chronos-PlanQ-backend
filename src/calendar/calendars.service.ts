@@ -108,7 +108,7 @@ export class CalendarsService {
             throw new NotFoundException('Calendar not found');
         }
 
-        if (Boolean(userCalendar.isMain[0])) {
+        if (userCalendar.isMain) {
             throw new BadRequestException('Cannot delete your main calendar');
         }
 

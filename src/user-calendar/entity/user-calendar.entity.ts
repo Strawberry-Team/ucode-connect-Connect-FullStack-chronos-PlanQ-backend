@@ -13,6 +13,7 @@ import {
 } from 'typeorm';
 import { User } from '../../user/entity/user.entity';
 import { Calendar } from '../../calendar/entity/calendar.entity';
+import { BooleanTransformer } from 'src/common/transformers/BooleanTransformer';
 
 export enum CalendarRole {
     OWNER = 'owner',
@@ -33,7 +34,7 @@ export class UserCalendar {
     @Column({ name: 'calendar_id' })
     calendarId: number;
 
-    @Column({ name: 'is_main', type: 'bit', width: 1, default: () => "b'0'" })
+    @Column({ name: 'is_main', type: 'bit', width: 1, default: () => "b'0'", transformer: BooleanTransformer})
     isMain: boolean;
 
     @Column({
@@ -46,7 +47,7 @@ export class UserCalendar {
     @Column({ type: 'char', length: 7 })
     color: string;
 
-    @Column({ name: 'is_confirmed', type: 'bit', width: 1, default: () => "b'0'" })
+    @Column({ name: 'is_confirmed', type: 'bit', width: 1, default: () => "b'0'", transformer: BooleanTransformer })
     isConfirmed: boolean;
 
     @CreateDateColumn({ name: 'created_at', type: 'timestamp' })

@@ -12,6 +12,7 @@ import { RefreshTokenNonce } from 'src/refresh-token-nonce/entities/refresh-toke
 import { Expose } from 'class-transformer';
 import { Calendar } from 'src/calendar/entity/calendar.entity';
 import { UserCalendar } from 'src/user-calendar/entity/user-calendar.entity';
+import { BooleanTransformer } from 'src/common/transformers/BooleanTransformer';
 
 export const SERIALIZATION_GROUPS = {
     BASIC: ['basic'],
@@ -48,7 +49,7 @@ export class User {
     @Expose({ groups: ['basic'] })
     profilePictureName: string;
 
-    @Column({name: 'email_verified', type: 'bit', width: 1, default: () => "b'0'"})
+    @Column({name: 'email_verified', type: 'bit', width: 1, default: () => "b'0'", transformer: BooleanTransformer})
     @Expose({ groups: ['confidential'] })
     emailVerified?: boolean;
 

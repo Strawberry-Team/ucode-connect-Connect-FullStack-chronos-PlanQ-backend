@@ -60,7 +60,7 @@ export class AuthService {
             throw new UnauthorizedException('Invalid password');
         }
 
-        if (!Boolean(user.emailVerified?.[0])) {
+        if (!user.emailVerified) {
             throw new ForbiddenException('Please verify your email.');
         }
 
