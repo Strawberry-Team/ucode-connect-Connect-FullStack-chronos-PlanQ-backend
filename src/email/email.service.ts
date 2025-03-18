@@ -75,7 +75,7 @@ export class EmailService {
             const info = await transporter.sendMail({
                 from: this.gmailUser,
                 to,
-                subject,
+                subject, 
                 html,
                 attachments: [
                     {

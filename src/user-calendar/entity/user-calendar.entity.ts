@@ -7,7 +7,9 @@ import {
     ManyToOne,
     JoinColumn,
     Index,
-    Unique
+    Unique,
+    ManyToMany,
+    OneToMany
 } from 'typeorm';
 import { User } from '../../user/entity/user.entity';
 import { Calendar } from '../../calendar/entity/calendar.entity';
@@ -53,11 +55,11 @@ export class UserCalendar {
     @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
     updatedAt: Date;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, (user) => user.userCalendars, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'user_id' })
     user: User;
 
-    @ManyToOne(() => Calendar)
+    @ManyToOne(() => Calendar, (calendar) => calendar.userCalendars, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'calendar_id' })
     calendar: Calendar;
 }

@@ -4,11 +4,14 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
-    OneToMany
+    OneToMany,
+    ManyToMany
 } from 'typeorm';
 
 import { RefreshTokenNonce } from 'src/refresh-token-nonce/entities/refresh-token-nonce.entity';
 import { Expose } from 'class-transformer';
+import { Calendar } from 'src/calendar/entity/calendar.entity';
+import { UserCalendar } from 'src/user-calendar/entity/user-calendar.entity';
 
 export const SERIALIZATION_GROUPS = {
     BASIC: ['basic'],
@@ -64,7 +67,19 @@ export class User {
     @OneToMany(() => RefreshTokenNonce, (RefreshTokenNonce) => RefreshTokenNonce.user, {
         cascade: true,
     })
-  
-    @Expose({ groups: ['confidential'] })
+    @Expose({ groups: ['confidential'] }) 
     refreshTokenNonces: Promise<RefreshTokenNonce[]>;
+ 
+    @OneToMany(() => Calendar, (calendar) => calendar.owner, {
+        cascade: true,  // Удалит календари при удалении пользователя
+        onDelete: 'CASCADE',
+    })
+    @Expose({ groups: ['confidential'] })
+    calendars: Promise<Calendar[]>;
+
+    @OneToMany(() => UserCalendar, (userCalendar) => userCalendar.user, {
+        cascade: true,
+    })
+    @Expose({ groups: ['confidential'] })
+    userCalendars: Promise<UserCalendar[]>;
 }

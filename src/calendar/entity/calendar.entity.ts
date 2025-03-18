@@ -6,7 +6,8 @@ import {
     UpdateDateColumn,
     ManyToOne,
     JoinColumn,
-    OneToMany
+    OneToMany,
+    ManyToMany
 } from 'typeorm';
 import { User } from '../../user/entity/user.entity';
 import { UserCalendar } from '../../user-calendar/entity/user-calendar.entity';
@@ -31,10 +32,13 @@ export class Calendar {
     @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
     updatedAt: Date;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, (user) => user.calendars, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'owner_id' })
     owner: User;
 
-    @OneToMany(() => UserCalendar, (userCalendar) => userCalendar.calendar)
+    @OneToMany(() => UserCalendar, (userCalendar) => userCalendar.calendar, {
+        cascade: true,  // Удалит записи из `users_calendars` при удалении календаря
+        onDelete: 'CASCADE',
+    })
     userCalendars: UserCalendar[];
 }
