@@ -37,7 +37,7 @@ export class GoogleOAuthService {
             clientId: this.clientId,
             clientSecret: this.clientSecret,
             refreshToken: this.currentRefreshToken,
-            redirectUri: this.redirectUri
+            redirectUri: this.redirectUri,
         };
     }
 

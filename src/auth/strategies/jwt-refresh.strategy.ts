@@ -1,11 +1,17 @@
 import {createJwtStrategy} from '../../jwt/jwt-strategy.factory';
 
 const refreshTokenExtractor = (req: any): string | null => {
+    console.log("req?.body?.refreshToken", req?.body?.refreshToken)
     return req?.body?.refreshToken || null;
 };
 
 const refreshValidateFn = (payload: any) => {
-    return {userId: payload.sub, expiresIn: payload.exp, createdAt: payload.iat};
+    console.log("nonce: payload.nonce", payload.nonce)
+    return {userId: payload.sub,
+            nonce: payload.nonce,
+            expiresIn: payload.exp,
+            createdAt: payload.iat
+    };
 };
 
 export const JwtRefreshStrategy = createJwtStrategy({

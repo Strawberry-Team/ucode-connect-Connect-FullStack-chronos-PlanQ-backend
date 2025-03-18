@@ -3,10 +3,11 @@ import {AuthService} from './auth.service';
 import {CreateUserDto} from '../user/dto/create-user.dto';
 import {LoginDto} from './dto/login.dto';
 import {ResetPasswordDto} from './dto/reset-password.dto';
-import {RefreshTokenDto} from '../token/dto/refresh-token.dto';
+import {RefreshTokenNonceDto} from '../token/dto/refresh-token-nonce.dto';
 import {newPasswordDto} from './dto/new-password.dto'
 import {JwtRefreshGuard, JwtResetPasswordGuard, JwtConfirmEmailGuard, JwtAuthGuard} from './guards/auth.jwt-guards';
 import {Request as ExpressRequest} from 'express';
+
 import {RequestWithUser} from '../common/types/request.types';
 
 @Controller('auth')
@@ -35,14 +36,15 @@ export class AuthController {
     @HttpCode(204)
     @UseGuards(JwtRefreshGuard)
     @Post('logout')
-    async logout(@Request() req: RequestWithUser, @Body() refreshToken: RefreshTokenDto) {
-        return this.authService.logout(req.user.userId, refreshToken);
+    async logout(@Request() req: RequestWithUser) {
+        console.log("req.user.nonce", req.user);
+        return this.authService.logout(req.user.userId, String(req.user.nonce));
     }
 
     @UseGuards(JwtRefreshGuard)
     @Post('/access-token/refresh')
-    async refreshToken(@Request() req: RequestWithUser, @Body() refreshToken: RefreshTokenDto) {
-        return this.authService.refreshToken(req.user.userId, Number(req.user.expiresIn), Number(req.user.createdAt), refreshToken);
+    async refreshToken(@Request() req: RequestWithUser) {
+        return this.authService.refreshToken(req.user.userId, Number(req.user.createdAt), String(req.user.nonce));
     }
 
     @UseGuards(JwtResetPasswordGuard)

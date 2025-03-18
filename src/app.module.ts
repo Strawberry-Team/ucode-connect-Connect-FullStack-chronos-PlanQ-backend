@@ -6,7 +6,7 @@ import { AuthModule } from './auth/auth.module'
 import databaseConfig from './config/database.app.config';
 import jwtConfig from './config/jwt.config';
 import appConfig from "./config/app.config";
-import { RefreshTokenModule } from './token/refresh-token.module';
+import { NonceModule } from './token/refresh-token-nonce.module';
 import { JwtConfigModule } from './jwt/jwt.module';
 import { CountryModule } from './country/country.module';
 import apiConfig from "./config/country.api.config";
@@ -40,7 +40,7 @@ import { ScheduleModule } from '@nestjs/schedule';
         JwtConfigModule,
         UsersModule,
         AuthModule,
-        RefreshTokenModule,
+        NonceModule,
         CountryModule,
         SchedulerTasksModule
     ],

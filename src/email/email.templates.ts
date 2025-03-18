@@ -1,16 +1,34 @@
+
 export const getConfirmationEmailTemplate = (
-    confirmationLink: string,
-    projectName: string
+  confirmationLink: string,
+  projectName: string
 ) => `
 <div style="margin:0; padding:0; background-color:#f4f4f4;">
-  <div style="max-width:600px; margin:40px auto; background:#fff; padding:20px; border:1px solid #ddd;">
+  <div
+    style="max-width:600px; margin:40px auto; background:#fff; padding:20px; border:1px solid #ddd;"
+  >
+    <!-- Блок с логотипом -->
     <div style="text-align:center; margin-bottom:20px;">
-      <h2 style="font-family: Arial, sans-serif;">Welcome to ${projectName}!</h2>
+      <img src="cid:logo@project" alt="${projectName} Logo" style="max-width:150px;">
     </div>
-    <div style="font-family: Arial, sans-serif; font-size:14px; color:#333;">
-      <p>Thank you for registering. Please confirm your email by clicking the button below:</p>
+    <div style="text-align:center; margin-bottom:20px;">
+      <h2 style="font-family: Arial, sans-serif;">
+        Welcome to PlanQ!
+      </h2>
+    </div>
+    <div
+      style="font-family: Arial, sans-serif; font-size:14px; color:#333;"
+    >
+      <p>
+        Thank you for registering. Please confirm your email by clicking the
+        button below:
+      </p>
       <div style="text-align:center; margin:20px;">
-        <a href="${confirmationLink}" style="background-color:#007BFF; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">
+        <a
+          href="${confirmationLink}"
+          style="background-color:#007BFF; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;"
+          target="_blank"
+        >
           Confirm Email
         </a>
       </div>
@@ -21,18 +39,22 @@ export const getConfirmationEmailTemplate = (
 `;
 
 export const getResetPasswordEmailTemplate = (
-    resetLink: string,
-    projectName: string
+  resetLink: string,
+  projectName: string
 ) => `
 <div style="margin:0; padding:0; background-color:#f4f4f4;">
   <div style="max-width:600px; margin:40px auto; background:#fff; padding:20px; border:1px solid #ddd;">
+    <!-- Блок с логотипом -->
+    <div style="text-align:center; margin-bottom:20px;">
+      <img src="cid:logo@project" alt="${projectName} Logo" style="max-width:150px;">
+    </div>
     <div style="text-align:center; margin-bottom:20px;">
       <h2 style="font-family: Arial, sans-serif;">Reset Password for ${projectName}</h2>
     </div>
     <div style="font-family: Arial, sans-serif; font-size:14px; color:#333;">
       <p>You have requested to reset your password. Click the button below to proceed:</p>
       <div style="text-align:center; margin:20px;">
-        <a href="${resetLink}" style="background-color:#28A745; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">
+        <a href="${resetLink}" style="background-color:#28A745; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px; target="_blank"; ">
           Reset Password
         </a>
       </div>
@@ -43,13 +65,17 @@ export const getResetPasswordEmailTemplate = (
 `;
 
 export const getCalendarShareEmailTemplate = (
-    calendarName: string,
-    shareLink: string,
-    inviter: string,
-    projectName: string
+  calendarName: string,
+  shareLink: string,
+  inviter: string,
+  projectName: string
 ) => `
 <div style="margin:0; padding:0; background-color:#f4f4f4;">
   <div style="max-width:600px; margin:40px auto; background:#fff; padding:20px; border:1px solid #ddd;">
+    <!-- Блок с логотипом -->
+    <div style="text-align:center; margin-bottom:20px;">
+      <img src="cid:logo@project" alt="${projectName} Logo" style="max-width:150px;">
+    </div>
     <div style="text-align:center; margin-bottom:20px;">
       <h2 style="font-family: Arial, sans-serif;">Access to Calendar on ${projectName}</h2>
     </div>
@@ -67,16 +93,20 @@ export const getCalendarShareEmailTemplate = (
 `;
 
 export const getEventInvitationEmailTemplate = ( //TODO: add timezone and change UTC to local time
-    inviter: string,
-    eventTitle: string,
-    eventDateTimeStartedAt: string,
-    eventDateTimeEndedAt: string,
-    shareLink: string,
-    guestEmails: string[],
-    projectName: string
+  inviter: string,
+  eventTitle: string,
+  eventDateTimeStartedAt: string,
+  eventDateTimeEndedAt: string,
+  shareLink: string,
+  guestEmails: string[],
+  projectName: string
 ) => `
 <div style="margin:0; padding:0; background-color:#f4f4f4;">
   <div style="max-width:600px; margin:40px auto; background:#fff; padding:20px; border:1px solid #ddd;">
+    <!-- Блок с логотипом -->
+    <div style="text-align:center; margin-bottom:20px;">
+      <img src="cid:logo@project" alt="${projectName} Logo" style="max-width:150px;">
+    </div>
     <div style="text-align:center; margin-bottom:20px;">
       <h2 style="font-family: Arial, sans-serif;">Event Invitation on ${projectName}</h2>
     </div>
@@ -100,13 +130,17 @@ export const getEventInvitationEmailTemplate = ( //TODO: add timezone and change
 `;
 
 export const getEventReminderEmailTemplate = (
-    eventTitle: string,
-    calendarName: string,
-    eventTimeStartedAt: string,
-    projectName: string
+  eventTitle: string,
+  calendarName: string,
+  eventTimeStartedAt: string,
+  projectName: string
 ) => `
 <div style="margin:0; padding:0; background-color:#f4f4f4;">
   <div style="max-width:600px; margin:40px auto; background:#fff; padding:20px; border:1px solid #ddd;">
+    <!-- Блок с логотипом -->
+    <div style="text-align:center; margin-bottom:20px;">
+      <img src="cid:logo@project" alt="${projectName} Logo" style="max-width:150px;">
+    </div>
     <div style="text-align:center; margin-bottom:20px;">
       <h2 style="font-family: Arial, sans-serif;">Event Reminder from ${projectName}</h2>
     </div>
@@ -119,13 +153,17 @@ export const getEventReminderEmailTemplate = (
 `;
 
 export const getCalendarReminderEmailTemplate = (
-    reminderName: string,
-    description: string,
-    calendarName: string,
-    projectName: string
+  reminderName: string,
+  description: string,
+  calendarName: string,
+  projectName: string
 ) => `
 <div style="margin:0; padding:0; background-color:#f4f4f4;">
   <div style="max-width:600px; margin:40px auto; background:#fff; padding:20px; border:1px solid #ddd;">
+    <!-- Блок с логотипом -->
+    <div style="text-align:center; margin-bottom:20px;">
+      <img src="cid:logo@project" alt="${projectName} Logo" style="max-width:150px;">
+    </div>
     <div style="text-align:center; margin-bottom:20px;">
       <h2 style="font-family: Arial, sans-serif;">Reminder from ${projectName}</h2>
     </div>

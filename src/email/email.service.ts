@@ -10,26 +10,44 @@ import {
     getCalendarReminderEmailTemplate,
 } from './email.templates';
 import { GoogleOAuthService } from '../google/google-oauth.service';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class EmailService {
     private gmailUser: string;
     private appName: string;
+    private logo: any;
 
     constructor(
         private readonly configService: ConfigService,
         private readonly googleOAuthService: GoogleOAuthService
     ) {
-
         this.gmailUser = String(this.configService.get<string>('google.gmailApi.user'));
         this.appName = String(this.configService.get<string>('app.name'));
         // Initialise the oAuth2 client by setting the refresh token
         this.googleOAuthService.setCredentials(String(this.configService.get<string>('google.gmailApi.refreshToken')));
+
+        this.init();
     }
+
+    private async init() {
+        this.logo = await this.readLogoFile('./public/uploads/logo/logo.png');
+        console.log("logo: ", this.logo);
+    }
+
+    private async readLogoFile(filePath: string): Promise<Buffer> {
+        return fs.readFileSync(path.resolve(filePath));
+      }
+
+    private async readHtmlFile(filePath: string): Promise<string> {
+        return fs.readFileSync(path.resolve(filePath), 'utf-8');
+    };
 
     private async createTransport() {
         const accessToken = await this.googleOAuthService.getAccessToken();
         const oauthDetails = this.googleOAuthService.getOAuthCredentials();
+        console.log("createdTransport")
         return nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -38,7 +56,7 @@ export class EmailService {
                 clientId: oauthDetails.clientId,
                 clientSecret: oauthDetails.clientSecret,
                 refreshToken: oauthDetails.refreshToken,
-                accessToken,
+                redirectUri: oauthDetails.redirectUri,
             },
         });
     }
@@ -46,17 +64,26 @@ export class EmailService {
     async sendEmail(to: string, subject: string, html: string): Promise<void> {
         try {
             const transporter = await this.createTransport();
+
             // transporter.on("token", (token) => {
             //     console.log("A new access token was generated");
             //     console.log("User: %s", token.user);
             //     console.log("Access Token: %s", token.accessToken);
             //     console.log("Expires: %s", new Date(token.expires));
             // });
+
             const info = await transporter.sendMail({
                 from: this.gmailUser,
                 to,
                 subject,
                 html,
+                attachments: [
+                    {
+                        filename: 'logo.png',
+                        content: this.logo,
+                        cid: 'logo@project',
+                    },
+                ],
             });
             console.log(`Email sent successfully: ${info.messageId}`);
         } catch (error) {
@@ -66,13 +93,20 @@ export class EmailService {
     }
 
     async sendConfirmationEmail(to: string, confirmationLink: string): Promise<void> {
+        // if (!this.logoSVG) {
+        //     this.logoSVG = await this.readHtmlFile('./public/uploads/logo/logo_svg.txt');
+        // }
+        // console.log("image_svg", this.logoSVG);
         const html = getConfirmationEmailTemplate(confirmationLink, this.appName);
+        console.log("html: ", html);
         await this.sendEmail(to, `Email Confirmation for ${this.appName}`, html);
     }
 
     async sendResetPasswordEmail(to: string, resetLink: string): Promise<void> {
+        console.log("resetLink: ", resetLink);
         const html = getResetPasswordEmailTemplate(resetLink, this.appName);
-        await this.sendEmail(to, `Reset Password for ${this.appName}`, html);
+        console.log("html1: ", html);
+        // await this.sendEmail(to, `Reset Password for ${this.appName}`, html);
     }
 
     async sendCalendarShareEmail(

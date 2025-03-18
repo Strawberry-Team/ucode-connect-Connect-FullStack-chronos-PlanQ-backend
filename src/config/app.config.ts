@@ -19,7 +19,7 @@ export default () => {
             frontendProtocol,
             frontendHost,
             frontendPort,
-            frontendLink: `${frontendProtocol}://${frontendHost}:${frontendPort}`,
+            frontendLink: `${frontendProtocol}://${frontendHost}:${frontendPort}/`,
             nodeEnv: String(validateEnv('APP_NODE_ENV')),
             cors: {
                 methods: String(validateEnv('APP_CORS_METHODS')).split(','),
@@ -33,6 +33,9 @@ export default () => {
                     sameSite: String(validateEnv('APP_CSRF_COOKIE_SAME_SITE')),
                 },
                 ignoreMethods: String(validateEnv('APP_CSRF_IGNORE_METHODS')).split(','),
+            },
+            imags: {
+                logo: String(validateEnv('IMAGE_BASE64'))
             }
         }
     };
