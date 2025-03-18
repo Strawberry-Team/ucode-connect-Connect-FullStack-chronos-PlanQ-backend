@@ -17,7 +17,7 @@ export class CalendarApiService {
     ) {
         this.calendarFilePath = path.resolve(
             __dirname,
-            'country.holiday-calendar.json'
+            'data/country.holiday-calendar.json'
         );
 
         this.googleOAuthService.setCredentials(String(this.configService.get<string>('google.calendarApi.refreshToken')));
@@ -30,7 +30,7 @@ export class CalendarApiService {
             const rawData = fs.readFileSync(this.calendarFilePath, 'utf-8');
             this.calendarData = JSON.parse(rawData);
         } catch (error) {
-            throw new Error('Failed to load calendar data');
+            throw new Error('Failed to load calendar data' + error.message);
         }
     }
 

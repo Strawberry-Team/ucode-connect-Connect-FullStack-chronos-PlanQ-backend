@@ -20,6 +20,7 @@ async function bootstrap() {
     const port = Number(configService.get<number>('app.port'));
     const host = String(configService.get<number>('app.host'));
     const protocol = String(configService.get<number>('app.protocol'));
+    const baseUrl = `${protocol}://${host}${port ? `:${port}` : ''}`;
     const frontendOrigin = String(configService.get<string>('app.frontendLink'));
     const csrfConfig = configService.get('app.csrf');
     const corsConfig = configService.get('app.cors');
@@ -49,7 +50,7 @@ async function bootstrap() {
     );
 
     await app.listen(port);
-    console.log(`Application is running on: ${frontendOrigin}`);
+    console.log(`Application is running on: ${baseUrl}/${globalPrefix}`);
 }
 
 bootstrap();

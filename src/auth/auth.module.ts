@@ -6,7 +6,7 @@ import {JwtRefreshStrategy} from './strategies/jwt-refresh.strategy';
 import {JwtResetPasswordStrategy} from './strategies/jwt-reset-password.stategy';
 import {JwtConfirmEmailStrategy} from './strategies/jwt-confirm-email.strategy';
 import {UsersModule} from '../user/users.module'
-import {NonceModule} from 'src/token/refresh-token-nonce.module';
+import {RefreshTokenNonceModule} from 'src/refresh-token-nonce/refresh-token-nonce.module';
 import {
     JwtAuthGuard,
     JwtRefreshGuard,
@@ -19,7 +19,7 @@ import { EmailModule } from 'src/email/email.module';
     imports: [
         UsersModule,
         EmailModule,
-        forwardRef(() => NonceModule),
+        forwardRef(() => RefreshTokenNonceModule),
     ],
     controllers: [AuthController], 
     providers: [AuthService,

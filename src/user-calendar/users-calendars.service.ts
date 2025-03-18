@@ -1,8 +1,7 @@
-// src/users-calendars/users-calendars.service.ts
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, ConflictException, Inject, forwardRef } from '@nestjs/common';
 import { UsersCalendarsRepository } from './users-calendars.repository';
-import { CalendarsRepository } from '../calendars/calendars.repository';
-import { UsersService } from '../users/users.service';
+import { CalendarsRepository } from '../calendar/calendars.repository';
+import { UsersService } from '../user/users.service';
 import { AddUserToCalendarDto } from './dto/add-user-to-calendar.dto';
 import { UpdateUserInCalendarDto } from './dto/update-user-in-calendar.dto';
 import { UserCalendar, CalendarRole } from './entity/user-calendar.entity';
@@ -20,8 +19,14 @@ export class UsersCalendarsService {
         return this.usersCalendarsRepository.findUserCalendars(userId);
     }
 
-    async getUserCalendar(userId: number, calendarId: number): Promise<UserCalendar[]> {
-        return this.usersCalendarsRepository.findUserCalendar(userId, calendarId);
+    async getUserCalendar(userId: number, calendarId: number): Promise<UserCalendar> {
+        const result = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
+
+        if(!result) {
+            throw new NotFoundException('User does not have access to this calendar');
+        }
+
+        return result;
     }
 
     async addUserToCalendar(
@@ -122,10 +127,16 @@ export class UsersCalendarsService {
         }
 
         // Update the role
-        return this.usersCalendarsRepository.updateUserCalendar(
+        const result = await this.usersCalendarsRepository.updateUserCalendar(
             userCalendarToUpdate.id,
             { role: dto.role }
         );
+
+        if (!result) {
+            throw new NotFoundException('User not found');
+        }
+
+        return result;
     }
 
     async removeUserFromCalendar(
@@ -170,7 +181,7 @@ export class UsersCalendarsService {
 
     async getCalendarUsers(calendarId: number): Promise<UserCalendar[]> {
         // Check if calendar exists
-        await this.getCalendarById(calendarId);
+        // await this.getCalendarById(calendarId);
 
         return this.usersCalendarsRepository.findCalendarUsers(calendarId);
     }

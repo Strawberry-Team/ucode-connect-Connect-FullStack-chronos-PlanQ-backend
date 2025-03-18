@@ -7,14 +7,18 @@ import {
     OneToMany
 } from 'typeorm';
 
-import { RefreshTokenNonce } from 'src/token/entities/refresh-token-nonce.entity';
+import { RefreshTokenNonce } from 'src/refresh-token-nonce/entities/refresh-token-nonce.entity';
 import { Expose } from 'class-transformer';
 
+export const SERIALIZATION_GROUPS = {
+    BASIC: ['basic'],
+    CONFIDENTIAL: ['basic', 'confidential'], // confidential включает basic
+};
 
 @Entity('users')
 export class User {
     @PrimaryGeneratedColumn()
-    @Expose({ groups: ['basic', 'confidential'] })
+    @Expose({ groups: ['basic'] })
     id: number;
 
     @Column({length: 255})
@@ -22,15 +26,15 @@ export class User {
     password?: string;
 
     @Column({name: 'first_name', length: 100})
-    @Expose({ groups: ['basic', 'confidential'] })
+    @Expose({ groups: ['basic'] })
     firstName: string;
 
     @Column({name: 'last_name', length: 100, nullable: true})
-    @Expose({ groups: ['basic', 'confidential'] })
-    lastName?: string | null;
+    @Expose({ groups: ['basic'] })
+    lastName?: string;
 
     @Column({unique: true, length: 255})
-    @Expose({ groups: ['basic', 'confidential'] })
+    @Expose({ groups: ['basic'] })
     email: string;
 
     @Column({
@@ -38,7 +42,7 @@ export class User {
         length: 255,
         default: 'default-avatar.png',
     })
-    @Expose({ groups: ['basic', 'confidential'] })
+    @Expose({ groups: ['basic'] })
     profilePictureName: string;
 
     @Column({name: 'email_verified', type: 'bit', width: 1, default: () => "b'0'"})
@@ -46,15 +50,15 @@ export class User {
     emailVerified?: boolean;
 
     @Column({name: 'country_code', type: 'char', length: 2})
-    @Expose({ groups: ['basic', 'confidential'] })
+    @Expose({ groups: ['basic'] })
     countryCode: string;
 
     @CreateDateColumn({name: 'created_at', type: 'timestamp'})
-    @Expose({ groups: ['basic', 'confidential'] })
+    @Expose({ groups: ['basic'] })
     createdAt: Date;
 
     @UpdateDateColumn({name: 'updated_at', type: 'timestamp'})
-    @Expose({ groups: ['basic', 'confidential'] })
+    @Expose({ groups: ['basic'] })
     updatedAt: Date;
 
     @OneToMany(() => RefreshTokenNonce, (RefreshTokenNonce) => RefreshTokenNonce.user, {

@@ -34,9 +34,6 @@ export default () => {
                 },
                 ignoreMethods: String(validateEnv('APP_CSRF_IGNORE_METHODS')).split(','),
             },
-            imags: {
-                logo: String(validateEnv('IMAGE_BASE64'))
-            }
         }
     };
 };

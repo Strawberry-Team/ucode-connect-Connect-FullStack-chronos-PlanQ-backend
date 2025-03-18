@@ -9,16 +9,19 @@ import {PasswordService} from "./passwords.service";
 import {OwnAccountGuard} from './guards/own-account.guard';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import {CalendarsModule} from "../calendar/calendars.module";
+import {UsersCalendarsModule} from "../user-calendar/users-calendars.module";
 
 
 @Module({
-    imports: [TypeOrmModule.forFeature([User]), CountryModule],
+    imports: [TypeOrmModule.forFeature([User]), CountryModule, CalendarsModule, UsersCalendarsModule],
     controllers: [UsersController],
     providers: [UsersService, UsersRepository, PasswordService, OwnAccountGuard,
         {
             provide: APP_INTERCEPTOR,
             useClass: ClassSerializerInterceptor,
         },
+
     ],
     exports: [UsersService, UsersRepository, PasswordService],
 })

@@ -18,5 +18,5 @@ import { RefreshTokenNonce } from './entities/refresh-token-nonce.entity';
     providers: [RefreshTokenNonceService, RefreshTokenNonceRepository, NonceUtils],
     exports: [RefreshTokenNonceService, NonceUtils],
 })
-export class NonceModule {
+export class RefreshTokenNonceModule {
 }

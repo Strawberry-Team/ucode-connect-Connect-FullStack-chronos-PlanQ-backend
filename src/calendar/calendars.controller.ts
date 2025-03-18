@@ -1,15 +1,11 @@
 // src/calendars/calendars.controller.ts
 import {
     Controller,
-    Get,
-    Post,
     Patch,
     Delete,
     Param,
     Body,
     Req,
-    UsePipes,
-    ValidationPipe,
     UseGuards
 } from '@nestjs/common';
 import { BaseCrudController } from '../common/controller/base-crud.controller';
@@ -17,9 +13,6 @@ import { Calendar } from './entity/calendar.entity';
 import { CreateCalendarDto } from './dto/create-calendar.dto';
 import { UpdateCalendarDto } from './dto/update-calendar.dto';
 import { CalendarsService } from './calendars.service';
-import { JwtAuthGuard } from '../auth/guards/auth.jwt-guards';
-import { Request } from 'express';
-import { UserCalendar } from '../users-calendars/entity/user-calendar.entity';
 import {RequestWithUser} from "../common/types/request.types";
 import {CalendarOwnerGuard} from "./guards/own.calendar.guard";
 

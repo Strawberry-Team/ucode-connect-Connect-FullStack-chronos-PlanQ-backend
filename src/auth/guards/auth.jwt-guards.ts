@@ -1,6 +1,6 @@
 import { AuthGuard } from "@nestjs/passport";
 import { createJwtGuard } from "../../jwt/jwt-guard.factory";
-import { RefreshTokenNonceService } from "src/token/refresh-token-nonce.service";
+import { RefreshTokenNonceService } from "src/refresh-token-nonce/refresh-token-nonce.service";
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 
 export const JwtAuthGuard = createJwtGuard('jwt-access');

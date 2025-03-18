@@ -6,12 +6,13 @@ import { AuthModule } from './auth/auth.module'
 import databaseConfig from './config/database.app.config';
 import jwtConfig from './config/jwt.config';
 import appConfig from "./config/app.config";
-import { NonceModule } from './token/refresh-token-nonce.module';
+import { RefreshTokenNonceModule } from './refresh-token-nonce/refresh-token-nonce.module';
 import { JwtConfigModule } from './jwt/jwt.module';
 import { CountryModule } from './country/country.module';
 import apiConfig from "./config/country.api.config";
 import { SchedulerTasksModule } from './schedulerTasks/tasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import {CalendarsModule} from "./calendar/calendars.module";
 
 @Module({
     imports: [
@@ -35,14 +36,15 @@ import { ScheduleModule } from '@nestjs/schedule';
             }),
         }),
         ConfigModule.forRoot({
-            isGlobal: true, // ✅ Доступен во всём приложении
+            isGlobal: true,
         }),
         JwtConfigModule,
         UsersModule,
         AuthModule,
-        NonceModule,
+        RefreshTokenNonceModule,
         CountryModule,
-        SchedulerTasksModule
+        SchedulerTasksModule,
+        CalendarsModule
     ],
     controllers: [],
     providers: [],

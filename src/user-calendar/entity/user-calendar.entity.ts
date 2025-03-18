@@ -44,7 +44,7 @@ export class UserCalendar {
     @Column({ type: 'char', length: 7 })
     color: string;
 
-    @Column({ name: 'is_confirmed', type: 'bit', width: 1, default: 0 })
+    @Column({ name: 'is_confirmed', type: 'bit', width: 1, default: () => "b'0'" })
     isConfirmed: boolean;
 
     @CreateDateColumn({ name: 'created_at', type: 'timestamp' })

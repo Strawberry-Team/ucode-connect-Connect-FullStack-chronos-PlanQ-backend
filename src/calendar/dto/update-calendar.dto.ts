@@ -7,5 +7,5 @@ export class UpdateCalendarDto {
     name?: string;
 
     @IsCalendarDescription(true, true)
-    description?: string | null;
+    description?: string;
 }

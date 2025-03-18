@@ -6,19 +6,19 @@ import {
 } from '@nestjs/common';
 import {CreateUserDto} from '../user/dto/create-user.dto';
 import {LoginDto} from '../auth/dto/login.dto';
-import {RefreshTokenNonceDto} from '../token/dto/refresh-token-nonce.dto';
+import {RefreshTokenNonceDto} from '.././refresh-token-nonce/dto/refresh-token-nonce.dto';
 import {ResetPasswordDto} from '../auth/dto/reset-password.dto';
-import {CreateRefreshTokenNonceDto} from '../token/dto/create-refresh-nonce.dto';
+import {CreateRefreshTokenNonceDto} from '.././refresh-token-nonce/dto/create-refresh-nonce.dto';
 import {newPasswordDto} from './dto/new-password.dto';
 import {UsersService} from 'src/user/users.service';
-import {RefreshTokenNonceService} from 'src/token/refresh-token-nonce.service';
+import {RefreshTokenNonceService} from 'src/refresh-token-nonce/refresh-token-nonce.service';
 import {JwtUtils} from '../jwt/jwt-token.utils';
 import {PasswordService} from "../user/passwords.service";
 import {convertToSeconds} from "../common/utils/time.utils";
 import { EmailService } from 'src/email/email.service';
 import {ConfigService} from '@nestjs/config';
 import { NonceUtils } from 'src/common/utils/nonce.utils';
-import { RefreshTokenDto } from '../token/dto/refresh-token.dto';
+import { RefreshTokenDto } from '.././refresh-token-nonce/dto/refresh-token.dto';
 
 
 @Injectable()

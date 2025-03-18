@@ -6,5 +6,6 @@ export interface RequestWithUser extends Request {
         userId: number;
         expiresIn?: number;
         createdAt?: number;
+        nonce?: string;
     };
 }

@@ -23,7 +23,7 @@ export class Calendar {
     name: string;
 
     @Column({ type: 'tinytext', nullable: true })
-    description?: string | null;
+    description?: string;
 
     @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
     createdAt: Date;

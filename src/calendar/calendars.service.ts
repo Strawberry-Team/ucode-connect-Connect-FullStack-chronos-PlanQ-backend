@@ -8,12 +8,12 @@ import {
     forwardRef
 } from '@nestjs/common';
 import {CalendarsRepository} from './calendars.repository';
-import {UsersCalendarsRepository} from '../users-calendars/users-calendars.repository';
+import {UsersCalendarsRepository} from '../user-calendar/users-calendars.repository';
 import {CreateCalendarDto} from './dto/create-calendar.dto';
 import {UpdateCalendarDto} from './dto/update-calendar.dto';
 import {Calendar} from './entity/calendar.entity';
-import {UserCalendar, CalendarRole} from '../users-calendars/entity/user-calendar.entity';
-import {UsersService} from '../users/users.service';
+import {UserCalendar, CalendarRole} from '../user-calendar/entity/user-calendar.entity';
+import {UsersService} from '../user/users.service';
 import {plainToInstance} from "class-transformer";
 import {User} from "../user/entity/user.entity";
 import {ConfigService} from "@nestjs/config";
@@ -24,7 +24,6 @@ export class CalendarsService {
         private readonly calendarsRepository: CalendarsRepository,
         @Inject(forwardRef(() => UsersCalendarsRepository))
         private readonly usersCalendarsRepository: UsersCalendarsRepository,
-        private readonly usersService: UsersService,
         private readonly configService: ConfigService
     ) {
     }
@@ -116,6 +115,10 @@ export class CalendarsService {
 
     async deleteCalendar(userId: number, calendarId: number): Promise<void> {
         const userCalendar = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
+
+        if (!userCalendar) {
+            throw new NotFoundException('Calendar not found');
+        }
 
         if (userCalendar.isMain) {
             throw new BadRequestException('Cannot delete your main calendar');
