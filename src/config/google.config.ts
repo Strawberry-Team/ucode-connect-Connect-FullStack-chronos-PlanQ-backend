@@ -16,6 +16,7 @@ export default () => {
                 refreshToken: String(validateEnv('GOOGLE_GMAIL_API_REFRESH_TOKEN')),
             },
             redirectUri: appConfiguration.app.frontendLink,
+            playgroundRedirectUri: String(validateEnv('GOOGLE_PLAYGROUND_REDIRECT_URI')),
             calendarApi: {
                 refreshToken: String(validateEnv('GOOGLE_CALENDAR_API_REFRESH_TOKEN')),
             }

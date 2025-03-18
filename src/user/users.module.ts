@@ -6,12 +6,20 @@ import {UsersRepository} from './users.repository';
 import {User} from './entity/user.entity';
 import {CountryModule} from 'src/country/country.module';
 import {PasswordService} from "./passwords.service";
-import { OwnAccountGuard } from './guards/own-account.guards';
+import {OwnAccountGuard} from './guards/own-account.guard';
+import { ClassSerializerInterceptor } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+
 
 @Module({
     imports: [TypeOrmModule.forFeature([User]), CountryModule],
     controllers: [UsersController],
-    providers: [UsersService, UsersRepository, PasswordService, OwnAccountGuard],
+    providers: [UsersService, UsersRepository, PasswordService, OwnAccountGuard,
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: ClassSerializerInterceptor,
+        },
+    ],
     exports: [UsersService, UsersRepository, PasswordService],
 })
 export class UsersModule {

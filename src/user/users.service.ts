@@ -10,12 +10,15 @@ import {CreateUserDto} from './dto/create-user.dto';
 import {UpdateUserDto} from './dto/update-user.dto';
 import {User} from './entity/user.entity';
 import {PasswordService} from "./passwords.service";
+import {CalendarsService} from "../calendar/calendars.service";
+import {plainToClass, plainToInstance} from "class-transformer";
 
 @Injectable()
 export class UsersService {
     constructor(
         private readonly usersRepository: UsersRepository,
-        private readonly passwordService: PasswordService
+        private readonly passwordService: PasswordService,
+        private readonly calendarsService: CalendarsService,
     ) {
     }
 
@@ -24,14 +27,12 @@ export class UsersService {
         if (!user) {
             throw new NotFoundException('User not found');
         }
-        return user;
+        return plainToInstance(User, user, { groups: ['confidential'] });
     }
 
     async getUserByIdWithoutPassword(id: number): Promise<User> {
         const result = await this.getUserById(id);
-        delete result.password;
-        delete result.emailVerified;
-        return result;
+        return plainToInstance(User, result, { groups: ['basic'] });
     }
 
 
@@ -40,13 +41,12 @@ export class UsersService {
         if (!result) {
             throw new NotFoundException('User with this email not found');
         }
-        return result;
+        return plainToInstance(User, result, { groups: ['confidential'] });
     }
 
     async getUserByEmailWithoutPassword(email: string): Promise<User> {
         const result = await this.getUserByEmail(email);
-        delete result.password;
-        return result;
+        return plainToInstance(User, result, { groups: ['basic'] });
     }
 
 
@@ -57,9 +57,10 @@ export class UsersService {
         }
         dto.password = await this.passwordService.hash(dto.password);
         const result = await this.usersRepository.createUser(dto);
-        delete result.password;
-        delete result.emailVerified;
-        return result;
+
+        await this.calendarsService.createDefaultCalendar(result.id);
+
+        return plainToInstance(User, result, { groups: ['basic'] });
     }
 
     async updateUser(id: number, dto: UpdateUserDto): Promise<User> {
@@ -75,7 +76,7 @@ export class UsersService {
                 throw new UnauthorizedException('Old password does not match');
             }
             const hashedNewPassword = await this.passwordService.hash(String(dto.newPassword));
-            delete dto.oldPassword; 
+            delete dto.oldPassword;
             delete dto.newPassword;
             const updateData: Partial<User> = {...dto};
             updateData.password = hashedNewPassword;
@@ -86,9 +87,7 @@ export class UsersService {
         if (!result) {
             throw new NotFoundException('User not found');
         }
-        delete result.password;
-        delete result.emailVerified;
-        return result;
+        return plainToInstance(User, result, { groups: ['basic'] });
     }
 
     async updatePassword(id: number, newPassword: string): Promise<User> {
@@ -98,9 +97,7 @@ export class UsersService {
         if (!result) {
             throw new NotFoundException('User not found');
         }
-        delete result.password;
-        delete result.emailVerified;
-        return result;
+        return plainToInstance(User, result, { groups: ['basic'] });
     }
 
     async deleteUser(id: number): Promise<void> {
@@ -109,10 +106,12 @@ export class UsersService {
 
     async confirmEmail(userId: number) {
         const updateData: Partial<User> = {emailVerified: true};
-        return await this.usersRepository.updateUser(userId, updateData);
+        const result = await this.usersRepository.updateUser(userId, updateData);
+        return plainToInstance(User, result, { groups: ['basic'] });
     }
 
     async getAllUnactivatedUsers(time: number): Promise<User[]> {
-        return await this.usersRepository.getAllUnactivatedUsers(time)
+        const users = await this.usersRepository.getAllUnactivatedUsers(time);
+        return users.map(user => plainToInstance(User, user, { groups: ['confidential'] }));
     }
 }

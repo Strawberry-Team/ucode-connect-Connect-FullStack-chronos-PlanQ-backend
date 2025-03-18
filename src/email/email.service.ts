@@ -46,6 +46,12 @@ export class EmailService {
     async sendEmail(to: string, subject: string, html: string): Promise<void> {
         try {
             const transporter = await this.createTransport();
+            // transporter.on("token", (token) => {
+            //     console.log("A new access token was generated");
+            //     console.log("User: %s", token.user);
+            //     console.log("Access Token: %s", token.accessToken);
+            //     console.log("Expires: %s", new Date(token.expires));
+            // });
             const info = await transporter.sendMail({
                 from: this.gmailUser,
                 to,

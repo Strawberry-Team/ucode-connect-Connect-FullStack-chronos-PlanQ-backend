@@ -13,10 +13,12 @@ import {
     JwtResetPasswordGuard,
     JwtConfirmEmailGuard
 } from 'src/auth/guards/auth.jwt-guards';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
     imports: [
         UsersModule,
+        EmailModule,
         forwardRef(() => RefreshTokenModule),
     ],
     controllers: [AuthController],
@@ -28,11 +30,9 @@ import {
         JwtAuthGuard,
         JwtRefreshGuard,
         JwtResetPasswordGuard,
-        JwtConfirmEmailGuard,
+        JwtConfirmEmailGuard
     ],
     exports: [AuthService, JwtAuthGuard],
 })
 export class AuthModule {
 }
-
-

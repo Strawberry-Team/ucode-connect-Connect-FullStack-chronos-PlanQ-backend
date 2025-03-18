@@ -15,6 +15,7 @@ import {RefreshTokenService} from 'src/token/refresh-token.service';
 import {JwtUtils} from '../jwt/jwt-token.utils';
 import {PasswordService} from "../user/passwords.service";
 import {convertToSeconds} from "../common/utils/time.utils";
+import { EmailService } from 'src/email/email.service';
 
 
 @Injectable()
@@ -24,8 +25,10 @@ export class AuthService {
         private readonly refreshTokenService: RefreshTokenService,
         private readonly jwtUtils: JwtUtils,
         private readonly passwordService: PasswordService,
+        private readonly emailService: EmailService
     ) {
     }
+
 
     async register(createUserDto: CreateUserDto) {
         const user = await this.usersService.createUser(createUserDto);
@@ -33,9 +36,11 @@ export class AuthService {
         const result = this.jwtUtils.generateToken({sub: user.id}, 'confirmEmail');
         //TODO: send email with link
         const link = 'localhost:3000/api/auth/confirm-email/' + result;
+        await this.emailService.sendConfirmationEmail(user.email, link);
 
         return {user: user, confirmEmailLink: link};
     }
+
 
     async login(loginDto: LoginDto) {
         const user = await this.usersService.getUserByEmail(loginDto.email);
@@ -116,7 +121,7 @@ export class AuthService {
     }
 
     async confirmEmail(userId: number) {
-        await this.usersService.confirmEmail(userId);
+        const user = await this.usersService.confirmEmail(userId);
         return {message: 'Email confirmed successfully'};
     }
 }

@@ -7,14 +7,7 @@ import {RefreshTokenDto} from '../token/dto/refresh-token.dto';
 import {newPasswordDto} from './dto/new-password.dto'
 import {JwtRefreshGuard, JwtResetPasswordGuard, JwtConfirmEmailGuard, JwtAuthGuard} from './guards/auth.jwt-guards';
 import {Request as ExpressRequest} from 'express';
-
-interface RequestWithUser extends ExpressRequest {
-    user: {
-        userId: number;
-        expiresIn?: number;
-        createdAt?: number;
-    };
-}
+import {RequestWithUser} from '../common/types/request.types';
 
 @Controller('auth')
 @UsePipes(new ValidationPipe({whitelist: true}))
