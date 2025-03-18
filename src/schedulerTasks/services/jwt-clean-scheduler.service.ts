@@ -1,15 +1,15 @@
 import {Injectable} from '@nestjs/common';
 import {Cron, Timeout} from '@nestjs/schedule';
-import {RefreshToken} from 'src/token/entities/refresh-token.entity';
-import {RefreshTokenService} from 'src/token/refresh-token.service';
+import {RefreshTokenNonceService} from 'src/token/refresh-token-nonce.service';
 import {ConfigService} from '@nestjs/config';
 import {convertToSeconds} from 'src/common/utils/time.utils';
 import {SchedulerConfig} from 'src/config/scheduler.config';
+import { RefreshTokenNonce } from 'src/token/entities/refresh-token-nonce.entity';
 
 @Injectable()
 export class JwtCleanSchedulerService {
     constructor(
-        private readonly refreshTokenService: RefreshTokenService,
+        private readonly NonceService: RefreshTokenNonceService,
         private configService: ConfigService,
     ) {
     }
@@ -17,12 +17,12 @@ export class JwtCleanSchedulerService {
     @Cron(SchedulerConfig.prototype.cleanRefreshTokensFromDb)
     @Timeout(10000)
     async cleanRefreshTokensFromDb() {
-        const EXPIRATION_TIME = convertToSeconds((String(this.configService.get<string>(`jwt.expiresIn.refresh`))));
-        const refreshTokens: RefreshToken[] = await this.refreshTokenService.getAll(EXPIRATION_TIME);
+        const expirationTime = convertToSeconds((String(this.configService.get<string>(`jwt.expiresIn.refresh`))));
+        const nonces: RefreshTokenNonce[] = await this.NonceService.getAll(expirationTime);
 
-        if (refreshTokens.length > 0) {
-            await Promise.all(refreshTokens.map(token =>
-                this.refreshTokenService.deleteTokenByTokenId(token.id)
+        if (nonces.length > 0) {
+            await Promise.all(nonces.map(nonce =>
+                this.NonceService.deleteRefreshTokenNonceByNonceId(nonce.id)
             ));
         } else {
         }

@@ -2,7 +2,7 @@ import {
     IsNumber, IsString
 } from 'class-validator';
 
-export class CreateRefreshTokenDto {
+export class CreateRefreshTokenNonceDto {
     @IsNumber()
     userId: number;
 

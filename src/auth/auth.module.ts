@@ -6,20 +6,22 @@ import {JwtRefreshStrategy} from './strategies/jwt-refresh.strategy';
 import {JwtResetPasswordStrategy} from './strategies/jwt-reset-password.stategy';
 import {JwtConfirmEmailStrategy} from './strategies/jwt-confirm-email.strategy';
 import {UsersModule} from '../user/users.module'
-import {RefreshTokenModule} from 'src/token/refresh-token.module';
+import {NonceModule} from 'src/token/refresh-token-nonce.module';
 import {
     JwtAuthGuard,
     JwtRefreshGuard,
     JwtResetPasswordGuard,
     JwtConfirmEmailGuard
 } from 'src/auth/guards/auth.jwt-guards';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
     imports: [
         UsersModule,
-        forwardRef(() => RefreshTokenModule),
+        EmailModule,
+        forwardRef(() => NonceModule),
     ],
-    controllers: [AuthController],
+    controllers: [AuthController], 
     providers: [AuthService,
         JwtAccessStrategy,
         JwtResetPasswordStrategy,
@@ -28,7 +30,7 @@ import {
         JwtAuthGuard,
         JwtRefreshGuard,
         JwtResetPasswordGuard,
-        JwtConfirmEmailGuard,
+        JwtConfirmEmailGuard
     ],
     exports: [AuthService, JwtAuthGuard],
 })

@@ -2,7 +2,7 @@ import {
     IsString
 } from 'class-validator';
 
-export class RefreshTokenDto {
+export class RefreshTokenNonceDto {
     @IsString()
-    token: string;
+    nonce: string;
 }
