@@ -38,6 +38,7 @@ export class AuthService {
         this.frontUrl = String(this.configService.get<string>('app.frontendLink'));
     }
 
+
     async register(createUserDto: CreateUserDto) {
         const user = await this.usersService.createUser(createUserDto);
 
@@ -48,6 +49,7 @@ export class AuthService {
 
         return {user: user};
     }
+
 
     async login(loginDto: LoginDto) {
         const user = await this.usersService.getUserByEmail(loginDto.email);
@@ -138,7 +140,7 @@ export class AuthService {
     }
 
     async confirmEmail(userId: number) {
-        await this.usersService.confirmEmail(userId);
+        const user = await this.usersService.confirmEmail(userId);
         return {message: 'Email confirmed successfully'};
     }
 }

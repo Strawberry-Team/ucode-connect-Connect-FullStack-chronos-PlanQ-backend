@@ -6,7 +6,7 @@ import {
     UploadedFile,
     BadRequestException, Post,
     Body, Req, NotImplementedException, Param, Patch, Delete,
-    UseGuards,
+    UseGuards, Get, ClassSerializerInterceptor,
 } from '@nestjs/common';
 import {BaseCrudController} from '../common/controller/base-crud.controller';
 import {User} from './entity/user.entity';
@@ -16,31 +16,39 @@ import {UsersService} from './users.service';
 import {Express} from 'express';
 import {Request} from 'express';
 import {createFileUploadInterceptor} from "../common/interceptor/file-upload.interceptor";
-import { AvatarConfig } from '../config/avatar.config';
-import { OwnAccountGuard } from './guards/own-account.guards';
+import {AvatarConfig} from '../config/avatar.config';
+import {OwnAccountGuard} from './guards/own-account.guard';
+import {RequestWithUser} from "../common/types/request.types";
+import {UsersCalendarsController} from "../user-calendar/users-calendars.controller";
+import {UsersCalendarsService} from "../user-calendar/users-calendars.service";
+import {UserCalendar} from "../user-calendar/entity/user-calendar.entity";
 
 @Controller('users')
 @UsePipes(new ValidationPipe({whitelist: true}))
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController extends BaseCrudController<
     User,
     CreateUserDto,
     UpdateUserDto
 > {
-    constructor(private readonly usersService: UsersService) {
+    constructor(
+        private readonly usersService: UsersService,
+        private readonly usersCalendarsService: UsersCalendarsService) {
         super();
     }
 
-    protected async findById(id: number): Promise<User> {
+    protected async findById(id: number, req: RequestWithUser): Promise<User> {
         return await this.usersService.getUserByIdWithoutPassword(id);
     }
 
-    protected async createEntity(dto: CreateUserDto): Promise<User> {
+    protected async createEntity(dto: CreateUserDto, req: RequestWithUser): Promise<User> {
         return await this.usersService.createUser(dto);
     }
 
     protected async updateEntity(
         id: number,
         dto: UpdateUserDto,
+        req: RequestWithUser
     ): Promise<User> {
         if (dto.oldPassword || dto.newPassword) {
             if (!dto.oldPassword || !dto.newPassword) {
@@ -52,25 +60,25 @@ export class UsersController extends BaseCrudController<
         return await this.usersService.updateUser(id, dto);
     }
 
-    protected async deleteEntity(id: number): Promise<void> {
+    protected async deleteEntity(id: number, req: RequestWithUser): Promise<void> {
         return await this.usersService.deleteUser(id);
     }
 
     @Post()
-    async create(@Body() dto: CreateUserDto, @Req() req: Request): Promise<User> {
+    async create(@Body() dto: CreateUserDto, @Req() req: RequestWithUser): Promise<User> {
         throw new NotImplementedException();
     }
 
     @Patch(':id')
     @UseGuards(OwnAccountGuard)
-    async update(@Param('id') id: number, @Body() dto: UpdateUserDto): Promise<User> {
-        return super.update(id, dto);
+    async update(@Param('id') id: number, @Body() dto: UpdateUserDto, @Req() req: RequestWithUser): Promise<User> {
+        return super.update(id, dto, req);
     }
 
     @Delete(':id')
     @UseGuards(OwnAccountGuard)
-    async delete(@Param('id') id: number): Promise<void> {
-        return super.delete(id);
+    async delete(@Param('id') id: number, @Req() req: RequestWithUser): Promise<void> {
+        return super.delete(id, req);
     }
 
     @Post('upload-avatar')
@@ -92,5 +100,9 @@ export class UsersController extends BaseCrudController<
         return {server_filename: file.filename};
     }
 
-    
+    @Get(':id/calendars')
+    @UseGuards(OwnAccountGuard)
+    async getUserCalendars(@Param('id') id: number): Promise<UserCalendar[]> {
+        return this.usersCalendarsService.getUserCalendars(id);
+    }
 }

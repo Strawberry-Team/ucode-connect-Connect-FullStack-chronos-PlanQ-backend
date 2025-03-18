@@ -36,5 +36,3 @@ import { EmailModule } from 'src/email/email.module';
 })
 export class AuthModule {
 }
-
-
