@@ -4,15 +4,14 @@ import {
     ExecutionContext,
     NotFoundException,
 } from '@nestjs/common';
-import { UsersCalendarsService } from '../users-calendars.service';
-import { CalendarRole } from '../entity/user-calendar.entity';
+import {UsersCalendarsService} from '../users-calendars.service';
 
 @Injectable()
 export class CalendarParticipantGuard implements CanActivate {
     constructor(
-        private readonly ca: UsersCalendarsService,
         private readonly usersCalendarsService: UsersCalendarsService,
-    ) { }
+    ) {
+    }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();

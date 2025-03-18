@@ -6,7 +6,7 @@ import {
     UploadedFile,
     BadRequestException, Post,
     Body, Req, NotImplementedException, Param, Patch, Delete,
-    UseGuards, Get, ClassSerializerInterceptor, SerializeOptions,
+    UseGuards, Get, SerializeOptions,
 } from '@nestjs/common';
 import {BaseCrudController} from '../common/controller/base-crud.controller';
 import {SERIALIZATION_GROUPS, User} from './entity/user.entity';
@@ -14,12 +14,10 @@ import {CreateUserDto} from './dto/create-user.dto';
 import {UpdateUserDto} from './dto/update-user.dto';
 import {UsersService} from './users.service';
 import {Express} from 'express';
-import {Request} from 'express';
 import {createFileUploadInterceptor} from "../common/interceptor/file-upload.interceptor";
 import {AvatarConfig} from '../config/avatar.config';
 import {OwnAccountGuard} from './guards/own-account.guard';
 import {RequestWithUser} from "../common/types/request.types";
-import {UsersCalendarsController} from "../user-calendar/users-calendars.controller";
 import {UsersCalendarsService} from "../user-calendar/users-calendars.service";
 import {UserCalendar} from "../user-calendar/entity/user-calendar.entity";
 
@@ -52,34 +50,23 @@ export class UsersController extends BaseCrudController<
         dto: UpdateUserDto,
         req: RequestWithUser
     ): Promise<User> {
-        // if (dto.oldPassword || dto.newPassword) {
-        //     if (!dto.oldPassword || !dto.newPassword) {
-        //         throw new BadRequestException(
-        //             'Both old and new passwords are required to update password',
-        //         );
-        //     }
-        // }
         const dtoKeys = Object.keys(dto);
         const hasPasswordFields = dto.oldPassword !== undefined || dto.newPassword !== undefined;
         const nonPasswordFields = dtoKeys.filter(key => key !== 'oldPassword' && key !== 'newPassword');
 
-        // Если есть поля пароля
         if (hasPasswordFields) {
-            // Проверяем, что присутствуют оба поля пароля
             if (!dto.oldPassword || !dto.newPassword) {
                 throw new BadRequestException(
                     'Both old and new passwords are required to update password',
                 );
             }
 
-            // Проверяем, что нет других полей, кроме полей пароля
             if (nonPasswordFields.length > 0) {
                 throw new BadRequestException(
                     'Password update must be performed separately from other field updates',
                 );
             }
         } else if (dtoKeys.length === 0) {
-            // Проверяем, что передан хотя бы один параметр
             throw new BadRequestException('At least one field must be provided for update');
         }
 

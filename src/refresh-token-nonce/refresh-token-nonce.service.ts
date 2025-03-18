@@ -16,7 +16,7 @@ export class RefreshTokenNonceService {
     async getAll(time?: number): Promise<RefreshTokenNonce[]> {
         return await this.nonceRepository.getAll(time);
     }
-    
+
     async getRefreshTokenNonceByNonceAndUserId(userId: number, nonce: string): Promise<RefreshTokenNonce> {
         const NonceRes = await this.nonceRepository.findByRefreshTokenNonceAndUserId(userId, nonce);
         if (!NonceRes) {

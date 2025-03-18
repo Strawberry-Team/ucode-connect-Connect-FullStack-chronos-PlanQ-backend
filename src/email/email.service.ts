@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { ConfigService } from '@nestjs/config';
+import {ConfigService} from '@nestjs/config';
 import {
     getConfirmationEmailTemplate,
     getResetPasswordEmailTemplate,
@@ -9,7 +9,7 @@ import {
     getEventReminderEmailTemplate,
     getCalendarReminderEmailTemplate,
 } from './email.templates';
-import { GoogleOAuthService } from '../google/google-oauth.service';
+import {GoogleOAuthService} from '../google/google-oauth.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -25,7 +25,6 @@ export class EmailService {
     ) {
         this.gmailUser = String(this.configService.get<string>('google.gmailApi.user'));
         this.appName = String(this.configService.get<string>('app.name'));
-        // Initialise the oAuth2 client by setting the refresh token
         this.googleOAuthService.setCredentials(String(this.configService.get<string>('google.gmailApi.refreshToken')));
 
         this.init();
@@ -37,7 +36,7 @@ export class EmailService {
 
     private async readLogoFile(filePath: string): Promise<Buffer> {
         return fs.readFileSync(path.resolve(filePath));
-      }
+    }
 
     private async readHtmlFile(filePath: string): Promise<string> {
         return fs.readFileSync(path.resolve(filePath), 'utf-8');
@@ -46,7 +45,6 @@ export class EmailService {
     private async createTransport() {
         const accessToken = await this.googleOAuthService.getAccessToken();
         const oauthDetails = this.googleOAuthService.getOAuthCredentials();
-        console.log("createdTransport")
         return nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -56,6 +54,7 @@ export class EmailService {
                 clientSecret: oauthDetails.clientSecret,
                 refreshToken: oauthDetails.refreshToken,
                 redirectUri: oauthDetails.redirectUri,
+                accessToken,
             },
         });
     }
@@ -74,7 +73,7 @@ export class EmailService {
             const info = await transporter.sendMail({
                 from: this.gmailUser,
                 to,
-                subject, 
+                subject,
                 html,
                 attachments: [
                     {

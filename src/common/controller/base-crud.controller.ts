@@ -9,7 +9,6 @@ import {
     Req,
     UseGuards,
 } from '@nestjs/common';
-import {Request} from 'express';
 import {JwtAuthGuard} from "../../auth/guards/auth.jwt-guards";
 import {RequestWithUser} from "../types/request.types";
 

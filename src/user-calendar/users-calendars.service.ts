@@ -2,7 +2,6 @@ import {
     Injectable,
     NotFoundException,
     BadRequestException,
-    ForbiddenException,
     ConflictException,
     Inject,
     forwardRef
@@ -12,7 +11,7 @@ import {CalendarsRepository} from '../calendar/calendars.repository';
 import {UsersService} from '../user/users.service';
 import {AddUserToCalendarDto} from './dto/add-user-to-calendar.dto';
 import {UpdateUserInCalendarDto} from './dto/update-user-in-calendar.dto';
-import {UserCalendar, CalendarRole} from './entity/user-calendar.entity';
+import {UserCalendar} from './entity/user-calendar.entity';
 
 @Injectable()
 export class UsersCalendarsService {
@@ -45,22 +44,14 @@ export class UsersCalendarsService {
     }
 
     async getCalendarUsers(calendarId: number, requestingUserId: number): Promise<UserCalendar[]> {
-        // Check if calendar exists
-        // await this.getCalendarById(calendarId);
         const calendar = await this.calendarsRepository.findById(calendarId);
         if (!calendar) {
             throw new NotFoundException('Calendar not found');
         }
 
-        const currentUserCalendar = await this.usersCalendarsRepository.findByUserAndCalendar(
-            requestingUserId,
-            calendarId
-        );
+        const isCreator = calendar.creatorId === requestingUserId;
 
-        const isOwner = (currentUserCalendar?.role === CalendarRole.OWNER) ||
-            (calendar.ownerId === requestingUserId);
-
-        return this.usersCalendarsRepository.findCalendarUsers(calendarId, isOwner);
+        return this.usersCalendarsRepository.findCalendarUsers(calendarId, isCreator);
     }
 
     async addUserToCalendar(
@@ -68,13 +59,11 @@ export class UsersCalendarsService {
         currentUserId: number,
         dto: AddUserToCalendarDto
     ): Promise<UserCalendar> {
-        // Check if calendar exists
         const calendar = await this.calendarsRepository.findById(calendarId);
         if (!calendar) {
             throw new NotFoundException('Calendar not found');
         }
 
-        // Check if current user is the owner
         const currentUserCalendar = await this.usersCalendarsRepository.findByUserAndCalendar(
             currentUserId,
             calendarId
@@ -84,12 +73,10 @@ export class UsersCalendarsService {
             throw new NotFoundException('User-calendar relationship not found');
         }
 
-        // Check if it's trying to add to a main calendar
         if (Boolean(currentUserCalendar.isMain[0])) {
             throw new BadRequestException('Cannot invite users to your main calendar');
         }
 
-        // Find the user to add
         const userToAdd = await this.usersService.getUserByEmail(dto.userEmail);
 
         if (!userToAdd) {
@@ -100,7 +87,6 @@ export class UsersCalendarsService {
             throw new BadRequestException('User must confirm their email first');
         }
 
-        // Check if user is already in the calendar
         const existingUserCalendar = await this.usersCalendarsRepository.findByUserAndCalendar(
             userToAdd.id,
             calendarId
@@ -110,14 +96,13 @@ export class UsersCalendarsService {
             throw new ConflictException('User already has access to this calendar');
         }
 
-        // Create the user-calendar relationship
         return this.usersCalendarsRepository.createUserCalendar({
             userId: userToAdd.id,
             calendarId,
             isMain: false,
             role: dto.role,
             color: currentUserCalendar.color,
-            isConfirmed: false // Requires confirmation
+            isConfirmed: false
         });
         //TODO: сделать отправку почты
     }
@@ -127,13 +112,11 @@ export class UsersCalendarsService {
         userIdToUpdate: number,
         dto: UpdateUserInCalendarDto
     ): Promise<UserCalendar> {
-        // Check if calendar exists
         const calendar = await this.calendarsRepository.findById(calendarId);
         if (!calendar) {
             throw new NotFoundException('Calendar not found');
         }
 
-        // Get the user to update
         const userCalendarToUpdate = await this.usersCalendarsRepository.findByUserAndCalendar(
             userIdToUpdate,
             calendarId
@@ -161,17 +144,15 @@ export class UsersCalendarsService {
         calendarId: number,
         userIdToRemove: number
     ): Promise<void> {
-        // Check if calendar exists
         const calendar = await this.calendarsRepository.findById(calendarId);
         if (!calendar) {
             throw new NotFoundException('Calendar not found');
         }
 
-        if (calendar.ownerId === userIdToRemove) {
+        if (calendar.creatorId === userIdToRemove) {
             throw new BadRequestException('Cannot remove the creator from their calendar');
         }
 
-        // Get the user to remove
         const userCalendarToRemove = await this.usersCalendarsRepository.findByUserAndCalendar(
             userIdToRemove,
             calendarId
@@ -181,7 +162,6 @@ export class UsersCalendarsService {
             throw new NotFoundException('User does not have access to this calendar');
         }
 
-        // Remove the user
         await this.usersCalendarsRepository.deleteUserCalendar(userCalendarToRemove.id);
     }
 }

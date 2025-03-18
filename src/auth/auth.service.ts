@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import {CreateUserDto} from '../user/dto/create-user.dto';
 import {LoginDto} from '../auth/dto/login.dto';
-import {RefreshTokenNonceDto} from '.././refresh-token-nonce/dto/refresh-token-nonce.dto';
 import {ResetPasswordDto} from '../auth/dto/reset-password.dto';
 import {CreateRefreshTokenNonceDto} from '.././refresh-token-nonce/dto/create-refresh-nonce.dto';
 import {newPasswordDto} from './dto/new-password.dto';
@@ -18,7 +17,6 @@ import {convertToSeconds} from "../common/utils/time.utils";
 import { EmailService } from 'src/email/email.service';
 import {ConfigService} from '@nestjs/config';
 import { NonceUtils } from 'src/common/utils/nonce.utils';
-import { RefreshTokenDto } from '.././refresh-token-nonce/dto/refresh-token.dto';
 
 
 @Injectable()
@@ -140,7 +138,7 @@ export class AuthService {
     }
 
     async confirmEmail(userId: number) {
-        const user = await this.usersService.confirmEmail(userId);
+        await this.usersService.confirmEmail(userId);
         return {message: 'Email confirmed successfully'};
     }
 }

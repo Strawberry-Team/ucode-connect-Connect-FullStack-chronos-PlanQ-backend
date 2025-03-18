@@ -1,6 +1,4 @@
-// src/calendars/dto/update-calendar.dto.ts
-import { IsOptional, IsString, MaxLength } from 'class-validator';
-import {IsCalendarColor, IsCalendarDescription, IsCalendarName} from '../calendars.validator';
+import {IsCalendarDescription, IsCalendarName} from '../calendars.validator';
 
 export class UpdateCalendarDto {
     @IsCalendarName(true)

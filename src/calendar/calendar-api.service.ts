@@ -1,4 +1,3 @@
-// calendar-api.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleOAuthService } from '../google/google-oauth.service';
@@ -72,21 +71,18 @@ export class CalendarApiService {
                     summary: item.summary
                 };
 
-                // Безопасное добавление даты начала
                 if (item.start) {
                     eventData.start = item.start.date || item.start.dateTime || null;
                 } else {
                     eventData.start = null;
                 }
 
-                // Безопасное добавление даты окончания
                 if (item.end) {
                     eventData.end = item.end.date || item.end.dateTime || null;
                 } else {
                     eventData.end = null;
                 }
 
-                // Добавление описания, если оно есть
                 eventData.description = item.description || null;
 
                 return eventData;

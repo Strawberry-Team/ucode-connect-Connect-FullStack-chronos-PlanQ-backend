@@ -1,4 +1,3 @@
-// src/users-calendars/users-calendars.controller.ts
 import {
     Controller,
     Post,
@@ -11,22 +10,21 @@ import {
     UsePipes,
     ValidationPipe,
     Get,
-    NotFoundException, BadRequestException
+    BadRequestException
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/auth.jwt-guards';
-import { UsersCalendarsService } from './users-calendars.service';
-import { AddUserToCalendarDto } from './dto/add-user-to-calendar.dto';
-import { UpdateUserInCalendarDto } from './dto/update-user-in-calendar.dto';
-import { UserCalendar } from './entity/user-calendar.entity';
-import { RequestWithUser } from "../common/types/request.types";
-import { BaseCrudController } from '../common/controller/base-crud.controller';
+import {UsersCalendarsService} from './users-calendars.service';
+import {AddUserToCalendarDto} from './dto/add-user-to-calendar.dto';
+import {UpdateUserInCalendarDto} from './dto/update-user-in-calendar.dto';
+import {UserCalendar} from './entity/user-calendar.entity';
+import {RequestWithUser} from "../common/types/request.types";
+import {BaseCrudController} from '../common/controller/base-crud.controller';
 import {CalendarOwnerGuard, OnlyDirectOwner} from "../calendar/guards/own.calendar.guard";
 import {OwnUserCalendarGuard} from "./guards/own.user-calendar.guard";
 import {UpdateUserCalendarGuard} from "./guards/update.user-calendar.guard";
-import { CalendarParticipantGuard } from './guards/user-calendar-role.guard';
+import {CalendarParticipantGuard} from './guards/calendar.participant.guard';
 
 @Controller('calendars/:calendarId/users')
-@UsePipes(new ValidationPipe({ whitelist: true }))
+@UsePipes(new ValidationPipe({whitelist: true}))
 export class UsersCalendarsController extends BaseCrudController<
     UserCalendar,
     AddUserToCalendarDto,
@@ -78,7 +76,7 @@ export class UsersCalendarsController extends BaseCrudController<
     }
 
     @UseGuards(CalendarParticipantGuard)
-    @Get() //TODO: add guard только участники календаря могут видеть список участников
+    @Get()
     async getCalendarUsers(@Param('calendarId') calendarId: number, @Req() req: RequestWithUser): Promise<UserCalendar[]> {
         return await this.usersCalendarsService.getCalendarUsers(calendarId, req.user.userId);
     }

@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import { GoogleOAuthService } from './google-oauth.service';
-import { ConfigModule } from '@nestjs/config';
+import {Module} from '@nestjs/common';
+import {GoogleOAuthService} from './google-oauth.service';
+import {ConfigModule} from '@nestjs/config';
 import googleConfig from '../config/google.config';
 
 @Module({
@@ -8,4 +8,5 @@ import googleConfig from '../config/google.config';
     providers: [GoogleOAuthService],
     exports: [GoogleOAuthService],
 })
-export class GoogleModule {}
+export class GoogleModule {
+}

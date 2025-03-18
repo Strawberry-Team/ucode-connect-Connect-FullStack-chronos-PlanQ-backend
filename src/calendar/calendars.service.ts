@@ -1,9 +1,7 @@
-// src/calendars/calendars.service.ts
 import {
     Injectable,
     NotFoundException,
     BadRequestException,
-    ForbiddenException,
     Inject,
     forwardRef
 } from '@nestjs/common';
@@ -12,10 +10,7 @@ import {UsersCalendarsRepository} from '../user-calendar/users-calendars.reposit
 import {CreateCalendarDto} from './dto/create-calendar.dto';
 import {UpdateCalendarDto} from './dto/update-calendar.dto';
 import {Calendar} from './entity/calendar.entity';
-import {UserCalendar, CalendarRole} from '../user-calendar/entity/user-calendar.entity';
-import {UsersService} from '../user/users.service';
-import {plainToInstance} from "class-transformer";
-import {SERIALIZATION_GROUPS, User} from "../user/entity/user.entity";
+import {CalendarRole} from '../user-calendar/entity/user-calendar.entity';
 import {ConfigService} from "@nestjs/config";
 
 @Injectable()
@@ -29,14 +24,12 @@ export class CalendarsService {
     }
 
     async createDefaultCalendar(userId: number): Promise<Calendar> {
-        // Create default calendar
         const defaultCalendar = await this.calendarsRepository.createCalendar({
-            ownerId: userId,
+            creatorId: userId,
             name: String(this.configService.get<string>('calendar.default.name')),
             description: String(this.configService.get<string>('calendar.default.description'))
         });
 
-        // Add user to the calendar with main status
         await this.usersCalendarsRepository.createUserCalendar({
             userId,
             calendarId: defaultCalendar.id,
@@ -59,14 +52,12 @@ export class CalendarsService {
     }
 
     async createCalendar(userId: number, dto: CreateCalendarDto): Promise<Calendar> {
-        // Create the calendar
         const calendar = await this.calendarsRepository.createCalendar({
-            ownerId: userId,
+            creatorId: userId,
             name: dto.name,
             ...(dto.description !== undefined ? {description: dto.description} : {})
         });
 
-        // Add user to the calendar
         await this.usersCalendarsRepository.createUserCalendar({
             userId,
             calendarId: calendar.id,
@@ -83,7 +74,6 @@ export class CalendarsService {
         calendarId: number,
         dto: UpdateCalendarDto
     ): Promise<Calendar> {
-        // Update calendar properties
         const updateData: Partial<Calendar> = {};
         if (dto.name !== undefined) {
             updateData.name = dto.name;

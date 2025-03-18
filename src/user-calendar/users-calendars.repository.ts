@@ -1,45 +1,34 @@
-// src/users-calendars/users-calendars.repository.ts
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { UserCalendar } from './entity/user-calendar.entity';
-import { plainToInstance } from 'class-transformer';
-import {SERIALIZATION_GROUPS, User } from 'src/user/entity/user.entity';
+import {Injectable} from '@nestjs/common';
+import {InjectRepository} from '@nestjs/typeorm';
+import {Repository} from 'typeorm';
+import {UserCalendar} from './entity/user-calendar.entity';
+import {plainToInstance} from 'class-transformer';
+import {SERIALIZATION_GROUPS, User} from 'src/user/entity/user.entity';
 
 @Injectable()
 export class UsersCalendarsRepository {
     constructor(
         @InjectRepository(UserCalendar)
         private readonly repo: Repository<UserCalendar>,
-    ) {}
+    ) {
+    }
 
     async findById(id: number): Promise<UserCalendar | null> {
-        return this.repo.findOne({ where: { id } });
+        return this.repo.findOne({where: {id}});
     }
 
     async findByUserAndCalendar(userId: number, calendarId: number): Promise<UserCalendar | null> {
-        console.log("userId, calendarId:", userId," ",calendarId)
+        console.log("userId, calendarId:", userId, " ", calendarId)
         return this.repo.findOne({
-            where: { userId, calendarId },//108 12
+            where: {userId, calendarId},//108 12
             relations: ['calendar']
         });
     }
 
-    async findUserMainCalendar(userId: number): Promise<UserCalendar | null> {
-        return this.repo.findOne({
-            where: {
-                userId,
-                isMain: true
-            },
-            relations: ['calendar']
-        });
-    }
+    async findCalendarUsers(calendarId: number, isCreator: boolean): Promise<UserCalendar[]> {
+        const whereCondition: any = {calendarId};
 
-    async findCalendarUsers(calendarId: number, isOwner: boolean): Promise<UserCalendar[]> {
-        const whereCondition: any = { calendarId };
-
-        // Если не владелец, то добавляем условие isConfirmed: true
-        if (!isOwner) {
+        if (!isCreator) {
             whereCondition.isConfirmed = true;
         }
 

@@ -1,7 +1,7 @@
 import {Injectable, InternalServerErrorException, Logger} from '@nestjs/common';
 import * as path from 'path';
 import {promises as fs} from 'fs';
-import { HttpService } from '@nestjs/axios'
+import {HttpService} from '@nestjs/axios'
 import {ConfigService} from "@nestjs/config";
 import {firstValueFrom} from "rxjs";
 
@@ -13,7 +13,8 @@ export class CountryService {
     constructor(
         private readonly httpService: HttpService,
         private readonly configService: ConfigService
-    ) {}
+    ) {
+    }
 
     async refreshCountries(): Promise<void> {
         try {

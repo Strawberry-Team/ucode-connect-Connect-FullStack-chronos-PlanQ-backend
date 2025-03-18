@@ -7,7 +7,6 @@ import {
     ManyToOne,
     JoinColumn,
     OneToMany,
-    ManyToMany
 } from 'typeorm';
 import { User } from '../../user/entity/user.entity';
 import { UserCalendar } from '../../user-calendar/entity/user-calendar.entity';
@@ -17,8 +16,8 @@ export class Calendar {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ name: 'owner_id' })
-    ownerId: number;
+    @Column({ name: 'creator_id' })
+    creatorId: number;
 
     @Column({ length: 100 })
     name: string;
@@ -33,11 +32,11 @@ export class Calendar {
     updatedAt: Date;
 
     @ManyToOne(() => User, (user) => user.calendars, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'owner_id' })
-    owner: User;
+    @JoinColumn({ name: 'creator_id' })
+    creator: User;
 
     @OneToMany(() => UserCalendar, (userCalendar) => userCalendar.calendar, {
-        cascade: true,  // Удалит записи из `users_calendars` при удалении календаря
+        cascade: true,
         onDelete: 'CASCADE',
     })
     userCalendars: UserCalendar[];

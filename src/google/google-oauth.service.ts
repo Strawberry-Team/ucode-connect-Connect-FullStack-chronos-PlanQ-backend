@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { google } from 'googleapis';
+import {Injectable, Logger} from '@nestjs/common';
+import {ConfigService} from '@nestjs/config';
+import {google} from 'googleapis';
 
 @Injectable()
 export class GoogleOAuthService {
@@ -19,12 +19,12 @@ export class GoogleOAuthService {
 
     setCredentials(refreshToken: string): void {
         this.currentRefreshToken = refreshToken;
-        this.oauth2Client.setCredentials({ refresh_token: refreshToken });
+        this.oauth2Client.setCredentials({refresh_token: refreshToken});
     }
 
     async getAccessToken(): Promise<string> {
         try {
-            const { token } = await this.oauth2Client.getAccessToken();
+            const {token} = await this.oauth2Client.getAccessToken();
             return token;
         } catch (error) {
             console.error('Failed to get access token', error);
@@ -52,7 +52,7 @@ export class GoogleOAuthService {
     // Exchange authorization code for tokens
     async getTokensFromCode(code: string): Promise<any> {
         try {
-            const { tokens } = await this.oauth2Client.getToken(code);
+            const {tokens} = await this.oauth2Client.getToken(code);
             return tokens;
         } catch (error) {
             console.error('Failed to get tokens from code', error);
@@ -60,18 +60,17 @@ export class GoogleOAuthService {
         }
     }
 
-    // Get user profile information
     async getUserProfile(accessToken: string): Promise<any> {
         try {
             const oauth2Client = new google.auth.OAuth2();
-            oauth2Client.setCredentials({ access_token: accessToken });
+            oauth2Client.setCredentials({access_token: accessToken});
 
             const oauth2 = google.oauth2({
                 auth: oauth2Client,
                 version: 'v2'
             });
 
-            const { data } = await oauth2.userinfo.get();
+            const {data} = await oauth2.userinfo.get();
             return data;
         } catch (error) {
             console.error('Failed to get user profile', error);

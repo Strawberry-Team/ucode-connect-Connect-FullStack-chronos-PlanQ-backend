@@ -1,4 +1,4 @@
-import {applyDecorators, Inject, Injectable} from '@nestjs/common';
+import {applyDecorators, Injectable} from '@nestjs/common';
 import {
     ValidatorConstraint,
     ValidatorConstraintInterface,
@@ -24,7 +24,7 @@ export class IsValidCountryCodeConstraint implements ValidatorConstraintInterfac
 
 export function IsValidCountryCode(validationOptions?: ValidationOptions, isOptional: boolean = false) {
     return applyDecorators(
-        ...(isOptional ? [IsOptional()] : []), // Добавляем IsOptional() только если isOptional === true
+        ...(isOptional ? [IsOptional()] : []),
         function (object: Object, propertyName: string) {
             registerDecorator({
                 target: object.constructor,

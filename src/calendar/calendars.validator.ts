@@ -1,6 +1,5 @@
-// src/calendars/validators/calendars.validator.ts
 import {applyDecorators} from '@nestjs/common';
-import {IsEnum, IsOptional, IsString, Length, Matches, MaxLength, registerDecorator, ValidateIf} from 'class-validator';
+import {IsEnum, IsOptional, IsString, Length, Matches, MaxLength, ValidateIf} from 'class-validator';
 import {CalendarRole} from "../user-calendar/entity/user-calendar.entity";
 
 export function IsCalendarName(isOptional: boolean) {
@@ -44,21 +43,6 @@ export function IsCalendarColor(isOptional: boolean) {
     }
 }
 
-// export function IsCalendarRole(isOptional: boolean) {
-//     const decorators = [IsEnum(CalendarRole, {
-//         message: 'Role must be either editor or viewer'
-//     })];
-//
-//     if (isOptional) {
-//         return applyDecorators(IsOptional(), ...decorators);
-//     } else {
-//         return applyDecorators(...decorators);
-//     }
-// }
-/**
- * Декоратор для валидации ролей календаря
- * @param isOptional - является ли поле необязательным
- */
 export function IsCalendarRole(isOptional: boolean) {
     const decorators = [IsEnum(CalendarRole)];
 

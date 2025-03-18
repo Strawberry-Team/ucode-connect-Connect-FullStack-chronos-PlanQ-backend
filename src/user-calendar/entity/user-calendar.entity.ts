@@ -8,12 +8,10 @@ import {
     JoinColumn,
     Index,
     Unique,
-    ManyToMany,
-    OneToMany
 } from 'typeorm';
-import { User } from '../../user/entity/user.entity';
-import { Calendar } from '../../calendar/entity/calendar.entity';
-import { BooleanTransformer } from 'src/common/transformers/BooleanTransformer';
+import {User} from '../../user/entity/user.entity';
+import {Calendar} from '../../calendar/entity/calendar.entity';
+import {BooleanTransformer} from 'src/common/transformers/BooleanTransformer';
 
 export enum CalendarRole {
     OWNER = 'owner',
@@ -28,13 +26,13 @@ export class UserCalendar {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ name: 'user_id' })
+    @Column({name: 'user_id'})
     userId: number;
 
-    @Column({ name: 'calendar_id' })
+    @Column({name: 'calendar_id'})
     calendarId: number;
 
-    @Column({ name: 'is_main', type: 'bit', width: 1, default: () => "b'0'", transformer: BooleanTransformer})
+    @Column({name: 'is_main', type: 'bit', width: 1, default: () => "b'0'", transformer: BooleanTransformer})
     isMain: boolean;
 
     @Column({
@@ -44,23 +42,23 @@ export class UserCalendar {
     })
     role: CalendarRole;
 
-    @Column({ type: 'char', length: 7 })
+    @Column({type: 'char', length: 7})
     color: string;
 
-    @Column({ name: 'is_confirmed', type: 'bit', width: 1, default: () => "b'0'", transformer: BooleanTransformer })
+    @Column({name: 'is_confirmed', type: 'bit', width: 1, default: () => "b'0'", transformer: BooleanTransformer})
     isConfirmed: boolean;
 
-    @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+    @CreateDateColumn({name: 'created_at', type: 'timestamp'})
     createdAt: Date;
 
-    @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+    @UpdateDateColumn({name: 'updated_at', type: 'timestamp'})
     updatedAt: Date;
 
-    @ManyToOne(() => User, (user) => user.userCalendars, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'user_id' })
+    @ManyToOne(() => User, (user) => user.userCalendars, {onDelete: 'CASCADE'})
+    @JoinColumn({name: 'user_id'})
     user: User;
 
-    @ManyToOne(() => Calendar, (calendar) => calendar.userCalendars, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'calendar_id' })
+    @ManyToOne(() => Calendar, (calendar) => calendar.userCalendars, {onDelete: 'CASCADE'})
+    @JoinColumn({name: 'calendar_id'})
     calendar: Calendar;
 }

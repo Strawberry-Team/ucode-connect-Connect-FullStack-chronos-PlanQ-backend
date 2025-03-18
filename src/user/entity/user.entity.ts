@@ -5,40 +5,39 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     OneToMany,
-    ManyToMany
 } from 'typeorm';
 
-import { RefreshTokenNonce } from 'src/refresh-token-nonce/entities/refresh-token-nonce.entity';
-import { Expose } from 'class-transformer';
-import { Calendar } from 'src/calendar/entity/calendar.entity';
-import { UserCalendar } from 'src/user-calendar/entity/user-calendar.entity';
-import { BooleanTransformer } from 'src/common/transformers/BooleanTransformer';
+import {RefreshTokenNonce} from 'src/refresh-token-nonce/entities/refresh-token-nonce.entity';
+import {Expose} from 'class-transformer';
+import {Calendar} from 'src/calendar/entity/calendar.entity';
+import {UserCalendar} from 'src/user-calendar/entity/user-calendar.entity';
+import {BooleanTransformer} from 'src/common/transformers/BooleanTransformer';
 
 export const SERIALIZATION_GROUPS = {
     BASIC: ['basic'],
-    CONFIDENTIAL: ['basic', 'confidential'], // confidential включает basic
+    CONFIDENTIAL: ['basic', 'confidential'], // confidential include basic
 };
 
 @Entity('users')
 export class User {
     @PrimaryGeneratedColumn()
-    @Expose({ groups: ['basic'] })
+    @Expose({groups: ['basic']})
     id: number;
 
     @Column({length: 255})
-    @Expose({ groups: ['confidential'] })
+    @Expose({groups: ['confidential']})
     password?: string;
 
     @Column({name: 'first_name', length: 100})
-    @Expose({ groups: ['basic'] })
+    @Expose({groups: ['basic']})
     firstName: string;
 
     @Column({name: 'last_name', length: 100, nullable: true})
-    @Expose({ groups: ['basic'] })
+    @Expose({groups: ['basic']})
     lastName?: string;
 
     @Column({unique: true, length: 255})
-    @Expose({ groups: ['basic'] })
+    @Expose({groups: ['basic']})
     email: string;
 
     @Column({
@@ -46,41 +45,41 @@ export class User {
         length: 255,
         default: 'default-avatar.png',
     })
-    @Expose({ groups: ['basic'] })
+    @Expose({groups: ['basic']})
     profilePictureName: string;
 
     @Column({name: 'email_verified', type: 'bit', width: 1, default: () => "b'0'", transformer: BooleanTransformer})
-    @Expose({ groups: ['confidential'] })
+    @Expose({groups: ['confidential']})
     emailVerified?: boolean;
 
     @Column({name: 'country_code', type: 'char', length: 2})
-    @Expose({ groups: ['basic'] })
+    @Expose({groups: ['basic']})
     countryCode: string;
 
     @CreateDateColumn({name: 'created_at', type: 'timestamp'})
-    @Expose({ groups: ['basic'] })
+    @Expose({groups: ['basic']})
     createdAt: Date;
 
     @UpdateDateColumn({name: 'updated_at', type: 'timestamp'})
-    @Expose({ groups: ['basic'] })
+    @Expose({groups: ['basic']})
     updatedAt: Date;
 
     @OneToMany(() => RefreshTokenNonce, (RefreshTokenNonce) => RefreshTokenNonce.user, {
         cascade: true,
     })
-    @Expose({ groups: ['confidential'] }) 
+    @Expose({groups: ['confidential']})
     refreshTokenNonces: Promise<RefreshTokenNonce[]>;
- 
-    @OneToMany(() => Calendar, (calendar) => calendar.owner, {
-        cascade: true,  // Удалит календари при удалении пользователя
+
+    @OneToMany(() => Calendar, (calendar) => calendar.creator, {
+        cascade: true,
         onDelete: 'CASCADE',
     })
-    @Expose({ groups: ['confidential'] })
+    @Expose({groups: ['confidential']})
     calendars: Promise<Calendar[]>;
 
     @OneToMany(() => UserCalendar, (userCalendar) => userCalendar.user, {
         cascade: true,
     })
-    @Expose({ groups: ['confidential'] })
+    @Expose({groups: ['confidential']})
     userCalendars: Promise<UserCalendar[]>;
 }

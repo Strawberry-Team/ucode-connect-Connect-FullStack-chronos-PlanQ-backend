@@ -2,7 +2,7 @@ import {Module} from '@nestjs/common';
 import {CountryService} from './country.service';
 import {CountryController} from './country.controller';
 import {IsValidCountryCodeConstraint} from './country.validator';
-import { HttpModule } from '@nestjs/axios';
+import {HttpModule} from '@nestjs/axios';
 
 @Module({
     imports: [HttpModule],

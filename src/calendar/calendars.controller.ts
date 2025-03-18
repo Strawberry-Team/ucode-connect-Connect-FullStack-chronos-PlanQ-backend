@@ -1,4 +1,3 @@
-// src/calendars/calendars.controller.ts
 import {
     Controller,
     Patch,
@@ -6,17 +5,16 @@ import {
     Param,
     Body,
     Req,
-    UseGuards,
-    SerializeOptions
+    UseGuards, Get,
 } from '@nestjs/common';
-import { BaseCrudController } from '../common/controller/base-crud.controller';
-import { Calendar } from './entity/calendar.entity';
-import { CreateCalendarDto } from './dto/create-calendar.dto';
-import { UpdateCalendarDto } from './dto/update-calendar.dto';
-import { CalendarsService } from './calendars.service';
+import {BaseCrudController} from '../common/controller/base-crud.controller';
+import {Calendar} from './entity/calendar.entity';
+import {CreateCalendarDto} from './dto/create-calendar.dto';
+import {UpdateCalendarDto} from './dto/update-calendar.dto';
+import {CalendarsService} from './calendars.service';
 import {RequestWithUser} from "../common/types/request.types";
 import {CalendarOwnerGuard, OnlyDirectOwner} from "./guards/own.calendar.guard";
-import {SERIALIZATION_GROUPS} from "../user/entity/user.entity";
+import {CalendarParticipantGuard} from "../user-calendar/guards/calendar.participant.guard";
 
 @Controller('calendars')
 export class CalendarsController extends BaseCrudController<
@@ -48,11 +46,11 @@ export class CalendarsController extends BaseCrudController<
         return await this.calendarsService.deleteCalendar(req.user.userId, id);
     }
 
-    // TODO: add guard. only participants can see calendar(users_calendars)
-    // @Get(':id')
-    // async getById(@Param('id') id: number, @Req() req: RequestWithUser): Promise<Calendar> {
-    //     return await this.findById(id, req);
-    // }
+    @UseGuards(CalendarParticipantGuard)
+    @Get(':id')
+    async getById(@Param('id') id: number, @Req() req: RequestWithUser): Promise<Calendar> {
+        return await this.findById(id, req);
+    }
 
     // @Post()
     // async create(@Body() dto: CreateCalendarDto, @Req() req: RequestWithUser): Promise<Calendar> {

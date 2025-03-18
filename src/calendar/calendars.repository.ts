@@ -1,8 +1,7 @@
-// src/calendars/calendars.repository.ts
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Calendar } from './entity/calendar.entity';
+import {Injectable} from '@nestjs/common';
+import {InjectRepository} from '@nestjs/typeorm';
+import {Repository} from 'typeorm';
+import {Calendar} from './entity/calendar.entity';
 import {SERIALIZATION_GROUPS, User} from "../user/entity/user.entity";
 import {plainToInstance} from "class-transformer";
 
@@ -11,27 +10,24 @@ export class CalendarsRepository {
     constructor(
         @InjectRepository(Calendar)
         private readonly repo: Repository<Calendar>,
-    ) {}
+    ) {
+    }
 
     async findById(id: number): Promise<Calendar | null> {
         const result = await this.repo.findOne({
-            where: { id },
-            relations: ['owner']
+            where: {id},
+            relations: ['creator']
         });
 
         if (!result) {
             return null;
         }
 
-        if (result.owner) {
-            result.owner = plainToInstance(User, result.owner, {groups: SERIALIZATION_GROUPS.BASIC});
+        if (result.creator) {
+            result.creator = plainToInstance(User, result.creator, {groups: SERIALIZATION_GROUPS.BASIC});
         }
 
         return result;
-    }
-
-    async findByOwner(ownerId: number): Promise<Calendar[]> {
-        return this.repo.find({ where: { ownerId } });
     }
 
     async createCalendar(data: Partial<Calendar>): Promise<Calendar> {
