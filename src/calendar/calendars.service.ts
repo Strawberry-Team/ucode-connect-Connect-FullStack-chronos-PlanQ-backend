@@ -37,6 +37,7 @@ export class CalendarsService {
         });
 
         // Add user to the calendar with main status
+        console.log(String(this.configService.get<string>('calendar.default.color')));
         await this.usersCalendarsRepository.createUserCalendar({
             userId,
             calendarId: defaultCalendar.id,

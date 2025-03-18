@@ -17,10 +17,10 @@ import {UsersCalendarsModule} from "../user-calendar/users-calendars.module";
     imports: [TypeOrmModule.forFeature([User]), CountryModule, CalendarsModule, UsersCalendarsModule],
     controllers: [UsersController],
     providers: [UsersService, UsersRepository, PasswordService, OwnAccountGuard,
-        {
-            provide: APP_INTERCEPTOR,
-            useClass: ClassSerializerInterceptor,
-        },
+        // {
+        //     provide: APP_INTERCEPTOR,
+        //     useClass: ClassSerializerInterceptor,
+        // },
 
     ],
     exports: [UsersService, UsersRepository, PasswordService],

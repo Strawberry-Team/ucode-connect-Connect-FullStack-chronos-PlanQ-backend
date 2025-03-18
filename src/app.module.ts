@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import {ClassSerializerInterceptor, Module} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './user/users.module';
@@ -10,16 +10,19 @@ import { RefreshTokenNonceModule } from './refresh-token-nonce/refresh-token-non
 import { JwtConfigModule } from './jwt/jwt.module';
 import { CountryModule } from './country/country.module';
 import apiConfig from "./config/country.api.config";
+import calendarConfig from "./config/calendar.config";
+
 import { SchedulerTasksModule } from './schedulerTasks/tasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import {CalendarsModule} from "./calendar/calendars.module";
+import {APP_INTERCEPTOR} from "@nestjs/core";
 
 @Module({
     imports: [
         ScheduleModule.forRoot(),
         ConfigModule.forRoot({
             isGlobal: true,
-            load: [databaseConfig, appConfig, jwtConfig, apiConfig],
+            load: [databaseConfig, appConfig, jwtConfig, apiConfig, calendarConfig],
         }),
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],

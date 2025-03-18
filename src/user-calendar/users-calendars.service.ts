@@ -16,6 +16,12 @@ export class UsersCalendarsService {
     ) {}
 
     async getUserCalendars(userId: number): Promise<UserCalendar[]> {
+        const user = await this.usersService.getUserByIdWithoutPassword(userId);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
         return this.usersCalendarsRepository.findUserCalendars(userId);
     }
 
@@ -27,6 +33,17 @@ export class UsersCalendarsService {
         }
 
         return result;
+    }
+
+    async getCalendarUsers(calendarId: number): Promise<UserCalendar[]> {
+        // Check if calendar exists
+        // await this.getCalendarById(calendarId);
+        const calendar = await this.calendarsRepository.findById(calendarId);
+        if (!calendar) {
+            throw new NotFoundException('Calendar not found');
+        }
+
+        return this.usersCalendarsRepository.findCalendarUsers(calendarId);
     }
 
     async addUserToCalendar(
@@ -177,12 +194,5 @@ export class UsersCalendarsService {
 
         // Remove the user
         await this.usersCalendarsRepository.deleteUserCalendar(userCalendarToRemove.id);
-    }
-
-    async getCalendarUsers(calendarId: number): Promise<UserCalendar[]> {
-        // Check if calendar exists
-        // await this.getCalendarById(calendarId);
-
-        return this.usersCalendarsRepository.findCalendarUsers(calendarId);
     }
 }

@@ -6,10 +6,10 @@ import {
     UploadedFile,
     BadRequestException, Post,
     Body, Req, NotImplementedException, Param, Patch, Delete,
-    UseGuards, Get, ClassSerializerInterceptor,
+    UseGuards, Get, ClassSerializerInterceptor, SerializeOptions,
 } from '@nestjs/common';
 import {BaseCrudController} from '../common/controller/base-crud.controller';
-import {User} from './entity/user.entity';
+import {SERIALIZATION_GROUPS, User} from './entity/user.entity';
 import {CreateUserDto} from './dto/create-user.dto';
 import {UpdateUserDto} from './dto/update-user.dto';
 import {UsersService} from './users.service';
@@ -25,7 +25,9 @@ import {UserCalendar} from "../user-calendar/entity/user-calendar.entity";
 
 @Controller('users')
 @UsePipes(new ValidationPipe({whitelist: true}))
-@UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({
+    groups: SERIALIZATION_GROUPS.BASIC
+})
 export class UsersController extends BaseCrudController<
     User,
     CreateUserDto,

@@ -8,9 +8,6 @@ dotenv.config();
 
 @Injectable()
 export class SchedulerConfig {
-    constructor(private configService: ConfigService) {
-    }
-
     get unactivatedAccountNotification(): string {
         return CronExpression[validateEnv('SCHEDULER_UNACTIVATED_ACCOUNT_NOTIFICATION')];
     }
