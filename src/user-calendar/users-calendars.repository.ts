@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserCalendar } from './entity/user-calendar.entity';
+import { plainToInstance } from 'class-transformer';
+import {SERIALIZATION_GROUPS, User } from 'src/user/entity/user.entity';
 
 @Injectable()
 export class UsersCalendarsRepository {
@@ -32,14 +34,28 @@ export class UsersCalendarsRepository {
         });
     }
 
-    async findCalendarUsers(calendarId: number): Promise<UserCalendar[]> {
-        return this.repo.find({
-            where: {
-                calendarId,
-                isConfirmed: true
-            },
+    async findCalendarUsers(calendarId: number, isOwner: boolean): Promise<UserCalendar[]> {
+        const whereCondition: any = { calendarId };
+
+        // Если не владелец, то добавляем условие isConfirmed: true
+        if (!isOwner) {
+            whereCondition.isConfirmed = true;
+        }
+
+        const results = await this.repo.find({
+            where: whereCondition,
             relations: ['user']
         });
+
+        for (const result of results) {
+            if (result.user) {
+                result.user = plainToInstance(User, result.user, {
+                    groups: SERIALIZATION_GROUPS.BASIC
+                });
+            }
+        }
+
+        return results;
     }
 
     async findUserCalendars(userId: number): Promise<UserCalendar[]> {

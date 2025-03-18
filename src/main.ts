@@ -21,7 +21,9 @@ async function bootstrap() {
     const host = String(configService.get<number>('app.host'));
     const protocol = String(configService.get<number>('app.protocol'));
     const baseUrl = `${protocol}://${host}${port ? `:${port}` : ''}`;
-    const frontendOrigin = String(configService.get<string>('app.frontendLink'));
+    const frontendOrigin = String(configService.get<string>('app.frontendLink')).endsWith('/')
+        ? String(configService.get<string>('app.frontendLink')).slice(0, -1)
+        : String(configService.get<string>('app.frontendLink'));
     const csrfConfig = configService.get('app.csrf');
     const corsConfig = configService.get('app.cors');
     const nodeEnv = String(configService.get('app.nodeEnv'));

@@ -15,7 +15,7 @@ import { CreateCalendarDto } from './dto/create-calendar.dto';
 import { UpdateCalendarDto } from './dto/update-calendar.dto';
 import { CalendarsService } from './calendars.service';
 import {RequestWithUser} from "../common/types/request.types";
-import {CalendarOwnerGuard} from "./guards/own.calendar.guard";
+import {CalendarOwnerGuard, OnlyDirectOwner} from "./guards/own.calendar.guard";
 import {SERIALIZATION_GROUPS} from "../user/entity/user.entity";
 
 @Controller('calendars')
@@ -61,6 +61,7 @@ export class CalendarsController extends BaseCrudController<
     //
 
     @UseGuards(CalendarOwnerGuard)
+    @OnlyDirectOwner(false)
     @Patch(':id')
     async update(
         @Param('id') id: number,
@@ -71,6 +72,7 @@ export class CalendarsController extends BaseCrudController<
     }
 
     @UseGuards(CalendarOwnerGuard)
+    @OnlyDirectOwner(true)
     @Delete(':id')
     async delete(@Param('id') id: number, @Req() req: RequestWithUser): Promise<void> {
         return super.delete(id, req);

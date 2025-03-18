@@ -20,6 +20,9 @@ import { UpdateUserInCalendarDto } from './dto/update-user-in-calendar.dto';
 import { UserCalendar } from './entity/user-calendar.entity';
 import { RequestWithUser } from "../common/types/request.types";
 import { BaseCrudController } from '../common/controller/base-crud.controller';
+import {CalendarOwnerGuard, OnlyDirectOwner} from "../calendar/guards/own.calendar.guard";
+import {OwnUserCalendarGuard} from "./guards/own.user-calendar.guard";
+import {UpdateUserCalendarGuard} from "./guards/update.user-calendar.guard";
 
 @Controller('calendars/:calendarId/users')
 @UsePipes(new ValidationPipe({ whitelist: true }))
@@ -65,22 +68,26 @@ export class UsersCalendarsController extends BaseCrudController<
         );
     }
 
-    @Get()
-    async getCalendarUsers(@Param('calendarId') calendarId: number): Promise<UserCalendar[]> {
-        return await this.usersCalendarsService.getCalendarUsers(calendarId);
+    @Get() //TODO: add guard только участники календаря могут видеть список участников
+    async getCalendarUsers(@Param('calendarId') calendarId: number, @Req() req: RequestWithUser): Promise<UserCalendar[]> {
+        return await this.usersCalendarsService.getCalendarUsers(calendarId, req.user.userId);
     }
 
+    @UseGuards(OwnUserCalendarGuard)
     @Get(':id')
     async getById(@Param('id') id: number, @Req() req: RequestWithUser): Promise<UserCalendar> {
         return super.getById(id, req);
     }
 
+    @UseGuards(CalendarOwnerGuard)
+    @OnlyDirectOwner(false)
     @Post()
     async create(@Body() dto: AddUserToCalendarDto, @Req() req: RequestWithUser): Promise<UserCalendar> {
         return super.create(dto, req);
     }
 
-    @Patch(':id') ////TODO: добавить возможность менять цвет для участника календаря. менять роль - для владельца календаря.
+    @UseGuards(UpdateUserCalendarGuard)
+    @Patch(':id')
     async update(
         @Param('id') id: number,
         @Body() dto: UpdateUserInCalendarDto,
@@ -89,6 +96,8 @@ export class UsersCalendarsController extends BaseCrudController<
         return super.update(id, dto, req);
     }
 
+    @UseGuards(CalendarOwnerGuard)
+    @OnlyDirectOwner(false)
     @Delete(':id')
     async delete(@Param('id') id: number, @Req() req: RequestWithUser): Promise<void> {
         return super.delete(id, req);

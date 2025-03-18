@@ -35,7 +35,7 @@ export class UsersCalendarsService {
         return result;
     }
 
-    async getCalendarUsers(calendarId: number): Promise<UserCalendar[]> {
+    async getCalendarUsers(calendarId: number, requestingUserId: number): Promise<UserCalendar[]> {
         // Check if calendar exists
         // await this.getCalendarById(calendarId);
         const calendar = await this.calendarsRepository.findById(calendarId);
@@ -43,7 +43,15 @@ export class UsersCalendarsService {
             throw new NotFoundException('Calendar not found');
         }
 
-        return this.usersCalendarsRepository.findCalendarUsers(calendarId);
+        const currentUserCalendar = await this.usersCalendarsRepository.findByUserAndCalendar(
+            requestingUserId,
+            calendarId
+        );
+
+        const isOwner = (currentUserCalendar?.role === CalendarRole.OWNER) ||
+            (calendar.ownerId === requestingUserId);
+
+        return this.usersCalendarsRepository.findCalendarUsers(calendarId, isOwner);
     }
 
     async addUserToCalendar(
@@ -167,6 +175,7 @@ export class UsersCalendarsService {
             throw new NotFoundException('Calendar not found');
         }
 
+        //TODO: owner нельзя удалить именно настойящего owner
         // Check if current user is the owner
         const currentUserCalendar = await this.usersCalendarsRepository.findByUserAndCalendar(
             currentUserId,

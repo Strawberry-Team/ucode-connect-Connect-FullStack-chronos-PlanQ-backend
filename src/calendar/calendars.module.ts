@@ -19,6 +19,6 @@ import {CalendarOwnerGuard} from "./guards/own.calendar.guard";
     ],
     controllers: [CalendarsController],
     providers: [CalendarsService, CalendarsRepository, CalendarApiService, GoogleOAuthService, ConfigService, CalendarOwnerGuard],
-    exports: [CalendarApiService, CalendarsService, CalendarsRepository]
+    exports: [CalendarApiService, CalendarsService, CalendarsRepository, CalendarOwnerGuard]
 })
 export class CalendarsModule {}

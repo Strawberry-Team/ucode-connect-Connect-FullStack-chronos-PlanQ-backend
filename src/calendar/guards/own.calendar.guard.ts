@@ -4,18 +4,25 @@ import {
     Injectable,
     ForbiddenException,
     NotFoundException,
-    BadRequestException
+    BadRequestException,
+    SetMetadata
 } from '@nestjs/common';
 import { CalendarsService } from '../calendars.service';
 import {UsersCalendarsRepository} from "../../user-calendar/users-calendars.repository";
 import {CalendarRole} from "../../user-calendar/entity/user-calendar.entity";
+import {Reflector} from "@nestjs/core";
+
+// A clear flag name - when true, ONLY the direct owner can access
+export const ONLY_DIRECT_OWNER = 'onlyDirectOwner';
+export const OnlyDirectOwner = (check: boolean) => SetMetadata(ONLY_DIRECT_OWNER, check);
 
 @Injectable()
 export class CalendarOwnerGuard implements CanActivate {
     constructor(
         private readonly calendarsService: CalendarsService,
         private readonly usersCalendarsRepository: UsersCalendarsRepository,
-        ) {}
+        private readonly reflector: Reflector
+    ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
@@ -29,24 +36,32 @@ export class CalendarOwnerGuard implements CanActivate {
 
         // Get the calendar to check ownership
         const calendar = await this.calendarsService.getCalendarById(calendarId);
-
         if (!calendar) {
             throw new NotFoundException('Calendar not found');
         }
 
-        // Проверяем, является ли пользователь владельцем календаря напрямую
+        // Check if we should only allow direct owner
+        const onlyDirectOwner = this.reflector.getAllAndOverride<boolean>(
+            ONLY_DIRECT_OWNER,
+            [context.getHandler(), context.getClass()]
+        );
+
+        // Direct ownership check
         if (calendar.ownerId == userId) {
-            return true; // Пользователь - владелец календаря, разрешаем доступ
+            return true; // User is direct owner
         }
 
-        // Если пользователь не является прямым владельцем,
-        // проверяем, есть ли у него роль OWNER в таблице связей
+        // If we only want the direct owner, and they're not, deny access
+        if (onlyDirectOwner) {
+            throw new ForbiddenException('Only the direct owner can perform this action');
+        }
+
+        // Otherwise check for role-based ownership
         const userCalendar = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
         if (userCalendar && userCalendar.role === CalendarRole.OWNER) {
-            return true; // Пользователь имеет роль OWNER в usersCalendars
+            return true; // User has OWNER role
         }
 
-        // Если ни одно из условий не выполнилось, доступ запрещен
         throw new ForbiddenException('You do not have permission to modify this calendar');
     }
 }
