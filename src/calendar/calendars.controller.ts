@@ -6,7 +6,8 @@ import {
     Param,
     Body,
     Req,
-    UseGuards
+    UseGuards,
+    SerializeOptions
 } from '@nestjs/common';
 import { BaseCrudController } from '../common/controller/base-crud.controller';
 import { Calendar } from './entity/calendar.entity';
@@ -15,6 +16,7 @@ import { UpdateCalendarDto } from './dto/update-calendar.dto';
 import { CalendarsService } from './calendars.service';
 import {RequestWithUser} from "../common/types/request.types";
 import {CalendarOwnerGuard} from "./guards/own.calendar.guard";
+import {SERIALIZATION_GROUPS} from "../user/entity/user.entity";
 
 @Controller('calendars')
 export class CalendarsController extends BaseCrudController<

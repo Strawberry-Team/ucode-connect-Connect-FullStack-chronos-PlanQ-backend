@@ -15,8 +15,6 @@ export class JwtRefreshGuard extends AuthGuard('jwt-refresh') implements CanActi
         const canActivate = await super.canActivate(context);
         if (!canActivate) return false;
 
-        console.log("JwtRefreshGuard", )
-
         const request = context.switchToHttp().getRequest();
 
         const { user } = request;

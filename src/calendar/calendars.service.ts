@@ -15,7 +15,7 @@ import {Calendar} from './entity/calendar.entity';
 import {UserCalendar, CalendarRole} from '../user-calendar/entity/user-calendar.entity';
 import {UsersService} from '../user/users.service';
 import {plainToInstance} from "class-transformer";
-import {User} from "../user/entity/user.entity";
+import {SERIALIZATION_GROUPS, User} from "../user/entity/user.entity";
 import {ConfigService} from "@nestjs/config";
 
 @Injectable()
@@ -37,7 +37,6 @@ export class CalendarsService {
         });
 
         // Add user to the calendar with main status
-        console.log(String(this.configService.get<string>('calendar.default.color')));
         await this.usersCalendarsRepository.createUserCalendar({
             userId,
             calendarId: defaultCalendar.id,
@@ -54,10 +53,6 @@ export class CalendarsService {
         const calendar = await this.calendarsRepository.findById(id);
         if (!calendar) {
             throw new NotFoundException('Calendar not found');
-        }
-
-        if (calendar.owner) {
-            calendar.owner = plainToInstance(User, calendar.owner, {groups: ['basic']});
         }
 
         return calendar;
@@ -121,9 +116,7 @@ export class CalendarsService {
             throw new NotFoundException('Calendar not found');
         }
 
-        console.log(userCalendar);
-
-        if (userCalendar.isMain == true) {
+        if (Boolean(userCalendar.isMain[0])) {
             throw new BadRequestException('Cannot delete your main calendar');
         }
 

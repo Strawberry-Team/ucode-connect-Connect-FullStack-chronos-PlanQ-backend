@@ -87,7 +87,6 @@ export class UsersService {
         if (!result) {
             throw new NotFoundException('User not found');
         }
-        console.log("result: ", result);
         return plainToInstance(User, result, { groups: SERIALIZATION_GROUPS.BASIC});
     }
 

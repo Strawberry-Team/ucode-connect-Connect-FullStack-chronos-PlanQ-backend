@@ -33,7 +33,6 @@ export class EmailService {
 
     private async init() {
         this.logo = await this.readLogoFile('./public/uploads/logo/logo.png');
-        console.log("logo: ", this.logo);
     }
 
     private async readLogoFile(filePath: string): Promise<Buffer> {
@@ -93,20 +92,13 @@ export class EmailService {
     }
 
     async sendConfirmationEmail(to: string, confirmationLink: string): Promise<void> {
-        // if (!this.logoSVG) {
-        //     this.logoSVG = await this.readHtmlFile('./public/uploads/logo/logo_svg.txt');
-        // }
-        // console.log("image_svg", this.logoSVG);
         const html = getConfirmationEmailTemplate(confirmationLink, this.appName);
-        console.log("html: ", html);
         await this.sendEmail(to, `Email Confirmation for ${this.appName}`, html);
     }
 
     async sendResetPasswordEmail(to: string, resetLink: string): Promise<void> {
-        console.log("resetLink: ", resetLink);
         const html = getResetPasswordEmailTemplate(resetLink, this.appName);
-        console.log("html1: ", html);
-        // await this.sendEmail(to, `Reset Password for ${this.appName}`, html);
+        await this.sendEmail(to, `Reset Password for ${this.appName}`, html);
     }
 
     async sendCalendarShareEmail(

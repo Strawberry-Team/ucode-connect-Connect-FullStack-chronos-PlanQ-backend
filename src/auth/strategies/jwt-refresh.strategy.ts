@@ -1,7 +1,6 @@
 import {createJwtStrategy} from '../../jwt/jwt-strategy.factory';
 
 const refreshTokenExtractor = (req: any): string | null => {
-    console.log("req?.body?.refreshToken", req?.body?.refreshToken)
     return req?.body?.refreshToken || null;
 };
 

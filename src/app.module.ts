@@ -50,7 +50,12 @@ import {APP_INTERCEPTOR} from "@nestjs/core";
         CalendarsModule
     ],
     controllers: [],
-    providers: [],
+    providers: [
+        // {
+        //     provide: APP_INTERCEPTOR,
+        //     useClass: ClassSerializerInterceptor
+        // }
+    ],
 })
 export class AppModule {
 }

@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Calendar } from './entity/calendar.entity';
+import {SERIALIZATION_GROUPS, User} from "../user/entity/user.entity";
+import {plainToInstance} from "class-transformer";
 
 @Injectable()
 export class CalendarsRepository {
@@ -12,10 +14,20 @@ export class CalendarsRepository {
     ) {}
 
     async findById(id: number): Promise<Calendar | null> {
-        return this.repo.findOne({
+        const result = await this.repo.findOne({
             where: { id },
             relations: ['owner']
         });
+
+        if (!result) {
+            return null;
+        }
+
+        if (result.owner) {
+            result.owner = plainToInstance(User, result.owner, {groups: SERIALIZATION_GROUPS.BASIC});
+        }
+
+        return result;
     }
 
     async findByOwner(ownerId: number): Promise<Calendar[]> {

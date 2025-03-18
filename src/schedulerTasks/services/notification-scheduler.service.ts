@@ -17,9 +17,7 @@ export class NotificationSchedulerService {
     @Cron(SchedulerConfig.prototype.unactivatedAccountNotification)
     async unactivatedAccountNotification() {
         const EXPIRATION_TIME = convertToSeconds(String(this.configService.get<string>(`jwt.expiresIn.confirmEmail`)));
-        console.log("EXPIRATION_DAYS = ", EXPIRATION_TIME)
         const users: User[] = await this.usersService.getAllUnactivatedUsers(EXPIRATION_TIME);
-        const now = new Date();
 
         if (users.length > 0) {
             await Promise.all(users.map(user =>
