@@ -5,7 +5,7 @@ import {IsCalendarColor, IsCalendarRole} from "../../calendar/calendars.validato
 
 export class UpdateUserInCalendarDto {
     @IsCalendarRole(true)
-    role?: CalendarRole.EDITOR | CalendarRole.VIEWER;
+    role?: CalendarRole;
 
     @IsCalendarColor(true)
     color?: string;

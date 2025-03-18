@@ -11,7 +11,7 @@ import {
     UsePipes,
     ValidationPipe,
     Get,
-    NotFoundException
+    NotFoundException, BadRequestException
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/auth.jwt-guards';
 import { UsersCalendarsService } from './users-calendars.service';
@@ -50,11 +50,20 @@ export class UsersCalendarsController extends BaseCrudController<
         dto: UpdateUserInCalendarDto,
         req: RequestWithUser
     ): Promise<UserCalendar> {
+        const hasRole = dto.role !== undefined;
+        const hasColor = dto.color !== undefined;
+
+        if (hasRole && hasColor) {
+            throw new BadRequestException('You can update either role or color, but not both at the same time');
+        }
+
+        if (!hasRole && !hasColor) {
+            throw new BadRequestException('Either role or color must be provided');
+        }
         const calendarId = parseInt(req.params.calendarId, 10);
         return await this.usersCalendarsService.updateUserInCalendar(
             calendarId,
             id,
-            req.user.userId,
             dto
         );
     }
@@ -63,8 +72,7 @@ export class UsersCalendarsController extends BaseCrudController<
         const calendarId = parseInt(req.params.calendarId, 10);
         return await this.usersCalendarsService.removeUserFromCalendar(
             calendarId,
-            id,
-            req.user.userId
+            id
         );
     }
 
@@ -80,7 +88,7 @@ export class UsersCalendarsController extends BaseCrudController<
     }
 
     @UseGuards(CalendarOwnerGuard)
-    @OnlyDirectOwner(false)
+    @OnlyDirectOwner(true)
     @Post()
     async create(@Body() dto: AddUserToCalendarDto, @Req() req: RequestWithUser): Promise<UserCalendar> {
         return super.create(dto, req);
@@ -97,7 +105,7 @@ export class UsersCalendarsController extends BaseCrudController<
     }
 
     @UseGuards(CalendarOwnerGuard)
-    @OnlyDirectOwner(false)
+    @OnlyDirectOwner(true)
     @Delete(':id')
     async delete(@Param('id') id: number, @Req() req: RequestWithUser): Promise<void> {
         return super.delete(id, req);

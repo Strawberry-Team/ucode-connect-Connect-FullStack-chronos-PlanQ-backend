@@ -99,14 +99,6 @@ export class CalendarsService {
         }
 
         return result;
-        // // If color is provided, update it in the user-calendar relationship
-        // if (dto.color !== undefined) {
-        //     await this.usersCalendarsRepository.updateUserCalendarByUserAndCalendar(
-        //         userId,
-        //         calendarId,
-        //         { color: dto.color }
-        //     );
-        // } //TODO: перенести в users-calendars.service.ts, тут обновление цвета нету
     }
 
     async deleteCalendar(userId: number, calendarId: number): Promise<void> {

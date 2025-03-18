@@ -9,5 +9,5 @@ export class AddUserToCalendarDto {
     userEmail: string;
 
     @IsCalendarRole(false)
-    role: CalendarRole.EDITOR | CalendarRole.VIEWER;
+    role: CalendarRole;
 }

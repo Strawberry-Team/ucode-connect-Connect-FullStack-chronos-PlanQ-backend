@@ -52,13 +52,37 @@ export class UsersController extends BaseCrudController<
         dto: UpdateUserDto,
         req: RequestWithUser
     ): Promise<User> {
-        if (dto.oldPassword || dto.newPassword) {
+        // if (dto.oldPassword || dto.newPassword) {
+        //     if (!dto.oldPassword || !dto.newPassword) {
+        //         throw new BadRequestException(
+        //             'Both old and new passwords are required to update password',
+        //         );
+        //     }
+        // }
+        const dtoKeys = Object.keys(dto);
+        const hasPasswordFields = dto.oldPassword !== undefined || dto.newPassword !== undefined;
+        const nonPasswordFields = dtoKeys.filter(key => key !== 'oldPassword' && key !== 'newPassword');
+
+        // Если есть поля пароля
+        if (hasPasswordFields) {
+            // Проверяем, что присутствуют оба поля пароля
             if (!dto.oldPassword || !dto.newPassword) {
                 throw new BadRequestException(
                     'Both old and new passwords are required to update password',
                 );
             }
+
+            // Проверяем, что нет других полей, кроме полей пароля
+            if (nonPasswordFields.length > 0) {
+                throw new BadRequestException(
+                    'Password update must be performed separately from other field updates',
+                );
+            }
+        } else if (dtoKeys.length === 0) {
+            // Проверяем, что передан хотя бы один параметр
+            throw new BadRequestException('At least one field must be provided for update');
         }
+
         return await this.usersService.updateUser(id, dto);
     }
 
