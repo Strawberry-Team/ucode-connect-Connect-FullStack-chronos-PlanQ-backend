@@ -19,7 +19,7 @@ export const TOKEN_CONTEXT_MAP: Record<TokenType, JwtContext> = {
 export interface JwtPayload {
     sub: number;
     nonce?: string;
-    calendarId?: string;
+    calendarId?: number;
     arrangementId?: string;
     iss: string;
     aud: string;

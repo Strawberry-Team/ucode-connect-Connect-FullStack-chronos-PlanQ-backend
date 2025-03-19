@@ -8,12 +8,15 @@ import {UsersModule} from '../user/users.module';
 import {CalendarsModule} from '../calendar/calendars.module';
 import {UpdateUserCalendarGuard} from "./guards/update.user-calendar.guard";
 import {OwnUserCalendarGuard} from "./guards/own.user-calendar.guard";
+import { EmailService } from 'src/email/email.service';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([UserCalendar]),
         forwardRef(() => UsersModule),
-        forwardRef(() => CalendarsModule)
+        forwardRef(() => CalendarsModule),
+        forwardRef(() => EmailModule)
     ],
     controllers: [UsersCalendarsController],
     providers: [UsersCalendarsService, UsersCalendarsRepository, UpdateUserCalendarGuard, OwnUserCalendarGuard],

@@ -2,10 +2,29 @@ import { AuthGuard } from "@nestjs/passport";
 import { createJwtGuard } from "../../jwt/jwt-guard.factory";
 import { RefreshTokenNonceService } from "src/refresh-token-nonce/refresh-token-nonce.service";
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
+import { Reflector } from '@nestjs/core';
+import { IS_PUBLIC_KEY } from "src/common/decorators/public.decorator";
 
-export const JwtAuthGuard = createJwtGuard('jwt-access');
 export const JwtConfirmEmailGuard = createJwtGuard('jwt-confirm-email');
 export const JwtResetPasswordGuard = createJwtGuard('jwt-password-reset');
+
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt-access') implements CanActivate {
+    constructor(private reflector: Reflector) {
+        super();
+      }
+    
+      canActivate(context: ExecutionContext): boolean {
+        const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+          context.getHandler(),
+          context.getClass(),
+        ]);
+        if (isPublic) {
+          return true;
+        }
+        return super.canActivate(context) as boolean;
+      }
+}
 
 @Injectable()
 export class JwtRefreshGuard extends AuthGuard('jwt-refresh') implements CanActivate {

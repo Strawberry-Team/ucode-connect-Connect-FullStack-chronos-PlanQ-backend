@@ -12,15 +12,24 @@ import {UsersService} from '../user/users.service';
 import {AddUserToCalendarDto} from './dto/add-user-to-calendar.dto';
 import {UpdateUserInCalendarDto} from './dto/update-user-in-calendar.dto';
 import {UserCalendar} from './entity/user-calendar.entity';
+import { ConfigService } from '@nestjs/config';
+import { EmailService } from 'src/email/email.service';
+import { JwtUtils } from 'src/jwt/jwt-token.utils';
 
 @Injectable()
 export class UsersCalendarsService {
+    private frontUrl: string;
+
     constructor(
         private readonly usersCalendarsRepository: UsersCalendarsRepository,
         @Inject(forwardRef(() => CalendarsRepository))
         private readonly calendarsRepository: CalendarsRepository,
-        private readonly usersService: UsersService
+        private readonly usersService: UsersService,
+        private readonly configService: ConfigService,
+        private readonly emailService: EmailService,
+        private readonly jwtUtils: JwtUtils,
     ) {
+        this.frontUrl = String(this.configService.get<string>('app.frontendLink'));
     }
 
     async getUserCalendars(userId: number): Promise<UserCalendar[]> {
@@ -73,7 +82,7 @@ export class UsersCalendarsService {
             throw new NotFoundException('User-calendar relationship not found');
         }
 
-        if (Boolean(currentUserCalendar.isMain[0])) {
+        if (currentUserCalendar.isMain) {
             throw new BadRequestException('Cannot invite users to your main calendar');
         }
 
@@ -83,7 +92,7 @@ export class UsersCalendarsService {
             throw new NotFoundException(`User with email ${dto.userEmail} not found`);
         }
 
-        if (userToAdd.emailVerified) {
+        if (!userToAdd.emailVerified) {
             throw new BadRequestException('User must confirm their email first');
         }
 
@@ -96,6 +105,15 @@ export class UsersCalendarsService {
             throw new ConflictException('User already has access to this calendar');
         }
 
+        const userInviter = await this.usersService.getUserByIdWithoutPassword(currentUserId);
+
+        const AddUserToCalendarToken = this.jwtUtils.generateToken({sub: userToAdd.id, calendarId: calendarId}, 'confirmCalendar');
+
+        const link = this.frontUrl + 'calendars/confirm-calendar/' + AddUserToCalendarToken;
+        console.log("confirmCalendarLink: ", link); 
+
+        this.emailService.sendCalendarShareEmail(userToAdd.email, calendar.name, link, userInviter.email); 
+
         return this.usersCalendarsRepository.createUserCalendar({
             userId: userToAdd.id,
             calendarId,
@@ -104,7 +122,6 @@ export class UsersCalendarsService {
             color: currentUserCalendar.color,
             isConfirmed: false
         });
-        //TODO: сделать отправку почты
     }
 
     async updateUserInCalendar(
@@ -163,5 +180,24 @@ export class UsersCalendarsService {
         }
 
         await this.usersCalendarsRepository.deleteUserCalendar(userCalendarToRemove.id);
+    }
+
+    async confirmCalendar(
+        userId: number,
+        calendarId: number,
+    ) {
+        const result = await this.usersCalendarsRepository.updateUserCalendarByUserAndCalendar(
+            userId,
+            calendarId,
+            {
+                isConfirmed: true
+            }
+        );
+
+        if (!result){
+            throw new BadRequestException("Cannot confirm the calendar")
+        }
+
+        return result;
     }
 }

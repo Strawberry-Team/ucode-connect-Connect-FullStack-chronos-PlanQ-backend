@@ -8,5 +8,6 @@ export interface RequestWithUser extends Request {
         expiresIn?: number;
         createdAt?: number;
         nonce?: string;
+        calendarId?: number;
     };
 }

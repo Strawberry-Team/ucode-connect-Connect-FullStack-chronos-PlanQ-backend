@@ -12,19 +12,21 @@ import {
     Get,
     BadRequestException
 } from '@nestjs/common';
-import {UsersCalendarsService} from './users-calendars.service';
-import {AddUserToCalendarDto} from './dto/add-user-to-calendar.dto';
-import {UpdateUserInCalendarDto} from './dto/update-user-in-calendar.dto';
-import {UserCalendar} from './entity/user-calendar.entity';
-import {RequestWithUser} from "../common/types/request.types";
-import {BaseCrudController} from '../common/controller/base-crud.controller';
-import {CalendarOwnerGuard, OnlyDirectOwner} from "../calendar/guards/own.calendar.guard";
-import {OwnUserCalendarGuard} from "./guards/own.user-calendar.guard";
-import {UpdateUserCalendarGuard} from "./guards/update.user-calendar.guard";
-import {CalendarParticipantGuard} from './guards/calendar.participant.guard';
+import { UsersCalendarsService } from './users-calendars.service';
+import { AddUserToCalendarDto } from './dto/add-user-to-calendar.dto';
+import { UpdateUserInCalendarDto } from './dto/update-user-in-calendar.dto';
+import { UserCalendar } from './entity/user-calendar.entity';
+import { RequestWithUser } from "../common/types/request.types";
+import { BaseCrudController } from '../common/controller/base-crud.controller';
+import { CalendarOwnerGuard, OnlyDirectOwner } from "../calendar/guards/own.calendar.guard";
+import { OwnUserCalendarGuard } from "./guards/own.user-calendar.guard";
+import { UpdateUserCalendarGuard } from "./guards/update.user-calendar.guard";
+import { CalendarParticipantGuard } from './guards/calendar.participant.guard';
+import { JwtConfirmCalendarGuard } from 'src/calendar/guards/jwt-confirm-calendar.guard';
+import { Public } from '../common/decorators/public.decorator';
 
 @Controller('calendars/:calendarId/users')
-@UsePipes(new ValidationPipe({whitelist: true}))
+@UsePipes(new ValidationPipe({ whitelist: true }))
 export class UsersCalendarsController extends BaseCrudController<
     UserCalendar,
     AddUserToCalendarDto,
@@ -109,5 +111,12 @@ export class UsersCalendarsController extends BaseCrudController<
     @Delete(':id')
     async delete(@Param('id') id: number, @Req() req: RequestWithUser): Promise<void> {
         return super.delete(id, req);
+    }
+
+    @Public()
+    @UseGuards(JwtConfirmCalendarGuard)
+    @Post('/confirm-calendar/:confirm_token')
+    async confirmCalendarWithConfirmToken(@Req() req: RequestWithUser) {
+        return this.usersCalendarsService.confirmCalendar(req.user.userId, Number(req.user.calendarId));
     }
 }

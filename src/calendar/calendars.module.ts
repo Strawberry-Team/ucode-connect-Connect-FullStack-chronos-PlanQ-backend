@@ -10,6 +10,7 @@ import {GoogleOAuthService} from "../google/google-oauth.service";
 import {ConfigService} from "@nestjs/config";
 import {CalendarApiService} from "./calendar-api.service";
 import {CalendarOwnerGuard} from "./guards/own.calendar.guard";
+import { JwtConfirmCalendarStrategy } from './strategies/jwt-confirm-calendar.strategy';
 
 @Module({
     imports: [
@@ -18,7 +19,7 @@ import {CalendarOwnerGuard} from "./guards/own.calendar.guard";
         forwardRef(() => UsersCalendarsModule)
     ],
     controllers: [CalendarsController],
-    providers: [CalendarsService, CalendarsRepository, CalendarApiService, GoogleOAuthService, ConfigService, CalendarOwnerGuard],
-    exports: [CalendarApiService, CalendarsService, CalendarsRepository, CalendarOwnerGuard]
+    providers: [CalendarsService, CalendarsRepository, CalendarApiService, GoogleOAuthService, ConfigService, CalendarOwnerGuard, JwtConfirmCalendarStrategy],
+    exports: [CalendarApiService, CalendarsService, CalendarsRepository, CalendarOwnerGuard, JwtConfirmCalendarStrategy]
 })
 export class CalendarsModule {}

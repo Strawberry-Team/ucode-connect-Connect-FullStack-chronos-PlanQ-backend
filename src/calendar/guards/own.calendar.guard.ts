@@ -26,7 +26,7 @@ export class CalendarOwnerGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         const user = request.user;
-        const calendarId: number = parseInt(request.params.id, 10);
+        const calendarId: number = parseInt(request.params.calendarId, 10);
         const userId = user?.userId;
 
         if (!user || isNaN(calendarId)) {
