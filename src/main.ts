@@ -5,6 +5,7 @@ import {NestExpressApplication} from '@nestjs/platform-express';
 import {ConfigService} from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import * as csurf from 'csurf';
+import {CsrfExceptionFilter} from './common/filters/csrf-exception.filter';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -27,6 +28,8 @@ async function bootstrap() {
     const csrfConfig = configService.get('app.csrf');
     const corsConfig = configService.get('app.cors');
     const nodeEnv = String(configService.get('app.nodeEnv'));
+
+    app.useGlobalFilters(new CsrfExceptionFilter());
 
     app.setGlobalPrefix(globalPrefix);
 
