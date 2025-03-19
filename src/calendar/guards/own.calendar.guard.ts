@@ -29,7 +29,11 @@ export class CalendarOwnerGuard implements CanActivate {
         const calendarId: number = parseInt(request.params.calendarId, 10) || parseInt(request.params.id, 10) ;
         const userId = user?.userId;
 
-        if (!user || isNaN(calendarId)) {
+        if (!user){
+            throw new BadRequestException('User not found');
+        }
+
+        if (isNaN(calendarId)) {
             throw new BadRequestException('calendarId must be a number');
         }
 
