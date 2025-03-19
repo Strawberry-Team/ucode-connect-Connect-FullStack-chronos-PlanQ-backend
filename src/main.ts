@@ -6,6 +6,7 @@ import {ConfigService} from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import * as csurf from 'csurf';
 import {CsrfExceptionFilter} from './common/filters/csrf-exception.filter';
+import {CsrfError} from './common/filters/csrf-exception.filter';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -53,6 +54,15 @@ async function bootstrap() {
             ignoreMethods: csrfConfig.ignoreMethods,
         }),
     );
+
+    app.use((err: any, req: any, res: any, next: any) => {
+        if (err && err.code === 'EBADCSRFTOKEN') {
+            next(new CsrfError());
+        } else {
+            next(err);
+        }
+    });
+
 
     await app.listen(port);
     console.log(`Application is running on: ${baseUrl}/${globalPrefix}`);
