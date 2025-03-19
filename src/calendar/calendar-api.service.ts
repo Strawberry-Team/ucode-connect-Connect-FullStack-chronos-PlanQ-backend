@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { GoogleOAuthService } from '../google/google-oauth.service';
-import { google } from 'googleapis';
+import {Injectable, NotFoundException} from '@nestjs/common';
+import {ConfigService} from '@nestjs/config';
+import {GoogleOAuthService} from '../google/google-oauth.service';
+import {google} from 'googleapis';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -43,55 +43,61 @@ export class CalendarApiService {
         return calendarId;
     }
 
-    async getHolidays(
+    async getCountryHolidays(
         countryCode: string,
         startDate?: string,
         endDate?: string
     ): Promise<any[]> {
-        try {
-            const calendarId = this.getCalendarId(countryCode);
-            const accessToken = await this.googleOAuthService.getAccessToken();
+        const calendarId = this.getCalendarId(countryCode);
 
-            const calendar = google.calendar({
-                version: 'v3',
-                headers: { Authorization: `Bearer ${accessToken}` },
-            });
-
-            const response = await calendar.events.list({
-                calendarId,
-                // timeMin: startDate,
-                // timeMax: endDate,
-                // singleEvents: true,
-                orderBy: 'startTime',
-                showDeleted: true,
-            });
-
-            return (response.data.items || []).map(item => {
-                const eventData: any = {
-                    summary: item.summary
-                };
-
-                if (item.start) {
-                    eventData.start = item.start.date || item.start.dateTime || null;
-                } else {
-                    eventData.start = null;
-                }
-
-                if (item.end) {
-                    eventData.end = item.end.date || item.end.dateTime || null;
-                } else {
-                    eventData.end = null;
-                }
-
-                eventData.description = item.description || null;
-
-                return eventData;
-            });
-
-        } catch (error) {
-            if (error instanceof NotFoundException) throw error;
-            throw new Error(`Failed to fetch holidays: ${error.message}`);
+        if (!calendarId) {
+            throw new NotFoundException(`Calendar not found for country code: ${countryCode}`);
         }
+
+        const accessToken = await this.googleOAuthService.getAccessToken();
+
+        const calendar = google.calendar({
+            version: 'v3',
+            headers: {Authorization: `Bearer ${accessToken}`},
+        });
+
+        const params: any = {
+            calendarId,
+        };
+
+        if (startDate) {
+            params.timeMin = startDate;
+        }
+
+        if (endDate) {
+            params.timeMax = endDate;
+        }
+
+        const response = await calendar.events.list(params);
+
+        return (response.data.items || []).map(item => {
+            const eventData: any = {
+                title: item.summary
+            };
+
+            if (item.start) {
+                eventData.startedAt = item.start.date || item.start.dateTime || null;
+            } else {
+                eventData.startedAt = null;
+            }
+
+            if (item.end) {
+                eventData.endedAt = item.end.date || item.end.dateTime || null;
+            } else {
+                eventData.endedAt = null;
+            }
+
+            eventData.description = item.description || null;
+
+            return eventData;
+        });
+
+
     }
 
     async getHolidaysForDateRange(
@@ -99,6 +105,6 @@ export class CalendarApiService {
         startDate: string,
         endDate: string
     ): Promise<any[]> {
-        return this.getHolidays(countryCode, startDate, endDate);
+        return this.getCountryHolidays(countryCode, startDate, endDate);
     }
 }

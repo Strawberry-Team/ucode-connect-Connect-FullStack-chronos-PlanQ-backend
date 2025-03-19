@@ -46,6 +46,12 @@ export class CalendarsController extends BaseCrudController<
         return await this.calendarsService.deleteCalendar(req.user.userId, id);
     }
 
+    @Get('holidays')
+    async getCountryHolidays(@Req() req: RequestWithUser): Promise<any> {
+        //TODO: added another language support(apart from English)
+        return await this.calendarsService.getCountryHolidays(req.user.userId);
+    }
+
     @UseGuards(CalendarParticipantGuard)
     @Get(':id')
     async getById(@Param('id') id: number, @Req() req: RequestWithUser): Promise<Calendar> {

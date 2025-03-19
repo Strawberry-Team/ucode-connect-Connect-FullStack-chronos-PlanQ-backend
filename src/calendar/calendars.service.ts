@@ -1,10 +1,4 @@
-import {
-    Injectable,
-    NotFoundException,
-    BadRequestException,
-    Inject,
-    forwardRef
-} from '@nestjs/common';
+import {BadRequestException, forwardRef, Inject, Injectable, NotFoundException} from '@nestjs/common';
 import {CalendarsRepository} from './calendars.repository';
 import {UsersCalendarsRepository} from '../user-calendar/users-calendars.repository';
 import {CreateCalendarDto} from './dto/create-calendar.dto';
@@ -12,6 +6,8 @@ import {UpdateCalendarDto} from './dto/update-calendar.dto';
 import {Calendar} from './entity/calendar.entity';
 import {CalendarRole} from '../user-calendar/entity/user-calendar.entity';
 import {ConfigService} from "@nestjs/config";
+import {CalendarApiService} from "./calendar-api.service";
+import {UsersService} from "../user/users.service";
 
 @Injectable()
 export class CalendarsService {
@@ -19,8 +15,10 @@ export class CalendarsService {
         private readonly calendarsRepository: CalendarsRepository,
         @Inject(forwardRef(() => UsersCalendarsRepository))
         private readonly usersCalendarsRepository: UsersCalendarsRepository,
-        private readonly configService: ConfigService
-    ) {
+        private readonly configService: ConfigService,
+        private readonly calendarApiService: CalendarApiService,
+        @Inject(forwardRef(() => UsersService))
+        private readonly usersService: UsersService) {
     }
 
     async createDefaultCalendar(userId: number): Promise<Calendar> {
@@ -103,5 +101,10 @@ export class CalendarsService {
         }
 
         await this.calendarsRepository.deleteCalendar(calendarId);
+    }
+
+    async getCountryHolidays(userId: number): Promise<any> {
+        const user = await this.usersService.getUserByIdWithoutPassword(userId);
+        return await this.calendarApiService.getCountryHolidays(user.countryCode);
     }
 }
