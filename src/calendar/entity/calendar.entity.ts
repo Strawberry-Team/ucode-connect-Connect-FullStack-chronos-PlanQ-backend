@@ -19,7 +19,7 @@ export class Calendar {
     @Column({ name: 'creator_id' })
     creatorId: number;
 
-    @Column({ length: 100 })
+    @Column({ name: 'name', length: 100 })
     name: string;
 
     @Column({ type: 'tinytext', nullable: true })

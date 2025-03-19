@@ -5,7 +5,6 @@ const refreshTokenExtractor = (req: any): string | null => {
 };
 
 const refreshValidateFn = (payload: any) => {
-    console.log("nonce: payload.nonce", payload.nonce)
     return {userId: payload.sub,
             nonce: payload.nonce,
             expiresIn: payload.exp,

@@ -6,6 +6,7 @@ import {
     Body,
     Req,
     UseGuards, Get,
+    Post,
 } from '@nestjs/common';
 import {BaseCrudController} from '../common/controller/base-crud.controller';
 import {Calendar} from './entity/calendar.entity';
@@ -13,7 +14,7 @@ import {CreateCalendarDto} from './dto/create-calendar.dto';
 import {UpdateCalendarDto} from './dto/update-calendar.dto';
 import {CalendarsService} from './calendars.service';
 import {RequestWithUser} from "../common/types/request.types";
-import {CalendarOwnerGuard, OnlyDirectOwner} from "./guards/own.calendar.guard";
+import {CalendarOwnerGuard, OnlyCreator} from "./guards/own.calendar.guard";
 import {CalendarParticipantGuard} from "../user-calendar/guards/calendar.participant.guard";
 
 @Controller('calendars')
@@ -47,7 +48,7 @@ export class CalendarsController extends BaseCrudController<
     }
 
     @Get('holidays')
-    async getCountryHolidays(@Req() req: RequestWithUser): Promise<any> {
+    async getCountryHolidays(@Req() req: RequestWithUser): Promise<any> {;
         //TODO: added another language support(apart from English)
         return await this.calendarsService.getCountryHolidays(req.user.userId);
     }
@@ -55,30 +56,30 @@ export class CalendarsController extends BaseCrudController<
     @UseGuards(CalendarParticipantGuard)
     @Get(':id')
     async getById(@Param('id') id: number, @Req() req: RequestWithUser): Promise<Calendar> {
-        return await this.findById(id, req);
+        return await super.getById(id, req);
     }
 
-    // @Post()
-    // async create(@Body() dto: CreateCalendarDto, @Req() req: RequestWithUser): Promise<Calendar> {
-    //     return super.create(dto, req);
-    // }
-    //
+    @Post()
+    async create(@Body() dto: CreateCalendarDto, @Req() req: RequestWithUser): Promise<Calendar> {
+        return await super.create(dto, req);
+    }
+    
 
     @UseGuards(CalendarOwnerGuard)
-    @OnlyDirectOwner(false)
+    @OnlyCreator(false)
     @Patch(':id')
     async update(
         @Param('id') id: number,
         @Body() dto: UpdateCalendarDto,
         @Req() req: RequestWithUser
     ): Promise<Calendar> {
-        return super.update(id, dto, req);
+        return await super.update(id, dto, req);
     }
 
     @UseGuards(CalendarOwnerGuard)
-    @OnlyDirectOwner(true)
+    @OnlyCreator(true)
     @Delete(':id')
     async delete(@Param('id') id: number, @Req() req: RequestWithUser): Promise<void> {
-        return super.delete(id, req);
+        return await super.delete(id, req);
     }
 }

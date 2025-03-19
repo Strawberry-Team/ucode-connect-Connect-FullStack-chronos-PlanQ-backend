@@ -16,7 +16,7 @@ export class UpdateUserCalendarGuard implements CanActivate {
         const dto = request.body;
 
         if (dto.role !== undefined) {
-            Reflect.defineMetadata('onlyDirectOwner', true, context.getHandler());
+            Reflect.defineMetadata('onlyCreator', true, context.getHandler());
             return this.calendarOwnerGuard.canActivate(context);
         }
 

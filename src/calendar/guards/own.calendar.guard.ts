@@ -12,8 +12,8 @@ import {UsersCalendarsRepository} from "../../user-calendar/users-calendars.repo
 import {CalendarRole} from "../../user-calendar/entity/user-calendar.entity";
 import {Reflector} from "@nestjs/core";
 
-export const ONLY_DIRECT_OWNER = 'onlyDirectOwner';
-export const OnlyDirectOwner = (check: boolean) => SetMetadata(ONLY_DIRECT_OWNER, check);
+export const ONLY_CREATOR = 'onlyCreator';
+export const OnlyCreator = (check: boolean) => SetMetadata(ONLY_CREATOR, check);
 
 @Injectable()
 export class CalendarOwnerGuard implements CanActivate {
@@ -26,7 +26,7 @@ export class CalendarOwnerGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         const user = request.user;
-        const calendarId: number = parseInt(request.params.calendarId, 10);
+        const calendarId: number = parseInt(request.params.calendarId, 10) || parseInt(request.params.id, 10) ;
         const userId = user?.userId;
 
         if (!user || isNaN(calendarId)) {
@@ -38,8 +38,8 @@ export class CalendarOwnerGuard implements CanActivate {
             throw new NotFoundException('Calendar not found');
         }
 
-        const onlyDirectOwner = this.reflector.getAllAndOverride<boolean>(
-            ONLY_DIRECT_OWNER,
+        const onlyCreator = this.reflector.getAllAndOverride<boolean>(
+            ONLY_CREATOR,
             [context.getHandler(), context.getClass()]
         );
 
@@ -47,8 +47,8 @@ export class CalendarOwnerGuard implements CanActivate {
             return true;
         }
 
-        if (onlyDirectOwner) {
-            throw new ForbiddenException('Only the direct owner can perform this action');
+        if (onlyCreator) {
+            throw new ForbiddenException('Only the direct creator can perform this action');
         }
 
         const userCalendar = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);

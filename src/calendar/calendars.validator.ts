@@ -1,10 +1,9 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsEnum, IsOptional, IsString, Length, Matches, MaxLength, ValidateIf} from 'class-validator';
+import {IsEnum, IsNotEmpty, IsOptional, IsString, Length, Matches, MaxLength, ValidateIf} from 'class-validator';
 import {CalendarRole} from "../user-calendar/entity/user-calendar.entity";
 
 export function IsCalendarName(isOptional: boolean) {
-    const decorators = [IsString(), Length(3, 100)];
-
+    const decorators = [IsString(), IsNotEmpty(), Length(3, 100)];
     if (isOptional) {
         return applyDecorators(IsOptional(), ...decorators);
     } else {

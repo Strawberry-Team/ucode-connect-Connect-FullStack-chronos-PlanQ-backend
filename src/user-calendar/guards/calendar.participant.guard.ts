@@ -16,8 +16,8 @@ export class CalendarParticipantGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
 
-        const calendarId = Number(request.params.calendarId);
-        const userId = request.user?.userId;
+        const calendarId: number = Number(request.params.calendarId) || Number(request.params.id);
+        const userId: number = Number(request.user?.userId);
 
         if (!calendarId || !userId) {
             throw new NotFoundException('No calendar or user ID specified');
