@@ -21,7 +21,7 @@ export enum CalendarRole {
 
 @Entity('users_calendars')
 @Unique('calendar_users_calendar_user_uq', ['calendarId', 'userId'])
-@Index('idx_calendars_users_user_id_is_main', ['userId', 'isMain'])
+@Index('idx_calendars_users_user_id_is_main', ['userId', 'isMain']) //TODO: isMain переделать на enum
 export class UserCalendar {
     @PrimaryGeneratedColumn()
     id: number;

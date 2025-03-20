@@ -1,9 +1,9 @@
-import {IsCalendarDescription, IsCalendarName} from '../calendars.validator';
+import {IsCalendarAndEventDescription, IsCalendarAndEventName} from '../../common/validators/calendars.events.validator';
 
 export class UpdateCalendarDto {
-    @IsCalendarName(true)
+    @IsCalendarAndEventName(true)
     name?: string;
 
-    @IsCalendarDescription(true, true)
+    @IsCalendarAndEventDescription(true, true)
     description?: string;
 }

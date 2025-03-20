@@ -21,23 +21,38 @@ export class CalendarsService {
         private readonly usersService: UsersService) {
     }
 
-    async createDefaultCalendar(userId: number): Promise<Calendar> {
-        const defaultCalendar = await this.calendarsRepository.createCalendar({
+    async createDefaultCalendars(userId: number): Promise<Calendar[]> {
+        const defaultMainCalendar = await this.calendarsRepository.createCalendar({
             creatorId: userId,
-            name: String(this.configService.get<string>('calendar.default.name')),
-            description: String(this.configService.get<string>('calendar.default.description'))
+            name: String(this.configService.get<string>('calendar.defaultMain.name')),
+            description: String(this.configService.get<string>('calendar.defaultHoliday.description'))
+        });
+
+        const defaultHolidayCalendar = await this.calendarsRepository.createCalendar({
+            creatorId: userId,
+            name: String(this.configService.get<string>('calendar.defaultHoliday.name')),
+            description: String(this.configService.get<string>('calendar.defaultHoliday.description'))
         });
 
         await this.usersCalendarsRepository.createUserCalendar({
             userId,
-            calendarId: defaultCalendar.id,
+            calendarId: defaultMainCalendar.id,
             isMain: true,
             role: CalendarRole.OWNER,
-            color: String(this.configService.get<string>('calendar.default.color')),
+            color: String(this.configService.get<string>('calendar.defaultMain.color')),
             isConfirmed: true
         });
 
-        return defaultCalendar;
+        await this.usersCalendarsRepository.createUserCalendar({
+            userId,
+            calendarId: defaultHolidayCalendar.id,
+            isMain: true,
+            role: CalendarRole.OWNER,
+            color: String(this.configService.get<string>('calendar.defaultHoliday.color')),
+            isConfirmed: true
+        });
+
+        return [defaultMainCalendar, defaultHolidayCalendar];
     }
 
     async getCalendarById(id: number): Promise<Calendar> {

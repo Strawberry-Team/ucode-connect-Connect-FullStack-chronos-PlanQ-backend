@@ -63,8 +63,9 @@ export class CalendarsController extends BaseCrudController<
     async create(@Body() dto: CreateCalendarDto, @Req() req: RequestWithUser): Promise<Calendar> {
         return await super.create(dto, req);
     }
-    
 
+
+    //TODO: Сделать проверку на Main calendar
     @UseGuards(CalendarOwnerGuard)
     @OnlyCreator(false)
     @Patch(':id')

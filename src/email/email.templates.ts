@@ -152,6 +152,8 @@ export const getEventReminderEmailTemplate = (
 </div>
 `;
 
+//TODO: add reminder for task(when it starts)
+
 export const getCalendarReminderEmailTemplate = (
   reminderName: string,
   description: string,

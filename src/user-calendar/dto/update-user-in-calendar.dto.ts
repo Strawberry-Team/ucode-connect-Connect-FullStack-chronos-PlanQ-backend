@@ -1,10 +1,11 @@
 import {CalendarRole} from '../entity/user-calendar.entity';
-import {IsCalendarColor, IsCalendarRole} from "../../calendar/calendars.validator";
+import {IsCalendarAndEventColor} from '../../common/validators/calendars.events.validator';
+import {IsCalendarRole} from "../../calendar/calendars.validator";
 
 export class UpdateUserInCalendarDto {
     @IsCalendarRole(true)
     role?: CalendarRole;
 
-    @IsCalendarColor(true)
+    @IsCalendarAndEventColor(true)
     color?: string;
 }

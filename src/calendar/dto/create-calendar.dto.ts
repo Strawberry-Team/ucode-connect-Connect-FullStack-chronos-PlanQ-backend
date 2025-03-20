@@ -1,12 +1,12 @@
-import {IsCalendarColor, IsCalendarDescription, IsCalendarName} from '../calendars.validator';
+import {IsCalendarAndEventColor, IsCalendarAndEventDescription, IsCalendarAndEventName} from '../../common/validators/calendars.events.validator';
 
 export class CreateCalendarDto {
-    @IsCalendarName(false)
+    @IsCalendarAndEventName(false)
     name: string;
 
-    @IsCalendarDescription(true)
+    @IsCalendarAndEventDescription(true)
     description?: string;
 
-    @IsCalendarColor(false)
+    @IsCalendarAndEventColor(false)
     color: string;
 }

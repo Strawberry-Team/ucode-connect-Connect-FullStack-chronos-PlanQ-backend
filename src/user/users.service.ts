@@ -58,7 +58,7 @@ export class UsersService {
         dto.password = await this.passwordService.hash(dto.password);
         const result = await this.usersRepository.createUser(dto);
 
-        await this.calendarsService.createDefaultCalendar(result.id);
+        await this.calendarsService.createDefaultCalendars(result.id);
 
         return plainToInstance(User, result, {groups: SERIALIZATION_GROUPS.BASIC});
     }

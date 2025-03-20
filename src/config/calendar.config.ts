@@ -6,10 +6,15 @@ dotenv.config();
 export default () => {
     return {
         calendar: {
-            default: {
-                name: String(validateEnv('CALENDAR_DEFAULT_NAME')),
-                description: String(validateEnv('CALENDAR_DEFAULT_DESCRIPTION')),
-                color: String(validateEnv('CALENDAR_DEFAULT_COLOR')),
+            defaultMain: {
+                name: String(validateEnv('CALENDAR_DEFAULT_MAIN_NAME')),
+                description: String(validateEnv('CALENDAR_DEFAULT_MAIN_DESCRIPTION')),
+                color: String(validateEnv('CALENDAR_DEFAULT_MAIN_COLOR')),
+            },
+            defaultHoliday: {
+                name: String(validateEnv('CALENDAR_DEFAULT_HOLIDAY_NAME')),
+                description: String(validateEnv('CALENDAR_DEFAULT_HOLIDAY_DESCRIPTION')),
+                color: String(validateEnv('CALENDAR_DEFAULT_HOLIDAY_COLOR')),
             },
         },
     };

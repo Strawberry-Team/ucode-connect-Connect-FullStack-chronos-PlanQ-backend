@@ -53,6 +53,7 @@ export class CalendarApiService {
         if (!calendarId) {
             throw new NotFoundException(`Calendar not found for country code: ${countryCode}`);
         }
+        //TODO: возвращало все праздники, по дате начала и конца попробовать
 
         const accessToken = await this.googleOAuthService.getAccessToken();
 
