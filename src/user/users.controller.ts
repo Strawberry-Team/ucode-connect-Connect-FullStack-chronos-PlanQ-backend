@@ -7,6 +7,7 @@ import {
     BadRequestException, Post,
     Body, Req, NotImplementedException, Param, Patch, Delete,
     UseGuards, Get, SerializeOptions,
+    Query,
 } from '@nestjs/common';
 import {BaseCrudController} from '../common/controller/base-crud.controller';
 import {SERIALIZATION_GROUPS, User} from './entity/user.entity';
@@ -93,6 +94,16 @@ export class UsersController extends BaseCrudController<
     async delete(@Param('id') id: number, @Req() req: RequestWithUser): Promise<void> {
         return super.delete(id, req);
     }
+
+    @Get()
+    async getAllUsers(@Query('email') email: string, @Req() req: RequestWithUser): Promise<User> {
+        if (!email) {
+            throw new BadRequestException('Email parameter is required');
+        }
+
+        return await this.usersService.getUserByEmailWithoutPassword(email);
+    }
+
 
     @Post('upload-avatar')
     @UseInterceptors(
