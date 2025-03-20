@@ -16,7 +16,7 @@ export class CalendarApiService {
     ) {
         this.calendarFilePath = path.resolve(
             __dirname,
-            'data/country.holiday-calendar.json'
+            String(this.configService.get<string>('google.calendarApi.dataFile.path'))
         );
 
         this.googleOAuthService.setCredentials(String(this.configService.get<string>('google.calendarApi.refreshToken')));
@@ -53,7 +53,6 @@ export class CalendarApiService {
         if (!calendarId) {
             throw new NotFoundException(`Calendar not found for country code: ${countryCode}`);
         }
-        //TODO: возвращало все праздники, по дате начала и конца попробовать
 
         const accessToken = await this.googleOAuthService.getAccessToken();
 
@@ -73,6 +72,8 @@ export class CalendarApiService {
         if (endDate) {
             params.timeMax = endDate;
         }
+
+        params.maxResults = this.configService.get<number>('google.calendarApi.maxResults');
 
         const response = await calendar.events.list(params);
 
