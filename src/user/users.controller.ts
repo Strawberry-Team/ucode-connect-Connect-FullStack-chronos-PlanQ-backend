@@ -19,8 +19,8 @@ import {createFileUploadInterceptor} from "../common/interceptor/file-upload.int
 import {AvatarConfig} from '../config/avatar.config';
 import {OwnAccountGuard} from './guards/own-account.guard';
 import {RequestWithUser} from "../common/types/request.types";
-import {UsersCalendarsService} from "../user-calendar/users-calendars.service";
-import {UserCalendar} from "../user-calendar/entity/user-calendar.entity";
+import {CalendarMembersService} from "../calendar-member/calendar-members.service";
+import {CalendarMember} from "../calendar-member/entity/calendar-member.entity";
 
 @Controller('users')
 @UsePipes(new ValidationPipe({whitelist: true}))
@@ -34,7 +34,7 @@ export class UsersController extends BaseCrudController<
 > {
     constructor(
         private readonly usersService: UsersService,
-        private readonly usersCalendarsService: UsersCalendarsService) {
+        private readonly usersCalendarsService: CalendarMembersService) {
         super();
     }
 
@@ -126,7 +126,7 @@ export class UsersController extends BaseCrudController<
 
     @Get(':id/calendars')
     @UseGuards(OwnAccountGuard)
-    async getUserCalendars(@Param('id') id: number): Promise<UserCalendar[]> {
+    async getUserCalendars(@Param('id') id: number): Promise<CalendarMember[]> {
         return this.usersCalendarsService.getUserCalendars(id);
     }
 }

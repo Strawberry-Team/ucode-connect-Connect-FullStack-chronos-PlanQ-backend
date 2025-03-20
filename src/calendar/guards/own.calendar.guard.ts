@@ -8,8 +8,8 @@ import {
     SetMetadata
 } from '@nestjs/common';
 import { CalendarsService } from '../calendars.service';
-import {UsersCalendarsRepository} from "../../user-calendar/users-calendars.repository";
-import {CalendarRole} from "../../user-calendar/entity/user-calendar.entity";
+import {CalendarMembersRepository} from "../../calendar-member/calendar-members.repository";
+import {CalendarRole} from "../../calendar-member/entity/calendar-member.entity";
 import {Reflector} from "@nestjs/core";
 
 export const ONLY_CREATOR = 'onlyCreator';
@@ -19,7 +19,7 @@ export const OnlyCreator = (check: boolean) => SetMetadata(ONLY_CREATOR, check);
 export class CalendarOwnerGuard implements CanActivate {
     constructor(
         private readonly calendarsService: CalendarsService,
-        private readonly usersCalendarsRepository: UsersCalendarsRepository,
+        private readonly usersCalendarsRepository: CalendarMembersRepository,
         private readonly reflector: Reflector
     ) {}
 
@@ -55,8 +55,8 @@ export class CalendarOwnerGuard implements CanActivate {
             throw new ForbiddenException('Only the direct creator can perform this action');
         }
 
-        const userCalendar = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
-        if (userCalendar && userCalendar.role === CalendarRole.OWNER) {
+        const calendarMember = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
+        if (calendarMember && calendarMember.role === CalendarRole.OWNER) {
             return true;
         }
 

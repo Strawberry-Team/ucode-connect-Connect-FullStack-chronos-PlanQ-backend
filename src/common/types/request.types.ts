@@ -1,6 +1,6 @@
 // src/common/types/request.types.ts
 import { Request } from 'express';
-import { CalendarRole } from 'src/user-calendar/entity/user-calendar.entity';
+import { CalendarRole } from 'src/calendar-member/entity/calendar-member.entity';
 
 export interface RequestWithUser extends Request {
     user: {

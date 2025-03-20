@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {IsEnum, IsOptional} from 'class-validator';
-import {CalendarRole} from "../user-calendar/entity/user-calendar.entity";
+import {CalendarRole} from "../calendar-member/entity/calendar-member.entity";
 
 export function IsCalendarRole(isOptional: boolean) {
     const decorators = [IsEnum(CalendarRole)];

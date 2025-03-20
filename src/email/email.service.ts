@@ -31,7 +31,9 @@ export class EmailService {
     }
 
     private async init() {
-        this.logo = await this.readLogoFile('./public/uploads/logo/logo.png');
+        const logoPath = String(this.configService.get<string>('app.logo.path'));
+        const logoFilename = String(this.configService.get<string>('app.logo.filename'));
+        this.logo = await this.readLogoFile(path.join(logoPath, logoFilename));
     }
 
     private async readLogoFile(filePath: string): Promise<Buffer> {
@@ -77,7 +79,7 @@ export class EmailService {
                 html,
                 attachments: [
                     {
-                        filename: 'logo.png',
+                        filename: String(this.configService.get<string>('app.logo.path')),
                         content: this.logo,
                         cid: 'logo@project',
                     },

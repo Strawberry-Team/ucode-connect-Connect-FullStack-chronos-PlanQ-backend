@@ -10,7 +10,7 @@ import {
 import {RefreshTokenNonce} from 'src/refresh-token-nonce/entities/refresh-token-nonce.entity';
 import {Expose} from 'class-transformer';
 import {Calendar} from 'src/calendar/entity/calendar.entity';
-import {UserCalendar} from 'src/user-calendar/entity/user-calendar.entity';
+import {CalendarMember} from 'src/calendar-member/entity/calendar-member.entity';
 import {BooleanTransformer} from 'src/common/transformers/BooleanTransformer';
 
 export const SERIALIZATION_GROUPS = {
@@ -48,7 +48,7 @@ export class User {
     @Expose({groups: ['basic']})
     profilePictureName: string;
 
-    @Column({name: 'email_verified', type: 'bit', width: 1, default: () => "b'0'", transformer: BooleanTransformer})
+    @Column({name: 'email_verified', type: 'bit', width: 1, default: () => "b'0'", transformer: BooleanTransformer(false)})
     @Expose({groups: ['confidential']})
     emailVerified?: boolean;
 
@@ -77,9 +77,9 @@ export class User {
     @Expose({groups: ['confidential']})
     calendars: Promise<Calendar[]>;
 
-    @OneToMany(() => UserCalendar, (userCalendar) => userCalendar.user, {
+    @OneToMany(() => CalendarMember, (calendarMember) => calendarMember.user, {
         cascade: true,
     })
     @Expose({groups: ['confidential']})
-    userCalendars: Promise<UserCalendar[]>;
+    userCalendars: Promise<CalendarMember[]>;
 }

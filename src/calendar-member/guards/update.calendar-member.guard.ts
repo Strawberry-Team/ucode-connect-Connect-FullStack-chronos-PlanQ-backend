@@ -1,12 +1,12 @@
 import {Injectable} from '@nestjs/common';
 import {CanActivate, ExecutionContext} from '@nestjs/common';
-import {OwnUserCalendarGuard} from './own.user-calendar.guard';
+import {OwnCalendarMemberGuard} from './own.calendar-member.guard';
 import {CalendarOwnerGuard} from '../../calendar/guards/own.calendar.guard';
 
 @Injectable()
-export class UpdateUserCalendarGuard implements CanActivate {
+export class UpdateCalendarMemberGuard implements CanActivate {
     constructor(
-        private ownUserCalendarGuard: OwnUserCalendarGuard,
+        private ownCalendarMemberGuard: OwnCalendarMemberGuard,
         private calendarOwnerGuard: CalendarOwnerGuard
     ) {
     }
@@ -20,6 +20,6 @@ export class UpdateUserCalendarGuard implements CanActivate {
             return this.calendarOwnerGuard.canActivate(context);
         }
 
-        return this.ownUserCalendarGuard.canActivate(context);
+        return this.ownCalendarMemberGuard.canActivate(context);
     }
 }

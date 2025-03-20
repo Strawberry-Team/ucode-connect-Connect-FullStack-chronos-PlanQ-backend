@@ -9,7 +9,7 @@ import {
     OneToMany,
 } from 'typeorm';
 import { User } from '../../user/entity/user.entity';
-import { UserCalendar } from '../../user-calendar/entity/user-calendar.entity';
+import { CalendarMember } from '../../calendar-member/entity/calendar-member.entity';
 
 @Entity('calendars')
 export class Calendar {
@@ -35,9 +35,9 @@ export class Calendar {
     @JoinColumn({ name: 'creator_id' })
     creator: User;
 
-    @OneToMany(() => UserCalendar, (userCalendar) => userCalendar.calendar, {
+    @OneToMany(() => CalendarMember, (calendarMember) => calendarMember.calendar, {
         cascade: true,
         onDelete: 'CASCADE',
     })
-    userCalendars: UserCalendar[];
+    userCalendars: CalendarMember[];
 }

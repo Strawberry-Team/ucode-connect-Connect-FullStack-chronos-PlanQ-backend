@@ -1,10 +1,10 @@
 import {Injectable, CanActivate, ExecutionContext, ForbiddenException} from '@nestjs/common';
-import {UsersCalendarsRepository} from '../users-calendars.repository';
+import {CalendarMembersRepository} from '../calendar-members.repository';
 
 @Injectable()
-export class OwnUserCalendarGuard implements CanActivate {
+export class OwnCalendarMemberGuard implements CanActivate {
     constructor(
-        private readonly usersCalendarsRepository: UsersCalendarsRepository
+        private readonly usersCalendarsRepository: CalendarMembersRepository
     ) {
     }
 
@@ -14,12 +14,12 @@ export class OwnUserCalendarGuard implements CanActivate {
         const userIdInParam = parseInt(request.params.id, 10);
         const calendarId = parseInt(request.params.calendarId, 10);
 
-        const userCalendarRecord = await this.usersCalendarsRepository.findByUserAndCalendar(
+        const calendarMemberRecord = await this.usersCalendarsRepository.findByUserAndCalendar(
             userIdInParam,
             calendarId
         );
 
-        if (!userCalendarRecord) {
+        if (!calendarMemberRecord) {
             throw new ForbiddenException('User-calendar record not found');
         }
 

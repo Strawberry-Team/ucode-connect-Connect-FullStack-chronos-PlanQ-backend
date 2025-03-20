@@ -4,12 +4,12 @@ import {
     ExecutionContext,
     NotFoundException,
 } from '@nestjs/common';
-import {UsersCalendarsService} from '../users-calendars.service';
+import {CalendarMembersService} from '../calendar-members.service';
 
 @Injectable()
-export class CalendarParticipantGuard implements CanActivate {
+export class CalendarMemberGuard implements CanActivate {
     constructor(
-        private readonly usersCalendarsService: UsersCalendarsService,
+        private readonly usersCalendarsService: CalendarMembersService,
     ) {
     }
 
@@ -23,9 +23,9 @@ export class CalendarParticipantGuard implements CanActivate {
             throw new NotFoundException('No calendar or user ID specified');
         }
 
-        const userCalendar = await this.usersCalendarsService.getUserCalendar(userId, calendarId);
+        const calendarMember = await this.usersCalendarsService.getCalendarMember(userId, calendarId);
 
-        if (!userCalendar || !userCalendar.isConfirmed) {
+        if (!calendarMember || !calendarMember.isConfirmed) {
             throw new NotFoundException('The user does not have access to this calendar');
         }
 

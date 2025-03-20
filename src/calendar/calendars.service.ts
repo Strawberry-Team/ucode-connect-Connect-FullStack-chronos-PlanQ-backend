@@ -1,10 +1,10 @@
-import {BadRequestException, forwardRef, Inject, Injectable, NotFoundException} from '@nestjs/common';
+import {forwardRef, Inject, Injectable, NotFoundException} from '@nestjs/common';
 import {CalendarsRepository} from './calendars.repository';
-import {UsersCalendarsRepository} from '../user-calendar/users-calendars.repository';
+import {CalendarMembersRepository} from '../calendar-member/calendar-members.repository';
 import {CreateCalendarDto} from './dto/create-calendar.dto';
 import {UpdateCalendarDto} from './dto/update-calendar.dto';
 import {Calendar} from './entity/calendar.entity';
-import {CalendarRole} from '../user-calendar/entity/user-calendar.entity';
+import {CalendarRole, CalendarType} from '../calendar-member/entity/calendar-member.entity';
 import {ConfigService} from "@nestjs/config";
 import {CalendarApiService} from "./calendar-api.service";
 import {UsersService} from "../user/users.service";
@@ -13,8 +13,8 @@ import {UsersService} from "../user/users.service";
 export class CalendarsService {
     constructor(
         private readonly calendarsRepository: CalendarsRepository,
-        @Inject(forwardRef(() => UsersCalendarsRepository))
-        private readonly usersCalendarsRepository: UsersCalendarsRepository,
+        @Inject(forwardRef(() => CalendarMembersRepository))
+        private readonly usersCalendarsRepository: CalendarMembersRepository,
         private readonly configService: ConfigService,
         private readonly calendarApiService: CalendarApiService,
         @Inject(forwardRef(() => UsersService))
@@ -34,19 +34,19 @@ export class CalendarsService {
             description: String(this.configService.get<string>('calendar.defaultHoliday.description'))
         });
 
-        await this.usersCalendarsRepository.createUserCalendar({
+        await this.usersCalendarsRepository.createCalendarMember({
             userId,
             calendarId: defaultMainCalendar.id,
-            isMain: true,
+            calendarType: CalendarType.MAIN,
             role: CalendarRole.OWNER,
             color: String(this.configService.get<string>('calendar.defaultMain.color')),
             isConfirmed: true
         });
 
-        await this.usersCalendarsRepository.createUserCalendar({
+        await this.usersCalendarsRepository.createCalendarMember({
             userId,
             calendarId: defaultHolidayCalendar.id,
-            isMain: true,
+            calendarType: CalendarType.HOLIDAY,
             role: CalendarRole.OWNER,
             color: String(this.configService.get<string>('calendar.defaultHoliday.color')),
             isConfirmed: true
@@ -71,10 +71,9 @@ export class CalendarsService {
             ...(dto.description !== undefined ? {description: dto.description} : {})
         });
 
-        await this.usersCalendarsRepository.createUserCalendar({
+        await this.usersCalendarsRepository.createCalendarMember({
             userId,
             calendarId: calendar.id,
-            isMain: false,
             role: CalendarRole.OWNER,
             color: dto.color,
             isConfirmed: true
@@ -105,9 +104,9 @@ export class CalendarsService {
     }
 
     async deleteCalendar(userId: number, calendarId: number): Promise<void> {
-        const userCalendar = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
+        const calendarMember = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
 
-        if (!userCalendar) {
+        if (!calendarMember) {
             throw new NotFoundException('Calendar not found');
         }
 

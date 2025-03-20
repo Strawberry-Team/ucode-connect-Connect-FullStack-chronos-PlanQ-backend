@@ -21,6 +21,10 @@ export default () => {
             frontendPort,
             frontendLink: `${frontendProtocol}://${frontendHost}:${frontendPort}/`,
             nodeEnv: String(validateEnv('APP_NODE_ENV')),
+            logo: {
+                path: String(validateEnv('APP_LOGO_PATH')),
+                filename: String(validateEnv('APP_LOGO_FILENAME'))
+            },
             cors: {
                 methods: String(validateEnv('APP_CORS_METHODS')).split(','),
                 allowedHeaders: String(validateEnv('APP_CORS_ALLOWED_HEADERS')).split(','),

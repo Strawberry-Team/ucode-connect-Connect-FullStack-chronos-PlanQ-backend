@@ -5,18 +5,17 @@ import {
     ForbiddenException,
     NotFoundException,
     BadRequestException,
-    SetMetadata
 } from '@nestjs/common';
 import { CalendarsService } from '../calendars.service';
-import {UsersCalendarsRepository} from "../../user-calendar/users-calendars.repository";
-import {CalendarRole} from "../../user-calendar/entity/user-calendar.entity";
+import {CalendarMembersRepository} from "../../calendar-member/calendar-members.repository";
 import {Reflector} from "@nestjs/core";
+import {CalendarType} from "../../calendar-member/entity/calendar-member.entity";
 
 @Injectable()
 export class CalendarMainGuard implements CanActivate {
     constructor(
-        private readonly calendarsService: CalendarsService, 
-        private readonly usersCalendarsRepository: UsersCalendarsRepository,
+        private readonly calendarsService: CalendarsService,
+        private readonly usersCalendarsRepository: CalendarMembersRepository,
         private readonly reflector: Reflector
     ) {}
 
@@ -39,9 +38,10 @@ export class CalendarMainGuard implements CanActivate {
             throw new NotFoundException('Calendar not found');
         }
 
-        const userCalendar = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
-        if (userCalendar && userCalendar.isMain === true) {
-            throw new ForbiddenException('You do not have permission to modify main calendar');
+        const calendarMember = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
+        if (calendarMember && (calendarMember.calendarType === CalendarType.MAIN
+            || calendarMember.calendarType === CalendarType.HOLIDAY)) {
+            throw new ForbiddenException('You do not have permission to modify main or holiday calendar');
         }
 
         return true;

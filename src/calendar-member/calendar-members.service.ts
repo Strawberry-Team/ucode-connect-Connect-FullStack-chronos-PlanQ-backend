@@ -1,27 +1,27 @@
 import {
-    Injectable,
-    NotFoundException,
     BadRequestException,
     ConflictException,
+    forwardRef,
     Inject,
-    forwardRef
+    Injectable,
+    NotFoundException
 } from '@nestjs/common';
-import {UsersCalendarsRepository} from './users-calendars.repository';
+import {CalendarMembersRepository} from './calendar-members.repository';
 import {CalendarsRepository} from '../calendar/calendars.repository';
 import {UsersService} from '../user/users.service';
-import {AddUserToCalendarDto} from './dto/add-user-to-calendar.dto';
-import {UpdateUserInCalendarDto} from './dto/update-user-in-calendar.dto';
-import {UserCalendar} from './entity/user-calendar.entity';
-import { ConfigService } from '@nestjs/config';
-import { EmailService } from 'src/email/email.service';
-import { JwtUtils } from 'src/jwt/jwt-token.utils';
+import {AddMemberToCalendarDto} from './dto/add-member-to-calendar.dto';
+import {UpdateMemberInCalendarDto} from './dto/update-member-in-calendar.dto';
+import {CalendarMember, CalendarType} from './entity/calendar-member.entity';
+import {ConfigService} from '@nestjs/config';
+import {EmailService} from 'src/email/email.service';
+import {JwtUtils} from 'src/jwt/jwt-token.utils';
 
 @Injectable()
-export class UsersCalendarsService {
+export class CalendarMembersService {
     private frontUrl: string;
 
     constructor(
-        private readonly usersCalendarsRepository: UsersCalendarsRepository,
+        private readonly usersCalendarsRepository: CalendarMembersRepository,
         @Inject(forwardRef(() => CalendarsRepository))
         private readonly calendarsRepository: CalendarsRepository,
         private readonly usersService: UsersService,
@@ -32,7 +32,7 @@ export class UsersCalendarsService {
         this.frontUrl = String(this.configService.get<string>('app.frontendLink'));
     }
 
-    async getUserCalendars(userId: number): Promise<UserCalendar[]> {
+    async getUserCalendars(userId: number): Promise<CalendarMember[]> {
         const user = await this.usersService.getUserByIdWithoutPassword(userId);
 
         if (!user) {
@@ -42,7 +42,7 @@ export class UsersCalendarsService {
         return this.usersCalendarsRepository.findUserCalendars(userId);
     }
 
-    async getUserCalendar(userId: number, calendarId: number): Promise<UserCalendar> {
+    async getCalendarMember(userId: number, calendarId: number): Promise<CalendarMember> {
         const result = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
 
         if (!result) {
@@ -52,7 +52,7 @@ export class UsersCalendarsService {
         return result;
     }
 
-    async getCalendarUsers(calendarId: number, requestingUserId: number): Promise<UserCalendar[]> {
+    async getCalendarUsers(calendarId: number, requestingUserId: number): Promise<CalendarMember[]> {
         const calendar = await this.calendarsRepository.findById(calendarId);
         if (!calendar) {
             throw new NotFoundException('Calendar not found');
@@ -66,23 +66,24 @@ export class UsersCalendarsService {
     async addUserToCalendar(
         calendarId: number,
         currentUserId: number,
-        dto: AddUserToCalendarDto
-    ): Promise<UserCalendar> {
+        dto: AddMemberToCalendarDto
+    ): Promise<CalendarMember> {
         const calendar = await this.calendarsRepository.findById(calendarId);
         if (!calendar) {
             throw new NotFoundException('Calendar not found');
         }
 
-        const currentUserCalendar = await this.usersCalendarsRepository.findByUserAndCalendar(
+        const currentCalendarMember = await this.usersCalendarsRepository.findByUserAndCalendar(
             currentUserId,
             calendarId
         );
 
-        if (!currentUserCalendar) {
+        if (!currentCalendarMember) {
             throw new NotFoundException('User-calendar relationship not found');
         }
 
-        if (currentUserCalendar.isMain) {
+        if (currentCalendarMember.calendarType === CalendarType.MAIN
+            || currentCalendarMember.calendarType === CalendarType.HOLIDAY) {
             throw new BadRequestException('Cannot invite users to your main calendar');
         }
 
@@ -96,30 +97,32 @@ export class UsersCalendarsService {
             throw new BadRequestException('User must confirm their email first');
         }
 
-        const existingUserCalendar = await this.usersCalendarsRepository.findByUserAndCalendar(
+        const existingCalendarMember = await this.usersCalendarsRepository.findByUserAndCalendar(
             userToAdd.id,
             calendarId
         );
 
-        if (existingUserCalendar) {
+        if (existingCalendarMember) {
             throw new ConflictException('User already has access to this calendar');
         }
 
         const userInviter = await this.usersService.getUserByIdWithoutPassword(currentUserId);
 
-        const AddUserToCalendarToken = this.jwtUtils.generateToken({sub: userToAdd.id, calendarId: calendarId}, 'confirmCalendar');
+        const AddUserToCalendarToken = this.jwtUtils.generateToken({
+            sub: userToAdd.id,
+            calendarId: calendarId
+        }, 'confirmCalendar');
 
         const link = this.frontUrl + 'calendars/confirm-calendar/' + AddUserToCalendarToken;
-        console.log("confirmCalendarLink: ", link); 
+        console.log("confirmCalendarLink: ", link);
 
-        this.emailService.sendCalendarShareEmail(userToAdd.email, calendar.name, link, userInviter.email); 
+        this.emailService.sendCalendarShareEmail(userToAdd.email, calendar.name, link, userInviter.email);
 
-        return this.usersCalendarsRepository.createUserCalendar({
+        return this.usersCalendarsRepository.createCalendarMember({
             userId: userToAdd.id,
             calendarId,
-            isMain: false,
             role: dto.role,
-            color: currentUserCalendar.color,
+            color: currentCalendarMember.color,
             isConfirmed: false
         });
     }
@@ -127,24 +130,24 @@ export class UsersCalendarsService {
     async updateUserInCalendar(
         calendarId: number,
         userIdToUpdate: number,
-        dto: UpdateUserInCalendarDto
-    ): Promise<UserCalendar> {
+        dto: UpdateMemberInCalendarDto
+    ): Promise<CalendarMember> {
         const calendar = await this.calendarsRepository.findById(calendarId);
         if (!calendar) {
             throw new NotFoundException('Calendar not found');
         }
 
-        const userCalendarToUpdate = await this.usersCalendarsRepository.findByUserAndCalendar(
+        const calendarMemberToUpdate = await this.usersCalendarsRepository.findByUserAndCalendar(
             userIdToUpdate,
             calendarId
         );
 
-        if (!userCalendarToUpdate) {
+        if (!calendarMemberToUpdate) {
             throw new NotFoundException('User does not have access to this calendar');
         }
 
-        const result = await this.usersCalendarsRepository.updateUserCalendar(
-            userCalendarToUpdate.id,
+        const result = await this.usersCalendarsRepository.updateCalendarMember(
+            calendarMemberToUpdate.id,
             dto
         );
 
@@ -168,23 +171,23 @@ export class UsersCalendarsService {
             throw new BadRequestException('Cannot remove the creator from their calendar');
         }
 
-        const userCalendarToRemove = await this.usersCalendarsRepository.findByUserAndCalendar(
+        const calendarMemberToRemove = await this.usersCalendarsRepository.findByUserAndCalendar(
             userIdToRemove,
             calendarId
         );
 
-        if (!userCalendarToRemove) {
+        if (!calendarMemberToRemove) {
             throw new NotFoundException('User does not have access to this calendar');
         }
 
-        await this.usersCalendarsRepository.deleteUserCalendar(userCalendarToRemove.id);
+        await this.usersCalendarsRepository.deleteCalendarMember(calendarMemberToRemove.id);
     }
 
     async confirmCalendar(
         userId: number,
         calendarId: number,
     ) {
-        const result = await this.usersCalendarsRepository.updateUserCalendarByUserAndCalendar(
+        const result = await this.usersCalendarsRepository.updateCalendarMemberByUserAndCalendar(
             userId,
             calendarId,
             {
@@ -192,7 +195,7 @@ export class UsersCalendarsService {
             }
         );
 
-        if (!result){
+        if (!result) {
             throw new BadRequestException("Cannot confirm the calendar")
         }
 

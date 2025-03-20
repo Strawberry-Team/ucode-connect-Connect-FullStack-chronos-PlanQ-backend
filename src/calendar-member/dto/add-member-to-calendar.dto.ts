@@ -1,8 +1,8 @@
-import {CalendarRole} from '../entity/user-calendar.entity';
+import {CalendarRole} from '../entity/calendar-member.entity';
 import {IsCalendarRole} from "../../calendar/calendars.validator";
 import {IsUserEmail} from "../../user/users.validator";
 
-export class AddUserToCalendarDto {
+export class AddMemberToCalendarDto {
     @IsUserEmail(false)
     userEmail: string;
 

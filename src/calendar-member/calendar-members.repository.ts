@@ -1,30 +1,30 @@
 import {Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository} from 'typeorm';
-import {UserCalendar} from './entity/user-calendar.entity';
+import {CalendarMember} from './entity/calendar-member.entity';
 import {plainToInstance} from 'class-transformer';
 import {SERIALIZATION_GROUPS, User} from 'src/user/entity/user.entity';
 
 @Injectable()
-export class UsersCalendarsRepository {
+export class CalendarMembersRepository {
     constructor(
-        @InjectRepository(UserCalendar)
-        private readonly repo: Repository<UserCalendar>,
+        @InjectRepository(CalendarMember)
+        private readonly repo: Repository<CalendarMember>,
     ) {
     }
 
-    async findById(id: number): Promise<UserCalendar | null> {
+    async findById(id: number): Promise<CalendarMember | null> {
         return this.repo.findOne({where: {id}});
     }
 
-    async findByUserAndCalendar(userId: number, calendarId: number): Promise<UserCalendar | null> {
+    async findByUserAndCalendar(userId: number, calendarId: number): Promise<CalendarMember | null> {
         return this.repo.findOne({
             where: {userId, calendarId},//108 12
             relations: ['calendar']
         });
     }
 
-    async findCalendarUsers(calendarId: number, isCreator: boolean): Promise<UserCalendar[]> {
+    async findCalendarUsers(calendarId: number, isCreator: boolean): Promise<CalendarMember[]> {
         const whereCondition: any = {calendarId};
 
         if (!isCreator) {
@@ -47,7 +47,7 @@ export class UsersCalendarsRepository {
         return results;
     }
 
-    async findUserCalendars(userId: number): Promise<UserCalendar[]> {
+    async findUserCalendars(userId: number): Promise<CalendarMember[]> {
         return this.repo.find({
             where: {
                 userId,
@@ -57,37 +57,37 @@ export class UsersCalendarsRepository {
         });
     }
 
-    async createUserCalendar(data: Partial<UserCalendar>): Promise<UserCalendar> {
-        const userCalendar = this.repo.create(data);
-        return this.repo.save(userCalendar);
+    async createCalendarMember(data: Partial<CalendarMember>): Promise<CalendarMember> {
+        const calendarMember = this.repo.create(data);
+        return this.repo.save(calendarMember);
     }
 
-    async updateUserCalendar(id: number, updateData: Partial<UserCalendar>): Promise<UserCalendar | null> {
+    async updateCalendarMember(id: number, updateData: Partial<CalendarMember>): Promise<CalendarMember | null> {
         await this.repo.update(id, updateData);
         return this.findById(id);
     }
 
-    async updateUserCalendarByUserAndCalendar(
+    async updateCalendarMemberByUserAndCalendar(
         userId: number,
         calendarId: number,
-        updateData: Partial<UserCalendar>
-    ): Promise<UserCalendar | null> {
-        const userCalendar = await this.findByUserAndCalendar(userId, calendarId);
-        if (userCalendar) {
-            await this.repo.update(userCalendar.id, updateData);
-            return this.findById(userCalendar.id);
+        updateData: Partial<CalendarMember>
+    ): Promise<CalendarMember | null> {
+        const calendarMember = await this.findByUserAndCalendar(userId, calendarId);
+        if (calendarMember) {
+            await this.repo.update(calendarMember.id, updateData);
+            return this.findById(calendarMember.id);
         }
         return null;
     }
 
-    async deleteUserCalendar(id: number): Promise<void> {
+    async deleteCalendarMember(id: number): Promise<void> {
         await this.repo.delete(id);
     }
 
     async deleteUserFromCalendar(userId: number, calendarId: number): Promise<void> {
-        const userCalendar = await this.findByUserAndCalendar(userId, calendarId);
-        if (userCalendar) {
-            await this.repo.delete(userCalendar.id);
+        const calendarMember = await this.findByUserAndCalendar(userId, calendarId);
+        if (calendarMember) {
+            await this.repo.delete(calendarMember.id);
         }
     }
 }

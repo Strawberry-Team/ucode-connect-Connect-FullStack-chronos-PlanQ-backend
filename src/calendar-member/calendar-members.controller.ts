@@ -12,54 +12,49 @@ import {
     Get,
     BadRequestException
 } from '@nestjs/common';
-import { UsersCalendarsService } from './users-calendars.service';
-import { AddUserToCalendarDto } from './dto/add-user-to-calendar.dto';
-import { UpdateUserInCalendarDto } from './dto/update-user-in-calendar.dto';
-import { UserCalendar } from './entity/user-calendar.entity';
-import { RequestWithUser } from "../common/types/request.types";
-import { BaseCrudController } from '../common/controller/base-crud.controller';
-import { CalendarOwnerGuard, OnlyCreator } from "../calendar/guards/own.calendar.guard";
-import { OwnUserCalendarGuard } from "./guards/own.user-calendar.guard";
-import { UpdateUserCalendarGuard } from "./guards/update.user-calendar.guard";
-import { CalendarParticipantGuard } from './guards/calendar.participant.guard';
-import { JwtConfirmCalendarGuard } from 'src/calendar/guards/jwt-confirm-calendar.guard';
-import { Public } from '../common/decorators/public.decorator';
+import {CalendarMembersService} from './calendar-members.service';
+import {AddMemberToCalendarDto} from './dto/add-member-to-calendar.dto';
+import {UpdateMemberInCalendarDto} from './dto/update-member-in-calendar.dto';
+import {CalendarMember} from './entity/calendar-member.entity';
+import {RequestWithUser} from "../common/types/request.types";
+import {BaseCrudController} from '../common/controller/base-crud.controller';
+import {CalendarOwnerGuard, OnlyCreator} from "../calendar/guards/own.calendar.guard";
+import {UpdateCalendarMemberGuard} from "./guards/update.calendar-member.guard";
+import {CalendarMemberGuard} from './guards/calendar.member.guard';
+import {JwtConfirmCalendarGuard} from 'src/calendar/guards/jwt-confirm-calendar.guard';
+import {Public} from '../common/decorators/public.decorator';
 
-@Controller('calendars/:calendarId/users')
-@UsePipes(new ValidationPipe({ whitelist: true }))
-export class UsersCalendarsController extends BaseCrudController<
-    UserCalendar,
-    AddUserToCalendarDto,
-    UpdateUserInCalendarDto
+@Controller('calendars/:calendarId/members')
+@UsePipes(new ValidationPipe({whitelist: true}))
+export class CalendarMembersController extends BaseCrudController<
+    CalendarMember,
+    AddMemberToCalendarDto,
+    UpdateMemberInCalendarDto
 > {
-    constructor(private readonly usersCalendarsService: UsersCalendarsService) {
+    constructor(private readonly usersCalendarsService: CalendarMembersService) {
         super();
     }
 
-    protected async findById(id: number, req: RequestWithUser): Promise<UserCalendar> {
+    protected async findById(id: number, req: RequestWithUser): Promise<CalendarMember> {
         const calendarId = parseInt(req.params.calendarId, 10);
-        return await this.usersCalendarsService.getUserCalendar(id, calendarId);
+        return await this.usersCalendarsService.getCalendarMember(id, calendarId);
     }
 
-    protected async createEntity(dto: AddUserToCalendarDto, req: RequestWithUser): Promise<UserCalendar> {
+    protected async createEntity(dto: AddMemberToCalendarDto, req: RequestWithUser): Promise<CalendarMember> {
         const calendarId = parseInt(req.params.calendarId, 10);
         return await this.usersCalendarsService.addUserToCalendar(calendarId, req.user.userId, dto);
     }
 
     protected async updateEntity(
         id: number,
-        dto: UpdateUserInCalendarDto,
+        dto: UpdateMemberInCalendarDto,
         req: RequestWithUser
-    ): Promise<UserCalendar> {
-        const hasRole = dto.role !== undefined;
-        const hasColor = dto.color !== undefined;
-        const hasIsVisible = dto.isVisible !== undefined;
+    ): Promise<CalendarMember> {
         const dtoEntries = Object.entries(dto).filter(([_, value]) => value !== undefined);
 
         if (dtoEntries.length > 1) {
             throw new BadRequestException('You can update either role, color or isVisible, but not both at the same time');
-        }
-        else if(dtoEntries.length < 1){
+        } else if (dtoEntries.length < 1) {
             throw new BadRequestException('Either role, color or isVisible must be provided');
         }
 
@@ -79,32 +74,32 @@ export class UsersCalendarsController extends BaseCrudController<
         );
     }
 
-    @UseGuards(CalendarParticipantGuard)
+    @UseGuards(CalendarMemberGuard)
     @Get()
-    async getCalendarUsers(@Param('calendarId') calendarId: number, @Req() req: RequestWithUser): Promise<UserCalendar[]> {
+    async getCalendarUsers(@Param('calendarId') calendarId: number, @Req() req: RequestWithUser): Promise<CalendarMember[]> {
         return await this.usersCalendarsService.getCalendarUsers(calendarId, req.user.userId);
     }
 
-    @UseGuards(CalendarParticipantGuard)
+    @UseGuards(CalendarMemberGuard)
     @Get(':id')
-    async getById(@Param('id') id: number, @Req() req: RequestWithUser): Promise<UserCalendar> {
+    async getById(@Param('id') id: number, @Req() req: RequestWithUser): Promise<CalendarMember> {
         return super.getById(id, req);
-    } 
+    }
 
     @UseGuards(CalendarOwnerGuard)
     @OnlyCreator(true)
     @Post()
-    async create(@Body() dto: AddUserToCalendarDto, @Req() req: RequestWithUser): Promise<UserCalendar> {
+    async create(@Body() dto: AddMemberToCalendarDto, @Req() req: RequestWithUser): Promise<CalendarMember> {
         return super.create(dto, req);
     }
 
-    @UseGuards(UpdateUserCalendarGuard)
+    @UseGuards(UpdateCalendarMemberGuard)
     @Patch(':id')
     async update(
         @Param('id') id: number,
-        @Body() dto: UpdateUserInCalendarDto,
+        @Body() dto: UpdateMemberInCalendarDto,
         @Req() req: RequestWithUser
-    ): Promise<UserCalendar> {
+    ): Promise<CalendarMember> {
         return super.update(id, dto, req);
     }
 
