@@ -53,14 +53,16 @@ export class UsersCalendarsController extends BaseCrudController<
     ): Promise<UserCalendar> {
         const hasRole = dto.role !== undefined;
         const hasColor = dto.color !== undefined;
+        const hasIsVisible = dto.isVisible !== undefined;
+        const dtoEntries = Object.entries(dto).filter(([_, value]) => value !== undefined);
 
-        if (hasRole && hasColor) {
-            throw new BadRequestException('You can update either role or color, but not both at the same time');
+        if (dtoEntries.length > 1) {
+            throw new BadRequestException('You can update either role, color or isVisible, but not both at the same time');
+        }
+        else if(dtoEntries.length < 1){
+            throw new BadRequestException('Either role, color or isVisible must be provided');
         }
 
-        if (!hasRole && !hasColor) {
-            throw new BadRequestException('Either role or color must be provided');
-        }
         const calendarId = parseInt(req.params.calendarId, 10);
         return await this.usersCalendarsService.updateUserInCalendar(
             calendarId,

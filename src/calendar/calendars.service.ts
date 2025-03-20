@@ -111,10 +111,6 @@ export class CalendarsService {
             throw new NotFoundException('Calendar not found');
         }
 
-        if (userCalendar.isMain) {
-            throw new BadRequestException('Cannot delete your main calendar');
-        }
-
         await this.calendarsRepository.deleteCalendar(calendarId);
     }
 

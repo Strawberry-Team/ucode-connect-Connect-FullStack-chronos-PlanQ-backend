@@ -35,6 +35,9 @@ export class UserCalendar {
     @Column({name: 'is_main', type: 'bit', width: 1, default: () => "b'0'", transformer: BooleanTransformer})
     isMain: boolean;
 
+    @Column({name: 'is_visible', type: 'bit', width: 1, default: () => "b'1'", transformer: BooleanTransformer})
+    isVisible?: boolean;
+
     @Column({
         type: 'enum',
         enum: CalendarRole,
