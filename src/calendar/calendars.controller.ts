@@ -16,6 +16,7 @@ import {CalendarsService} from './calendars.service';
 import {RequestWithUser} from "../common/types/request.types";
 import {CalendarOwnerGuard, OnlyCreator} from "./guards/own.calendar.guard";
 import {CalendarParticipantGuard} from "../user-calendar/guards/calendar.participant.guard";
+import { CalendarMainGuard } from './guards/main.calendar.guard';
 
 @Controller('calendars')
 export class CalendarsController extends BaseCrudController<
@@ -63,10 +64,11 @@ export class CalendarsController extends BaseCrudController<
     async create(@Body() dto: CreateCalendarDto, @Req() req: RequestWithUser): Promise<Calendar> {
         return await super.create(dto, req);
     }
+    
 
-
-    //TODO: Сделать проверку на Main calendar
+//TODO: Сделать проверку на Main calendar    
     @UseGuards(CalendarOwnerGuard)
+    @UseGuards(CalendarMainGuard)
     @OnlyCreator(false)
     @Patch(':id')
     async update(
@@ -78,6 +80,7 @@ export class CalendarsController extends BaseCrudController<
     }
 
     @UseGuards(CalendarOwnerGuard)
+    @UseGuards(CalendarMainGuard)
     @OnlyCreator(true)
     @Delete(':id')
     async delete(@Param('id') id: number, @Req() req: RequestWithUser): Promise<void> {

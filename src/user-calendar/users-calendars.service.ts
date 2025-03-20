@@ -143,11 +143,9 @@ export class UsersCalendarsService {
             throw new NotFoundException('User does not have access to this calendar');
         }
 
-        const updateData = dto.role !== undefined ? {role: dto.role} : {color: dto.color};
-
         const result = await this.usersCalendarsRepository.updateUserCalendar(
             userCalendarToUpdate.id,
-            updateData
+            dto
         );
 
         if (!result) {
