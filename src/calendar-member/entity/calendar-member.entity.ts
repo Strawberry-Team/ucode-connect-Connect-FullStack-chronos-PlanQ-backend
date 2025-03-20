@@ -21,11 +21,14 @@ export enum CalendarRole {
 
 export enum CalendarType {
     MAIN = 'main',
-    HOLIDAY = 'holiday'
+    HOLIDAY = 'holiday',
+    ADDITIONAL = 'additional'
 }
 
 @Entity('calendar_members')
 @Unique('calendar_users_calendar_user_uq', ['calendarId', 'userId'])
+@Index('idx_calendar_members_user_id_calendar_type', ['userId', 'calendarType'])
+@Index('idx_calendar_members_user_id_role', ['userId', 'role'])
 export class CalendarMember {
     @PrimaryGeneratedColumn()
     id: number;
@@ -40,8 +43,7 @@ export class CalendarMember {
         name: 'calendar_type',
         type: 'enum',
         enum: CalendarType,
-        default: null,
-        nullable: true,
+        default: CalendarType.ADDITIONAL
     })
     calendarType: CalendarType;
 

@@ -1,7 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {LessThan, Repository} from 'typeorm';
-import {RefreshTokenNonce} from './entities/refresh-token-nonce.entity';
+import {RefreshTokenNonce} from './entity/refresh-token-nonce.entity';
 
 @Injectable()
 export class RefreshTokenNonceRepository {

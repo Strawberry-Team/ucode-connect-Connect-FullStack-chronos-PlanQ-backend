@@ -7,7 +7,7 @@ import {
     OneToMany,
 } from 'typeorm';
 
-import {RefreshTokenNonce} from 'src/refresh-token-nonce/entities/refresh-token-nonce.entity';
+import {RefreshTokenNonce} from 'src/refresh-token-nonce/entity/refresh-token-nonce.entity';
 import {Expose} from 'class-transformer';
 import {Calendar} from 'src/calendar/entity/calendar.entity';
 import {CalendarMember} from 'src/calendar-member/entity/calendar-member.entity';

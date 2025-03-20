@@ -3,7 +3,7 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import {CreateRefreshTokenNonceDto} from './dto/create-refresh-nonce.dto';
-import {RefreshTokenNonce} from './entities/refresh-token-nonce.entity';
+import {RefreshTokenNonce} from './entity/refresh-token-nonce.entity';
 import {RefreshTokenNonceRepository} from './refresh-token-nonce.repository';
 
 @Injectable()

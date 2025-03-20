@@ -1,7 +1,8 @@
-import {Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, Index} from 'typeorm';
 import {User} from '../../user/entity/user.entity';
 
 @Entity('refresh_token_nonces')
+@Index('idx_refresh_token_nonces_user_id_nonce', ['userId', 'nonce'])
 export class RefreshTokenNonce {
     @PrimaryGeneratedColumn()
     id: number;

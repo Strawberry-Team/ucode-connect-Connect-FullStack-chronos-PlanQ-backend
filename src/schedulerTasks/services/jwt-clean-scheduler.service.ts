@@ -4,12 +4,12 @@ import {RefreshTokenNonceService} from 'src/refresh-token-nonce/refresh-token-no
 import {ConfigService} from '@nestjs/config';
 import {convertToSeconds} from 'src/common/utils/time.utils';
 import {SchedulerConfig} from 'src/config/scheduler.config';
-import { RefreshTokenNonce } from 'src/refresh-token-nonce/entities/refresh-token-nonce.entity';
+import { RefreshTokenNonce } from 'src/refresh-token-nonce/entity/refresh-token-nonce.entity';
 
 @Injectable()
 export class JwtCleanSchedulerService {
     constructor(
-        private readonly NonceService: RefreshTokenNonceService,
+        private readonly refreshTokenNonceService: RefreshTokenNonceService,
         private configService: ConfigService,
     ) {
     }
@@ -18,11 +18,11 @@ export class JwtCleanSchedulerService {
     @Timeout(10000)
     async cleanRefreshTokensFromDb() {
         const expirationTime = convertToSeconds((String(this.configService.get<string>(`jwt.expiresIn.refresh`))));
-        const nonces: RefreshTokenNonce[] = await this.NonceService.getAll(expirationTime);
+        const nonces: RefreshTokenNonce[] = await this.refreshTokenNonceService.getAll(expirationTime);
 
         if (nonces.length > 0) {
             await Promise.all(nonces.map(nonce =>
-                this.NonceService.deleteRefreshTokenNonceByNonceId(nonce.id)
+                this.refreshTokenNonceService.deleteRefreshTokenNonceByNonceId(nonce.id)
             ));
         } else {
         }

@@ -93,6 +93,7 @@ export class CalendarMembersController extends BaseCrudController<
         return super.create(dto, req);
     }
 
+
     @UseGuards(UpdateCalendarMemberGuard)
     @Patch(':id')
     async update(
@@ -103,6 +104,7 @@ export class CalendarMembersController extends BaseCrudController<
         return super.update(id, dto, req);
     }
 
+    //TODO: дать возможность человеку себя удалить с календаря, если он не владелец календрая.
     @UseGuards(CalendarOwnerGuard)
     @OnlyCreator(true)
     @Delete(':id')
