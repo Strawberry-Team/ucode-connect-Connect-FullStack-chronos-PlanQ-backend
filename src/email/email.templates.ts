@@ -1,4 +1,4 @@
-
+//TODO: нет кнопки на почте
 export const getConfirmationEmailTemplate = (
   confirmationLink: string,
   projectName: string

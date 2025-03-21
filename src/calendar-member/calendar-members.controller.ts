@@ -23,6 +23,7 @@ import {UpdateCalendarMemberGuard} from "./guards/update.calendar-member.guard";
 import {CalendarMemberGuard} from './guards/calendar.member.guard';
 import {JwtConfirmCalendarGuard} from 'src/calendar/guards/jwt-confirm-calendar.guard';
 import {Public} from '../common/decorators/public.decorator';
+import {CalendarMemberRemovalGuard} from "./guards/calendar.member.removal.guard";
 
 @Controller('calendars/:calendarId/members')
 @UsePipes(new ValidationPipe({whitelist: true}))
@@ -105,7 +106,7 @@ export class CalendarMembersController extends BaseCrudController<
     }
 
     //TODO: дать возможность человеку себя удалить с календаря, если он не владелец календрая.
-    @UseGuards(CalendarOwnerGuard)
+    @UseGuards(CalendarMemberRemovalGuard)
     @OnlyCreator(true)
     @Delete(':id')
     async delete(@Param('id') id: number, @Req() req: RequestWithUser): Promise<void> {

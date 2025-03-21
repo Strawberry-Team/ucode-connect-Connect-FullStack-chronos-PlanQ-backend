@@ -18,9 +18,9 @@ export const OnlyCreator = (check: boolean) => SetMetadata(ONLY_CREATOR, check);
 @Injectable()
 export class CalendarOwnerGuard implements CanActivate {
     constructor(
-        private readonly calendarsService: CalendarsService,
-        private readonly usersCalendarsRepository: CalendarMembersRepository,
-        private readonly reflector: Reflector
+        protected readonly calendarsService: CalendarsService,
+        private readonly usersCalendarsRepository: CalendarMembersRepository, //TODO: использовать сервис
+        private readonly reflector: Reflector,
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
