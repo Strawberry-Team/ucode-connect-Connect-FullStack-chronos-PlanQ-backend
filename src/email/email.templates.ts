@@ -54,7 +54,7 @@ export const getResetPasswordEmailTemplate = (
     <div style="font-family: Arial, sans-serif; font-size:14px; color:#333;">
       <p>You have requested to reset your password. Click the button below to proceed:</p>
       <div style="text-align:center; margin:20px;">
-        <a href="${resetLink}" style="background-color:#28A745; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px; target="_blank"; ">
+        <a href="${resetLink}" style="background-color:#007BFF; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;" target="_blank" ">
           Reset Password
         </a>
       </div>
@@ -82,7 +82,7 @@ export const getCalendarShareEmailTemplate = (
     <div style="font-family: Arial, sans-serif; font-size:14px; color:#333;">
       <p>You have been invited by <strong>${inviter}</strong> to access the calendar "<strong>${calendarName}</strong>". Please click the button below to accept the invitation:</p>
       <div style="text-align:center; margin:20px;">
-        <a href="${shareLink}" style="background-color:#17A2B8; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">
+        <a href="${shareLink}" style="background-color:#007BFF; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">
           Accept Invitation
         </a>
       </div>
@@ -119,7 +119,7 @@ export const getEventInvitationEmailTemplate = ( //TODO: add timezone and change
       </div>
       <p>Click the button below to accept the invitation:</p>
       <div style="text-align:center; margin:20px;">
-        <a href="${shareLink}" style="background-color:#6F42C1; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">
+        <a href="${shareLink}" style="background-color:#007BFF; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">
           Accept Invitation
         </a>
       </div>
