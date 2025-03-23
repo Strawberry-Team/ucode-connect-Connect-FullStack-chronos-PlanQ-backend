@@ -15,6 +15,9 @@ import {CalendarMember, CalendarType} from './entity/calendar-member.entity';
 import {ConfigService} from '@nestjs/config';
 import {EmailService} from 'src/email/email.service';
 import {JwtUtils} from 'src/jwt/jwt-token.utils';
+import {EventType} from "../event/entity/event.entity";
+import {ResponseStatus} from "../event-participation/entity/event-participation.entity";
+import {EventParticipationsService} from "../event-participation/event-participations.service";
 
 @Injectable()
 export class CalendarMembersService {
@@ -25,6 +28,7 @@ export class CalendarMembersService {
         @Inject(forwardRef(() => CalendarsRepository))
         private readonly calendarsRepository: CalendarsRepository,
         private readonly usersService: UsersService,
+        private readonly eventParticipationsService: EventParticipationsService,
         private readonly configService: ConfigService,
         private readonly emailService: EmailService,
         private readonly jwtUtils: JwtUtils,
@@ -183,10 +187,11 @@ export class CalendarMembersService {
         await this.usersCalendarsRepository.deleteCalendarMember(calendarMemberToRemove.id);
     }
 
+    // Добавить в src/calendar-member/calendar-members.service.ts
     async confirmCalendar(
         userId: number,
         calendarId: number,
-    ) {
+    ): Promise<CalendarMember> {
         const result = await this.usersCalendarsRepository.updateCalendarMemberByUserAndCalendar(
             userId,
             calendarId,
@@ -196,9 +201,86 @@ export class CalendarMembersService {
         );
 
         if (!result) {
-            throw new BadRequestException("Cannot confirm the calendar")
+            throw new BadRequestException("Cannot confirm the calendar");
+        }
+
+        // Add events to the newly confirmed calendar member
+        const calendarMember = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
+
+        if (!calendarMember) {
+            throw new NotFoundException('Calendar member not found');
+        }
+
+        // Find the calendar creator's calendar member
+        const calendar = await this.calendarsRepository.findById(calendarId);
+
+        if (!calendar) {
+            throw new NotFoundException('Calendar not found');
+        }
+
+        const creatorCalendarMember = await this.usersCalendarsRepository.findByUserAndCalendar(
+            calendar.creatorId,
+            calendarId
+        );
+
+        if (!creatorCalendarMember) {
+            throw new NotFoundException('Calendar creator member not found');
+        }
+
+        // Get all events from the creator's calendar (except tasks)
+        const creatorParticipations = await this.eventParticipationsService.getMemberEvents(creatorCalendarMember.id);
+        const eventsToAdd = creatorParticipations.filter(p =>
+            p.event.type === EventType.REMINDER || p.event.type === EventType.ARRANGEMENT
+        );
+
+        // Get user's main calendar
+        const userCalendars = await this.getUserCalendars(userId);
+        const mainCalendar = userCalendars.find(c => c.calendarType === CalendarType.MAIN);
+
+        if (!mainCalendar) {
+            throw new NotFoundException('User main calendar not found');
+        }
+
+        // Check which events the user is already participating in through their main calendar
+        const mainParticipations = await this.eventParticipationsService.getMemberEvents(mainCalendar.id);
+
+        // Add events to the shared calendar
+        for (const participation of eventsToAdd) {
+            // Check if user already has this event in their main calendar
+            const existingMainParticipation = mainParticipations.find(p => p.eventId === participation.eventId);
+
+            // Copy settings from creator's participation
+            if (participation.event.type === EventType.REMINDER) {
+                // For reminders, just copy everything
+                await this.eventParticipationsService.createEventParticipation({
+                    calendarMemberId: calendarMember.id,
+                    eventId: participation.eventId,
+                    color: participation.color,
+                    responseStatus: ResponseStatus.ACCEPTED
+                });
+            } else if (participation.event.type === EventType.ARRANGEMENT) {
+                // For arrangements, check if user already has a response status
+                if (existingMainParticipation) {
+                    // Copy response status from main calendar
+                    await this.eventParticipationsService.createEventParticipation({
+                        calendarMemberId: calendarMember.id,
+                        eventId: participation.eventId,
+                        color: participation.color,
+                        responseStatus: existingMainParticipation.responseStatus
+                    });
+                } else {
+                    // No existing participation, set response_status to NULL
+                    await this.eventParticipationsService.createEventParticipation({
+                        calendarMemberId: calendarMember.id,
+                        eventId: participation.eventId,
+                        color: participation.color,
+                        // responseStatus: null
+                    });
+                }
+            }
         }
 
         return result;
     }
+
 }

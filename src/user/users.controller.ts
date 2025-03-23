@@ -21,9 +21,9 @@ import {OwnAccountGuard} from './guards/own-account.guard';
 import {RequestWithUser} from "../common/types/request.types";
 import {CalendarMembersService} from "../calendar-member/calendar-members.service";
 import {CalendarMember} from "../calendar-member/entity/calendar-member.entity";
+import {EventsService} from "../event/events.service";
 
 @Controller('users')
-@UsePipes(new ValidationPipe({whitelist: true}))
 @SerializeOptions({
     groups: SERIALIZATION_GROUPS.BASIC
 })
@@ -34,7 +34,8 @@ export class UsersController extends BaseCrudController<
 > {
     constructor(
         private readonly usersService: UsersService,
-        private readonly usersCalendarsService: CalendarMembersService) {
+        private readonly usersCalendarsService: CalendarMembersService,
+        private readonly eventsService: EventsService) {
         super();
     }
 
@@ -51,25 +52,25 @@ export class UsersController extends BaseCrudController<
         dto: UpdateUserDto,
         req: RequestWithUser
     ): Promise<User> {
-        const dtoKeys = Object.keys(dto);
-        const hasPasswordFields = dto.oldPassword !== undefined || dto.newPassword !== undefined;
-        const nonPasswordFields = dtoKeys.filter(key => key !== 'oldPassword' && key !== 'newPassword');
-
-        if (hasPasswordFields) {
-            if (!dto.oldPassword || !dto.newPassword) {
-                throw new BadRequestException(
-                    'Both old and new passwords are required to update password',
-                );
-            }
-
-            if (nonPasswordFields.length > 0) {
-                throw new BadRequestException(
-                    'Password update must be performed separately from other field updates',
-                );
-            }
-        } else if (dtoKeys.length === 0) {
-            throw new BadRequestException('At least one field must be provided for update');
-        }
+        // const dtoKeys = Object.keys(dto); //TODO: проверить
+        // const hasPasswordFields = dto.oldPassword !== undefined || dto.newPassword !== undefined;
+        // const nonPasswordFields = dtoKeys.filter(key => key !== 'oldPassword' && key !== 'newPassword');
+        //
+        // if (hasPasswordFields) {
+        //     if (!dto.oldPassword || !dto.newPassword) {
+        //         throw new BadRequestException(
+        //             'Both old and new passwords are required to update password',
+        //         );
+        //     }
+        //
+        //     if (nonPasswordFields.length > 0) {
+        //         throw new BadRequestException(
+        //             'Password update must be performed separately from other field updates',
+        //         );
+        //     }
+        // } else if (dtoKeys.length === 0) {
+        //     throw new BadRequestException('At least one field must be provided for update');
+        // }
 
         return await this.usersService.updateUser(id, dto);
     }
@@ -129,4 +130,15 @@ export class UsersController extends BaseCrudController<
     async getUserCalendars(@Param('id') id: number): Promise<CalendarMember[]> {
         return this.usersCalendarsService.getUserCalendars(id);
     }
+
+    @Get(':id/events')
+    @UseGuards(OwnAccountGuard)
+    async getUserEvents(@Query('name') name: string, @Param('id') id: number, @Req() req: RequestWithUser): Promise<Event[]> {
+        if (!name || name.length < 3) {
+            throw new BadRequestException('Name parameter must be at least 3 characters long');
+        }
+        // return this.eventsService.getUserEvents(id, name);
+        return [];
+    }
+
 }

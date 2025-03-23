@@ -3,7 +3,9 @@ import {
     IsEmail,
     IsOptional,
     IsStrongPassword,
-    Length, Matches, MaxLength, ValidateIf,
+    Length, Matches, MaxLength, registerDecorator, ValidateIf,
+    ValidationArguments,
+    ValidationOptions,
 } from 'class-validator';
 import {AvatarConfig} from '../config/avatar.config';
 
@@ -60,4 +62,54 @@ export function IsUserProfilePicture(isOptional: boolean) {
     } else {
         return applyDecorators(...decorators);
     }
+}
+
+export function ValidatePasswordUpdate(validationOptions?: ValidationOptions) {
+    return function (object: Object, propertyName: string) {
+        registerDecorator({
+            name: 'validatePasswordUpdate',
+            target: object.constructor,
+            propertyName: propertyName,
+            options: validationOptions,
+            validator: {
+                validate(value: any, args: ValidationArguments) {
+                    const dto = args.object as any;
+                    const dtoKeys = Object.keys(dto);
+                    const hasPasswordFields = dto.oldPassword !== undefined || dto.newPassword !== undefined;
+                    const nonPasswordFields = dtoKeys.filter(key => key !== 'oldPassword' && key !== 'newPassword');
+
+                    if (hasPasswordFields) {
+                        if (!dto.oldPassword || !dto.newPassword) {
+                            return false; // Both passwords required
+                        }
+                        if (nonPasswordFields.length > 0) {
+                            return false; // No other fields allowed with password update
+                        }
+                    } else if (dtoKeys.length === 0) {
+                        return false; // At least one field required
+                    }
+
+                    return true;
+                },
+                defaultMessage(args: ValidationArguments) {
+                    const dto = args.object as any;
+                    const dtoKeys = Object.keys(dto);
+                    const hasPasswordFields = dto.oldPassword !== undefined || dto.newPassword !== undefined;
+
+                    if (hasPasswordFields) {
+                        if (!dto.oldPassword || !dto.newPassword) {
+                            return 'Both old and new passwords are required to update password';
+                        }
+                        if (dtoKeys.filter(key => key !== 'oldPassword' && key !== 'newPassword').length > 0) {
+                            return 'Password update must be performed separately from other field updates';
+                        }
+                    } else if (dtoKeys.length === 0) {
+                        return 'At least one field must be provided for update';
+                    }
+
+                    return 'Invalid password update request';
+                }
+            }
+        });
+    };
 }

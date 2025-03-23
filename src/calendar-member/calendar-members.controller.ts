@@ -24,15 +24,18 @@ import {CalendarMemberGuard} from './guards/calendar.member.guard';
 import {JwtConfirmCalendarGuard} from 'src/calendar/guards/jwt-confirm-calendar.guard';
 import {Public} from '../common/decorators/public.decorator';
 import {CalendarMemberRemovalGuard} from "./guards/calendar.member.removal.guard";
+import {EventParticipation} from "../event-participation/entity/event-participation.entity";
+import {EventParticipationsService} from "../event-participation/event-participations.service";
 
-@Controller('calendars/:calendarId/members')
-@UsePipes(new ValidationPipe({whitelist: true}))
+@Controller('calendars/:calendarId/members') //TODO: REST API оформлено немного неправильно. Надо /calendar-members
 export class CalendarMembersController extends BaseCrudController<
     CalendarMember,
     AddMemberToCalendarDto,
     UpdateMemberInCalendarDto
 > {
-    constructor(private readonly usersCalendarsService: CalendarMembersService) {
+    constructor(
+        private readonly usersCalendarsService: CalendarMembersService,
+        private readonly eventParticipationsService: EventParticipationsService ) {
         super();
     }
 
@@ -51,13 +54,13 @@ export class CalendarMembersController extends BaseCrudController<
         dto: UpdateMemberInCalendarDto,
         req: RequestWithUser
     ): Promise<CalendarMember> {
-        const dtoEntries = Object.entries(dto).filter(([_, value]) => value !== undefined);
-
-        if (dtoEntries.length > 1) {
-            throw new BadRequestException('You can update either role, color or isVisible, but not both at the same time');
-        } else if (dtoEntries.length < 1) {
-            throw new BadRequestException('Either role, color or isVisible must be provided');
-        }
+        // const dtoEntries = Object.entries(dto).filter(([_, value]) => value !== undefined);
+        //
+        // if (dtoEntries.length > 1) {
+        //     throw new BadRequestException('You can update either role, color or isVisible, but not both at the same time');
+        // } else if (dtoEntries.length < 1) {
+        //     throw new BadRequestException('Either role, color or isVisible must be provided');
+        // }
 
         const calendarId = parseInt(req.params.calendarId, 10);
         return await this.usersCalendarsService.updateUserInCalendar(
@@ -118,5 +121,21 @@ export class CalendarMembersController extends BaseCrudController<
     @Post('/confirm-calendar/:confirm_token')
     async confirmCalendarWithConfirmToken(@Req() req: RequestWithUser) {
         return this.usersCalendarsService.confirmCalendar(req.user.userId, Number(req.user.calendarId));
+    }
+
+    // GET /calendar-members/{id}/events
+    @Get(':id/events')
+    async getMemberEvents(
+        @Param('id') calendarMemberId: number, //TODO: это не calendarMemberId, это id пользователя
+        @Req() req: RequestWithUser
+    ): Promise<EventParticipation[]> {
+        const participations = await this.eventParticipationsService.getMemberEvents(calendarMemberId);
+
+        // Check first participation to verify ownership
+        if (participations.length > 0 && participations[0].calendarMember.userId !== req.user.userId) {
+            throw new BadRequestException('You do not have permission to access these events');
+        }
+
+        return participations;
     }
 }

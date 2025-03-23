@@ -1,6 +1,6 @@
 import {
     IsUserEmail,
-    IsUserName, IsUserPassword, IsUserProfilePicture,
+    IsUserName, IsUserPassword, IsUserProfilePicture, ValidatePasswordUpdate,
 } from '../users.validator';
 
 import {IsValidCountryCode} from "../../country/country.validator"
@@ -26,4 +26,7 @@ export class UpdateUserDto {
 
     @IsUserProfilePicture(true)
     profilePictureName?: string;
+
+    @ValidatePasswordUpdate()
+    __dummyField?: never;
 }

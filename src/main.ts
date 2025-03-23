@@ -63,6 +63,17 @@ async function bootstrap() {
         }
     });
 
+    app.useGlobalPipes(
+        new ValidationPipe({
+            transform: true, // automatically convert incoming primitive values into instances of classes specified in the DTO
+            transformOptions: {
+                enableImplicitConversion: true, // Enable implicit type conversion
+            },
+            whitelist: true, // Filters out properties that do not have decorators
+            forbidNonWhitelisted: false, // Does not generate an error if there are extra fields
+        }),
+    );
+
 
     await app.listen(port);
     console.log(`Application is running on: ${baseUrl}/${globalPrefix}`);

@@ -7,11 +7,12 @@ import {
     ManyToOne,
     JoinColumn,
     Index,
-    Unique,
+    Unique, OneToMany,
 } from 'typeorm';
 import {User} from '../../user/entity/user.entity';
 import {Calendar} from '../../calendar/entity/calendar.entity';
 import {BooleanTransformer} from 'src/common/transformers/BooleanTransformer';
+import {EventParticipation} from "../../event-participation/entity/event-participation.entity";
 
 export enum CalendarRole {
     OWNER = 'owner',
@@ -76,4 +77,10 @@ export class CalendarMember {
     @ManyToOne(() => Calendar, (calendar) => calendar.userCalendars, {onDelete: 'CASCADE'})
     @JoinColumn({name: 'calendar_id'})
     calendar: Calendar;
+
+    @OneToMany(() => EventParticipation, (eventParticipation) => eventParticipation.calendarMember, {
+        cascade: true,
+        onDelete: 'CASCADE',
+    })
+    eventParticipations: EventParticipation[];
 }

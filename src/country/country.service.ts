@@ -6,7 +6,7 @@ import {ConfigService} from "@nestjs/config";
 import {firstValueFrom} from "rxjs";
 
 @Injectable()
-export class CountryService {
+export class CountryService { //TODO: при первом запуске не подгружает список стран
     private static readonly COUNTRIES_FILENAME = 'countries.json';
     private static readonly filePath = path.join(__dirname, '..', 'data', CountryService.COUNTRIES_FILENAME);
 
