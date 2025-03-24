@@ -58,7 +58,11 @@ export class EventParticipationsService {
     }
 
     async getEventParticipations(eventId: number): Promise<EventParticipation[]> {
-        return this.eventParticipationsRepository.findByEventId(eventId);
+        const result = await this.eventParticipationsRepository.findByEventId(eventId);
+        if (!result) {
+            throw new NotFoundException('Event participations not found');
+        }
+        return result;
     }
 
     async getMemberEvents(calendarMemberId: number): Promise<EventParticipation[]> {
@@ -76,7 +80,7 @@ export class EventParticipationsService {
         inviterId: number,
     ): Promise<EventParticipation> {
         // Check if event exists
-        const event = await this.eventsService.getEventById(eventId, inviterId);
+        const event = await this.eventsService.getEventByIdWithParticipations(eventId, inviterId);
         if (!event) {
             throw new NotFoundException('Event not found');
         }
@@ -388,7 +392,7 @@ export class EventParticipationsService {
         } else {
             // Someone else is trying to remove a user, check permissions
             const eventId = participation.eventId;
-            const event = await this.eventsService.getEventById(eventId, userId);
+            const event = await this.eventsService.getEventByIdWithParticipations(eventId, userId);
 
             // Only owner, editor or creator can remove others
             if (event.creatorId === userId) {

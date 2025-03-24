@@ -35,7 +35,7 @@ export class EventsService {
         private readonly usersService: UsersService
     ) {}
 
-    async getEventById(id: number, userId: number): Promise<Event> {
+    async getEventByIdWithParticipations(id: number, userId: number): Promise<Event> {
         const event = await this.eventsRepository.findEventWithParticipations(id);
 
         if (!event) {
@@ -43,12 +43,22 @@ export class EventsService {
         }
 
         // Check if user is a participant of this event
-        const isParticipant = event.participations.some(
-            participation => participation.calendarMember.userId === userId
-        );
+        // const isParticipant = event.participations.some(
+        //     participation => participation.calendarMember.userId === userId
+        // );
+        //
+        // if (!isParticipant) {
+        //     throw new BadRequestException('You are not a participant of this event');
+        // }
 
-        if (!isParticipant) {
-            throw new BadRequestException('You are not a participant of this event');
+        return event;
+    }
+
+    async getEventById(id: number): Promise<Event> {
+        const event = await this.eventsRepository.findById(id);
+
+        if (!event) {
+            throw new NotFoundException('Event not found');
         }
 
         return event;
@@ -162,7 +172,7 @@ export class EventsService {
                 break;
         }
 
-        return this.getEventById(event.id, userId);
+        return this.getEventByIdWithParticipations(event.id, userId);
     }
 
     async updateEvent(id: number, userId: number, dto: UpdateEventDto): Promise<Event> {
@@ -214,7 +224,7 @@ export class EventsService {
             }
         }
 
-        return this.getEventById(id, userId);
+        return this.getEventByIdWithParticipations(id, userId);
     }
 
     async deleteEvent(id: number, userId: number): Promise<void> {

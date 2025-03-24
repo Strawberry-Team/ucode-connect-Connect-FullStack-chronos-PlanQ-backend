@@ -35,7 +35,9 @@ export class CalendarMembersController extends BaseCrudController<
 > {
     constructor(
         private readonly usersCalendarsService: CalendarMembersService,
-        private readonly eventParticipationsService: EventParticipationsService ) {
+        private readonly eventParticipationsService: EventParticipationsService,
+        private readonly calendarMembersSevice: CalendarMembersService
+        ) {
         super();
     }
 
@@ -124,12 +126,15 @@ export class CalendarMembersController extends BaseCrudController<
     }
 
     // GET /calendar-members/{id}/events
-    @Get(':id/events')
+    @Get(':userId/events')
     async getMemberEvents(
-        @Param('id') calendarMemberId: number, //TODO: это не calendarMemberId, это id пользователя
+        @Param('userId') id: number,
         @Req() req: RequestWithUser
     ): Promise<EventParticipation[]> {
-        const participations = await this.eventParticipationsService.getMemberEvents(calendarMemberId);
+        const calendarId = parseInt(req.params.calendarId, 10);
+
+        const calendarMember: CalendarMember = await this.calendarMembersSevice.getCalendarMember(id, calendarId);
+        const participations = await this.eventParticipationsService.getMemberEvents(calendarMember.id);
 
         // Check first participation to verify ownership
         if (participations.length > 0 && participations[0].calendarMember.userId !== req.user.userId) {

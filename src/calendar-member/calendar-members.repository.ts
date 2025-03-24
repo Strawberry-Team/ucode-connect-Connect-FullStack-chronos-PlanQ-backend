@@ -19,7 +19,7 @@ export class CalendarMembersRepository {
 
     async findByUserAndCalendar(userId: number, calendarId: number): Promise<CalendarMember | null> {
         return this.repo.findOne({
-            where: {userId, calendarId},//108 12
+            where: {userId, calendarId},
             relations: ['calendar']
         });
     }

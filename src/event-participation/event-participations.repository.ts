@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {In, Repository} from 'typeorm';
 import { EventParticipation, ResponseStatus } from './entity/event-participation.entity';
+import {plainToInstance} from "class-transformer";
+import {SERIALIZATION_GROUPS, User} from "../user/entity/user.entity";
 
 @Injectable()
 export class EventParticipationsRepository {
@@ -19,17 +21,38 @@ export class EventParticipationsRepository {
     }
 
     async findByCalendarMemberAndEvent(calendarMemberId: number, eventId: number): Promise<EventParticipation | null> {
-        return this.repo.findOne({
+        const result = await this.repo.findOne({
             where: { calendarMemberId, eventId },
             relations: ['calendarMember', 'event', 'calendarMember.user']
         });
+        if (!result) {
+            return null;
+        }
+
+        if (result.calendarMember.user) {
+            result.calendarMember.user = plainToInstance(User, result.calendarMember.user, {groups: SERIALIZATION_GROUPS.BASIC});
+        }
+
+        return result;
     }
 
-    async findByEventId(eventId: number): Promise<EventParticipation[]> {
-        return this.repo.find({
+    async findByEventId(eventId: number): Promise<EventParticipation[] | null> {
+        const result = await this.repo.find({
             where: { eventId },
             relations: ['calendarMember', 'calendarMember.user']
         });
+
+        if (!result) {
+            return null;
+        }
+
+        result.forEach(calendarMember => {
+            if (calendarMember.calendarMember.user) {
+                calendarMember.calendarMember.user = plainToInstance(User, calendarMember.calendarMember.user, {groups: SERIALIZATION_GROUPS.BASIC});
+            }
+        })
+
+        return result;
     }
 
     async findByCalendarMemberId(calendarMemberId: number): Promise<EventParticipation[]> {
