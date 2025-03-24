@@ -50,7 +50,7 @@ export class EventEditGuard implements CanActivate { //TODO: AccessCheckerServic
             throw new BadRequestException('eventId must be a number');
         }
 
-        const event = await this.eventsService.getEventByIdWithParticipations(eventId, userId);
+        const event = await this.eventsService.getEventByIdWithParticipations(eventId, true);
         const isParticipant = event.participations.some(
             participation => participation.calendarMember.userId === userId
         );
@@ -89,7 +89,7 @@ export class EventEditGuard implements CanActivate { //TODO: AccessCheckerServic
             if (isNaN(eventId)) {
                 throw new BadRequestException('eventId must be a number');
             }
-            const event = await this.eventsService.getEventByIdWithParticipations(eventId, userId);
+            const event = await this.eventsService.getEventByIdWithParticipations(eventId, true);
 
             if (calendarMember.calendarType === CalendarType.MAIN) {
                 if (event.creatorId === userId) {

@@ -40,7 +40,7 @@ export class EventParticipation {
         enum: ResponseStatus,
         nullable: true
     })
-    responseStatus?: ResponseStatus;
+    responseStatus?: ResponseStatus | null;
 
     @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
     createdAt: Date;

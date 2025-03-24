@@ -35,21 +35,12 @@ export class EventsService {
         private readonly usersService: UsersService
     ) {}
 
-    async getEventByIdWithParticipations(id: number, userId: number): Promise<Event> {
-        const event = await this.eventsRepository.findEventWithParticipations(id);
+    async getEventByIdWithParticipations(id: number, isResponseStatusNull: boolean): Promise<Event> {
+        const event = await this.eventsRepository.findEventWithParticipations(id, isResponseStatusNull);
 
         if (!event) {
             throw new NotFoundException('Event not found');
         }
-
-        // Check if user is a participant of this event
-        // const isParticipant = event.participations.some(
-        //     participation => participation.calendarMember.userId === userId
-        // );
-        //
-        // if (!isParticipant) {
-        //     throw new BadRequestException('You are not a participant of this event');
-        // }
 
         return event;
     }
@@ -65,15 +56,10 @@ export class EventsService {
     }
 
     async createEvent(userId: number, dto: CreateEventBaseDto): Promise<Event> {
-        // Validate user has permission for this calendar
         const calendarMember = await this.calendarMembersService.getCalendarMember(userId, dto.calendarId);
 
         if (!calendarMember) {
             throw new NotFoundException('Calendar not found or you do not have access');
-        }
-
-        if (calendarMember.role !== CalendarRole.OWNER && calendarMember.role !== CalendarRole.EDITOR) {
-            throw new BadRequestException('You do not have permission to create events in this calendar');
         }
 
         let event: Event;
@@ -83,10 +69,10 @@ export class EventsService {
             creatorId: userId,
             name: dto.name,
             description: dto.description,
-            category: dto.category as EventCategory,
-            startedAt: new Date(dto.startedAt),
-            endedAt: new Date(dto.endedAt),
-            type: dto.type as EventType
+            category: dto.category,
+            startedAt: dto.startedAt,
+            endedAt: dto.endedAt,
+            type: dto.type
         });
 
         // Handle specific event type logic
@@ -112,12 +98,14 @@ export class EventsService {
                 const arrangementDto = dto as CreateEventArrangementDto;
 
                 // Add creator to the event participation
-                await this.eventParticipationsService.createEventParticipation({
-                    calendarMemberId: calendarMember.id,
-                    eventId: event.id,
-                    color: dto.color,
-                    responseStatus: ResponseStatus.ACCEPTED
-                });
+                if (arrangementDto.participantIds && arrangementDto.participantIds.includes(userId)) {
+                    await this.eventParticipationsService.createEventParticipation({
+                        calendarMemberId: calendarMember.id,
+                        eventId: event.id,
+                        color: dto.color,
+                        responseStatus: ResponseStatus.PENDING
+                    });
+                }
 
                 // Add all other calendar members with null response status
                 const calendarMembers = await this.calendarMembersService.getCalendarUsers(dto.calendarId, userId);
@@ -127,7 +115,7 @@ export class EventsService {
                             calendarMemberId: member.id,
                             eventId: event.id,
                             color: dto.color,
-                            // responseStatus: null
+                            responseStatus: null
                         });
                     }
                 }
@@ -172,7 +160,7 @@ export class EventsService {
                 break;
         }
 
-        return this.getEventByIdWithParticipations(event.id, userId);
+        return this.getEventByIdWithParticipations(event.id, false);
     }
 
     async updateEvent(id: number, userId: number, dto: UpdateEventDto): Promise<Event> {
@@ -224,7 +212,7 @@ export class EventsService {
             }
         }
 
-        return this.getEventByIdWithParticipations(id, userId);
+        return this.getEventByIdWithParticipations(id, false);
     }
 
     async deleteEvent(id: number, userId: number): Promise<void> {

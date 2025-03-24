@@ -73,14 +73,14 @@ export class EventParticipationsService {
         return this.eventParticipationsRepository.createEventParticipation(data);
     }
 
-    async inviteUserToEvent(
+    async inviteUserToEvent ( //TODO: себя приглашать. Проверять приглашен ли уже человек.
         eventId: number,
         userId: number,
         calendarId: number,
         inviterId: number,
     ): Promise<EventParticipation> {
         // Check if event exists
-        const event = await this.eventsService.getEventByIdWithParticipations(eventId, inviterId);
+        const event = await this.eventsService.getEventByIdWithParticipations(eventId, true);
         if (!event) {
             throw new NotFoundException('Event not found');
         }
@@ -101,6 +101,20 @@ export class EventParticipationsService {
             throw new BadRequestException('Failed to find user\'s main calendar');
         }
 
+        // Find creator's participation to get color
+        const inviterMember = await this.calendarMembersService.getCalendarMember(inviterId, calendarId);
+        const inviterParticipation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
+            inviterMember.id,
+            eventId
+        );
+
+        if (!inviterParticipation) {
+            throw new BadRequestException('Inviter is not a participant of this event');
+        }
+
+        // Get the color from creator's participation or use provided color
+        const participationColor = inviterParticipation.color;
+
         // Check if user is already a participant
         let participation;
 
@@ -114,16 +128,6 @@ export class EventParticipationsService {
                 // Participation doesn't exist yet
             }
         }
-
-        // Find creator's participation to get color
-        const creatorMember = await this.calendarMembersService.getCalendarMember(inviterId, calendarId);
-        const creatorParticipation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
-            creatorMember.id,
-            eventId
-        );
-
-        // Get the color from creator's participation or use provided color
-        const participationColor = creatorParticipation ? creatorParticipation.color : null;
 
         // Send invitation email
         try {
@@ -150,7 +154,7 @@ export class EventParticipationsService {
                 const newParticipation = await this.eventParticipationsRepository.createEventParticipation({
                     calendarMemberId: calendarMember.id,
                     eventId,
-                    // color: participationColor,
+                    color: participationColor,
                     responseStatus: ResponseStatus.INVITED
                 });
                 participationId = newParticipation.id;
@@ -166,7 +170,7 @@ export class EventParticipationsService {
                 const newMainParticipation = await this.eventParticipationsRepository.createEventParticipation({
                     calendarMemberId: mainCalendarMember.id,
                     eventId,
-                    // color: participationColor,
+                    color: participationColor,
                     responseStatus: ResponseStatus.INVITED
                 });
 
@@ -392,7 +396,7 @@ export class EventParticipationsService {
         } else {
             // Someone else is trying to remove a user, check permissions
             const eventId = participation.eventId;
-            const event = await this.eventsService.getEventByIdWithParticipations(eventId, userId);
+            const event = await this.eventsService.getEventByIdWithParticipations(eventId, false); //TODO: не знаем
 
             // Only owner, editor or creator can remove others
             if (event.creatorId === userId) {

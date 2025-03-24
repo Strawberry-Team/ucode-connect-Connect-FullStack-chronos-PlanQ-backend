@@ -32,7 +32,7 @@ export class EventsController extends BaseCrudController<
     }
 
     protected async findById(id: number, req: RequestWithUser): Promise<Event> {
-        return await this.eventsService.getEventById(id, req.user.userId);
+        return await this.eventsService.getEventByIdWithParticipations(id, false);
     }
 
     protected async createEntity(dto: CreateEventContainerDto, req: RequestWithUser): Promise<Event> {

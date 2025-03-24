@@ -1,21 +1,23 @@
 // src/event/events.repository.ts
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
-import { Event, EventType } from './entity/event.entity';
+import {Injectable} from '@nestjs/common';
+import {InjectRepository} from '@nestjs/typeorm';
+import {Repository, Between} from 'typeorm';
+import {Event, EventType} from './entity/event.entity';
 import {plainToInstance} from "class-transformer";
 import {SERIALIZATION_GROUPS, User} from "../user/entity/user.entity";
+import {ResponseStatus} from "../event-participation/entity/event-participation.entity";
 
 @Injectable()
 export class EventsRepository {
     constructor(
         @InjectRepository(Event)
         private readonly repo: Repository<Event>,
-    ) {}
+    ) {
+    }
 
     async findById(id: number): Promise<Event | null> {
         const result = await this.repo.findOne({
-            where: { id },
+            where: {id},
             relations: ['creator', 'task']
         });
 
@@ -30,9 +32,9 @@ export class EventsRepository {
         return result;
     }
 
-    async findEventWithParticipations(id: number): Promise<Event | null> {
+    async findEventWithParticipations(id: number, isResponseStatusNull: boolean): Promise<Event | null> {
         const result = await this.repo.findOne({
-            where: { id },
+            where: {id},
             relations: ['creator', 'task', 'participations', 'participations.calendarMember', 'participations.calendarMember.user']
         });
 
@@ -42,6 +44,12 @@ export class EventsRepository {
 
         if (result.creator) {
             result.creator = plainToInstance(User, result.creator, {groups: SERIALIZATION_GROUPS.BASIC});
+        }
+
+        if (!isResponseStatusNull) {
+            result.participations.filter(participation => {
+                return participation.responseStatus !== null;
+            })
         }
 
         result.participations.forEach(participation => {
