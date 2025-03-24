@@ -35,7 +35,7 @@ export class EventBodyInterceptor implements NestInterceptor {
 
             if (eventId && userId) {
                 // Получаем существующее событие из базы данных
-                const event = await this.eventsService.getEventById(Number(eventId), userId);
+                const event = await this.eventsService.getEventById(Number(eventId));
 
                 // Создаем контейнер с типом из существующего события
                 const containerData = {

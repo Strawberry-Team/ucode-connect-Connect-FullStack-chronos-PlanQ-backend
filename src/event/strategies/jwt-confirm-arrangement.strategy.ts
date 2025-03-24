@@ -4,7 +4,7 @@ const confirmArrangementExtractor = (req: any) => req?.params?.confirm_token;
 
 const validateFn = (payload: any) => ({
     userId: payload.sub,
-    arrangementId: payload.arrangementId,
+    eventParticipationId: payload.eventParticipationId,
 });
 
 export const JwtConfirmArrangementStrategy = createJwtStrategy({

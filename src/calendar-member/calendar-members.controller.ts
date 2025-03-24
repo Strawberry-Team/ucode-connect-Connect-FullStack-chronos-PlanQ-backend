@@ -127,7 +127,7 @@ export class CalendarMembersController extends BaseCrudController<
 
     // GET /calendar-members/{id}/events
     @Get(':userId/events')
-    async getMemberEvents(
+    async getMemberEvents( //TODO: По датам надо фильтровать все ивенты.
         @Param('userId') id: number,
         @Req() req: RequestWithUser
     ): Promise<EventParticipation[]> {

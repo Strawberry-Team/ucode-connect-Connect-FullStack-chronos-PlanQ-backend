@@ -116,16 +116,16 @@ export class EmailService {
         to: string,
         inviter: string,
         eventName: string,
-        eventDate: string,
-        eventTime: string,
+        eventDateTimeStartedAt: string,
+        eventDateTimeEndedAt: string,
         shareLink: string,
         guestEmails: string[]
     ): Promise<void> {
         const html = getEventInvitationEmailTemplate(
             inviter,
             eventName,
-            eventDate,
-            eventTime,
+            eventDateTimeStartedAt,
+            eventDateTimeEndedAt,
             shareLink,
             guestEmails,
             this.appName

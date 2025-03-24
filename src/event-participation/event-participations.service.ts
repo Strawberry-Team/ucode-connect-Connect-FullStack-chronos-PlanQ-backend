@@ -6,17 +6,17 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
-import { EventParticipationsRepository } from './event-participations.repository';
-import { EventParticipation, ResponseStatus } from './entity/event-participation.entity';
-import { CreateEventParticipationDto } from './dto/create-event-participation.dto';
-import { UpdateEventParticipationDto } from './dto/update-event-participation.dto';
-import { CalendarMembersService } from '../calendar-member/calendar-members.service';
-import { UsersService } from '../user/users.service';
-import { EventsService } from '../event/events.service';
-import { CalendarType } from '../calendar-member/entity/calendar-member.entity';
-import { EmailService } from '../email/email.service';
-import { JwtUtils } from '../jwt/jwt-token.utils';
-import { ConfigService } from '@nestjs/config';
+import {EventParticipationsRepository} from './event-participations.repository';
+import {EventParticipation, ResponseStatus} from './entity/event-participation.entity';
+import {CreateEventParticipationDto} from './dto/create-event-participation.dto';
+import {UpdateEventParticipationDto} from './dto/update-event-participation.dto';
+import {CalendarMembersService} from '../calendar-member/calendar-members.service';
+import {UsersService} from '../user/users.service';
+import {EventsService} from '../event/events.service';
+import {CalendarType} from '../calendar-member/entity/calendar-member.entity';
+import {EmailService} from '../email/email.service';
+import {JwtUtils} from '../jwt/jwt-token.utils';
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
 export class EventParticipationsService {
@@ -34,7 +34,7 @@ export class EventParticipationsService {
         private readonly jwtUtils: JwtUtils,
         private readonly configService: ConfigService
     ) {
-        // this.frontendUrl = this.configService.get<string>('app.frontendLink');
+        this.frontendUrl = String(this.configService.get<string>('app.frontendLink'));
     }
 
     async getEventParticipation(id: number): Promise<EventParticipation> {
@@ -73,7 +73,7 @@ export class EventParticipationsService {
         return this.eventParticipationsRepository.createEventParticipation(data);
     }
 
-    async inviteUserToEvent ( //TODO: себя приглашать. Проверять приглашен ли уже человек.
+    async inviteUserToEvent(
         eventId: number,
         userId: number,
         calendarId: number,
@@ -119,130 +119,167 @@ export class EventParticipationsService {
         let participation;
 
         if (calendarMember && calendarMember.isConfirmed) {
-            try {
-                participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
-                    calendarMember.id,
-                    eventId
-                );
-            } catch (error) {
-                // Participation doesn't exist yet
-            }
+            participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
+                calendarMember.id,
+                eventId
+            );
         }
 
         // Send invitation email
-        try {
-            const inviter = await this.usersService.getUserByIdWithoutPassword(inviterId);
-            const invitedUser = await this.usersService.getUserByIdWithoutPassword(userId);
+        const inviter = await this.usersService.getUserByIdWithoutPassword(inviterId);
+        const invitedUser = await this.usersService.getUserByIdWithoutPassword(userId);
 
-            if (!invitedUser.emailVerified) {
-                throw new BadRequestException('User must verify their email first');
+        if (!invitedUser.emailVerified) {
+            throw new BadRequestException('User must verify their email first');
+        }
+
+        let participationId;
+
+        // Create or update participation in shared calendar
+        if (participation) {
+            // User is already on the event, just update the status
+            if (participation.responseStatus !== null || participation.responseStatus !== ResponseStatus.INVITED) {
+                throw new BadRequestException('User is already a participant of this event');
             }
-
-            let participationId;
-
-            // Create or update participation in shared calendar
-            if (participation) {
-                // User is already on the event, just update the status
+            if (userId === inviterId) {
+                participation.responseStatus = ResponseStatus.PENDING;
+            } else {
                 participation.responseStatus = ResponseStatus.INVITED;
-                await this.eventParticipationsRepository.updateEventParticipation(
-                    participation.id,
-                    { responseStatus: ResponseStatus.INVITED }
-                );
-                participationId = participation.id;
-            } else if (calendarMember && calendarMember.isConfirmed) {
-                // User is a member of the calendar but not yet on this event
-                const newParticipation = await this.eventParticipationsRepository.createEventParticipation({
-                    calendarMemberId: calendarMember.id,
-                    eventId,
-                    color: participationColor,
-                    responseStatus: ResponseStatus.INVITED
-                });
-                participationId = newParticipation.id;
+            }
+            await this.eventParticipationsRepository.updateEventParticipation(
+                participation.id,
+                {responseStatus: participation.responseStatus}
+            );
+            participationId = participation.id;
+        } else if (calendarMember && calendarMember.isConfirmed) {
+            // User is a member of the calendar but not yet on this event
+            const newParticipation = await this.eventParticipationsRepository.createEventParticipation({
+                calendarMemberId: calendarMember.id,
+                eventId,
+                color: participationColor,
+                responseStatus: ResponseStatus.INVITED
+            });
+            participationId = newParticipation.id;
+        }
+
+        // Always add to main calendar
+        const mainParticipation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
+            mainCalendarMember.id,
+            eventId
+        );
+
+        if (!mainParticipation) {
+            const newMainParticipation = await this.eventParticipationsRepository.createEventParticipation({
+                calendarMemberId: mainCalendarMember.id,
+                eventId,
+                color: participationColor,
+                responseStatus: ResponseStatus.INVITED
+            });
+
+            // If no shared calendar participation, use the main one
+            if (!participationId) {
+                participationId = newMainParticipation.id;
+            }
+        } else if (!participationId) {
+            participationId = mainParticipation.id;
+
+            if (mainParticipation.responseStatus !== null || mainParticipation.responseStatus !== ResponseStatus.INVITED) {
+                throw new BadRequestException('User is already a participant of this event');
+            }
+            if (userId === inviterId) {
+                mainParticipation.responseStatus = ResponseStatus.PENDING;
+            } else {
+                mainParticipation.responseStatus = ResponseStatus.INVITED;
             }
 
-            // Always add to main calendar
-            const mainParticipation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
+            // Update status if already exists
+            await this.eventParticipationsRepository.updateEventParticipation(
+                mainParticipation.id,
+                {responseStatus: mainParticipation.responseStatus}
+            );
+        }
+
+        // Generate token for confirmation
+        const token = this.jwtUtils.generateToken({
+            sub: userId,
+            eventParticipationId: participationId
+        }, 'confirmArrangement');
+
+        const confirmLink = `${this.frontendUrl}events/${eventId}/calendar-members/${calendarMember?.id || mainCalendarMember.id}/confirm-participation/${token}`;
+
+        // For simplicity, just log the link in dev environment
+        console.log(`Confirmation link: ${confirmLink}`);
+
+        // Get all participants for the email
+        const allParticipations = await this.getEventParticipations(eventId);
+        const participantEmails = await Promise.all(
+            allParticipations
+                .filter(p => p.responseStatus !== null)
+                .map(async p => {
+                    const user = await this.usersService.getUserByIdWithoutPassword(p.calendarMember.userId);
+                    return user.email;
+                })
+        );
+
+        // Format with ISO string (2023-04-05T12:30:00.000Z)
+        // const eventDateTimeStartedAt = event.startedAt.toISOString();
+        // const eventDateTimeEndedAt = event.endedAt.toISOString();
+
+        // Format as YYYY-MM-DD HH:MM UTC
+        // const eventDateTimeStartedAt = `${event.startedAt.getUTCFullYear()}-${(event.startedAt.getUTCMonth() + 1).toString().padStart(2, '0')}-${event.startedAt.getUTCDate().toString().padStart(2, '0')} ${event.startedAt.getUTCHours().toString().padStart(2, '0')}:${event.startedAt.getUTCMinutes().toString().padStart(2, '0')} UTC`;
+        // const eventDateTimeEndedAt = `${event.endedAt.getUTCFullYear()}-${(event.endedAt.getUTCMonth() + 1).toString().padStart(2, '0')}-${event.endedAt.getUTCDate().toString().padStart(2, '0')} ${event.endedAt.getUTCHours().toString().padStart(2, '0')}:${event.endedAt.getUTCMinutes().toString().padStart(2, '0')} UTC`;
+
+
+        const eventDateTimeStartedAt = event.startedAt.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'UTC'
+        });
+
+        const eventDateTimeEndedAt = event.endedAt.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'UTC'
+        });
+
+        // Send email
+        await this.emailService.sendEventInvitationEmail(
+            invitedUser.email,
+            inviter.email,
+            event.name,
+            eventDateTimeStartedAt,
+            eventDateTimeEndedAt,
+            confirmLink,
+            participantEmails
+        );
+
+        // Return the participation that was created or updated
+        if (participation) {
+            return participation;
+        } else if (calendarMember && calendarMember.isConfirmed) {
+            const result = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
+                calendarMember.id,
+                eventId
+            );
+            if (!result) {
+                throw new NotFoundException('Event participation not found');
+            }
+            return result;
+        } else {
+            const result = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
                 mainCalendarMember.id,
                 eventId
             );
-
-            if (!mainParticipation) {
-                const newMainParticipation = await this.eventParticipationsRepository.createEventParticipation({
-                    calendarMemberId: mainCalendarMember.id,
-                    eventId,
-                    color: participationColor,
-                    responseStatus: ResponseStatus.INVITED
-                });
-
-                // If no shared calendar participation, use the main one
-                if (!participationId) {
-                    participationId = newMainParticipation.id;
-                }
-            } else if (!participationId) {
-                participationId = mainParticipation.id;
-                // Update status if already exists
-                await this.eventParticipationsRepository.updateEventParticipation(
-                    mainParticipation.id,
-                    { responseStatus: ResponseStatus.INVITED }
-                );
+            if (!result) {
+                throw new NotFoundException('Event participation not found');
             }
-
-            // Generate token for confirmation
-            const token = this.jwtUtils.generateToken({
-                sub: userId,
-                // eventParticipationId: participationId
-            }, 'confirmArrangement');
-
-            const confirmLink = `${this.frontendUrl}events/${eventId}/calendar-members/${calendarMember?.id || mainCalendarMember.id}/confirm-participation/${token}`;
-
-            // For simplicity, just log the link in dev environment
-            console.log(`Confirmation link: ${confirmLink}`);
-
-            // Get all participants for the email
-            const allParticipations = await this.getEventParticipations(eventId);
-            const participantEmails = await Promise.all(
-                allParticipations
-                    .filter(p => p.responseStatus === ResponseStatus.ACCEPTED || p.responseStatus === ResponseStatus.PENDING)
-                    .map(async p => {
-                        const user = await this.usersService.getUserByIdWithoutPassword(p.calendarMember.userId);
-                        return user.email;
-                    })
-            );
-
-            // Format date for email
-            const eventDate = new Date(event.startedAt).toLocaleDateString();
-            const eventTime = new Date(event.startedAt).toLocaleTimeString();
-
-            // Send email
-            await this.emailService.sendEventInvitationEmail(
-                invitedUser.email,
-                inviter.email,
-                event.name,
-                eventDate,
-                eventTime,
-                confirmLink,
-                participantEmails
-            );
-
-            // Return the participation that was created or updated
-            if (participation) {
-                return participation;
-            } else if (calendarMember && calendarMember.isConfirmed) {
-                // return await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
-                //     calendarMember.id,
-                //     eventId
-                // );
-            } else {
-                // return await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
-                //     mainCalendarMember.id,
-                //     eventId
-                // );
-            }
-
-            return participation; //TODO: это неправильно
-        } catch (error) {
-            console.error('Failed to send invitation email', error);
-            throw new BadRequestException('Failed to send invitation email');
+            return result;
         }
     }
 
@@ -295,7 +332,7 @@ export class EventParticipationsService {
         // Update response status to PENDING
         const updatedParticipation = await this.eventParticipationsRepository.updateEventParticipation(
             eventParticipationId,
-            { responseStatus: ResponseStatus.PENDING }
+            {responseStatus: ResponseStatus.PENDING}
         );
 
         // Get user's ID and calendar type
@@ -336,7 +373,7 @@ export class EventParticipationsService {
                         if (participation) {
                             await this.eventParticipationsRepository.updateEventParticipation(
                                 participation.id,
-                                { responseStatus: status }
+                                {responseStatus: status}
                             );
                         }
                     } catch (error) {
@@ -358,7 +395,7 @@ export class EventParticipationsService {
                     if (participation) {
                         await this.eventParticipationsRepository.updateEventParticipation(
                             participation.id,
-                            { responseStatus: status }
+                            {responseStatus: status}
                         );
                     }
                 } catch (error) {

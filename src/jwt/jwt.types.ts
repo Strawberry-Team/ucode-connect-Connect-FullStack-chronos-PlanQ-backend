@@ -20,7 +20,7 @@ export interface JwtPayload {
     sub: number;
     nonce?: string;
     calendarId?: number;
-    arrangementId?: string;
+    eventParticipationId?: string;
     iss: string;
     aud: string;
     iat: number;
