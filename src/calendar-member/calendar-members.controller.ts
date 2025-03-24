@@ -125,7 +125,7 @@ export class CalendarMembersController extends BaseCrudController<
         return this.usersCalendarsService.confirmCalendar(req.user.userId, Number(req.user.calendarId));
     }
 
-    // GET /calendar-members/{id}/events
+    // GET /members/{id}/events
     @Get(':userId/events')
     async getMemberEvents( //TODO: По датам надо фильтровать все ивенты.
         @Param('userId') id: number,

@@ -1,23 +1,13 @@
 // src/event-participation/event-participations.controller.ts
-import {
-    Controller,
-    Get,
-    Post,
-    Patch,
-    Delete,
-    Param,
-    Body,
-    Req,
-    UseGuards,
-    BadRequestException
-} from '@nestjs/common';
-import { BaseCrudController } from '../common/controller/base-crud.controller';
-import { EventParticipation } from './entity/event-participation.entity';
-import { CreateEventParticipationDto } from './dto/create-event-participation.dto';
-import { UpdateEventParticipationDto } from './dto/update-event-participation.dto';
-import { EventParticipationsService } from './event-participations.service';
-import { RequestWithUser } from '../common/types/request.types';
-import { Public } from '../common/decorators/public.decorator';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards} from '@nestjs/common';
+import {BaseCrudController} from '../common/controller/base-crud.controller';
+import {EventParticipation} from './entity/event-participation.entity';
+import {CreateEventParticipationDto} from './dto/create-event-participation.dto';
+import {UpdateEventParticipationDto} from './dto/update-event-participation.dto';
+import {EventParticipationsService} from './event-participations.service';
+import {RequestWithUser} from '../common/types/request.types';
+import {Public} from '../common/decorators/public.decorator';
+import {EventGuard} from "../event/guards/event.guard";
 
 @Controller('events/:eventId/calendar-members')
 export class EventParticipationsController extends BaseCrudController<
@@ -33,17 +23,10 @@ export class EventParticipationsController extends BaseCrudController<
 
     protected async findById(id: number, req: RequestWithUser): Promise<EventParticipation> {
         const eventId = parseInt(req.params.eventId, 10);
-        const participation = await this.eventParticipationsService.getEventParticipationByMemberAndEvent(
+        return await this.eventParticipationsService.getEventParticipationByMemberAndEvent(
             id,
             eventId
         );
-
-        // Check if user owns this calendar membership
-        if (participation.calendarMember.userId !== req.user.userId) {
-            throw new BadRequestException('You do not have permission to access this participation');
-        }
-
-        return participation;
     }
 
     protected async createEntity(dto: CreateEventParticipationDto, req: RequestWithUser): Promise<EventParticipation> {
@@ -78,21 +61,23 @@ export class EventParticipationsController extends BaseCrudController<
     }
 
     // GET /events/{eventId}/calendar-members/{id}
-    @Get(':id')
-    async getById(@Param('id') id: number, @Req() req: RequestWithUser): Promise<EventParticipation> {
+    @UseGuards(EventGuard)
+    @Get(':calendarMemberId')
+    async getById(@Param('calendarMemberId') id: number, @Req() req: RequestWithUser): Promise<EventParticipation> {
         return super.getById(id, req);
     }
 
     // POST /events/{eventId}/calendar-members
+    @UseGuards(EventGuard)
     @Post()
     async create(@Body() dto: CreateEventParticipationDto, @Req() req: RequestWithUser): Promise<EventParticipation> {
         return super.create(dto, req);
     }
 
     // PATCH /events/{eventId}/calendar-members/{id}
-    @Patch(':id')
+    @Patch(':calendarMemberId')
     async update(
-        @Param('id') id: number,
+        @Param('calendarMemberId') id: number,
         @Body() dto: UpdateEventParticipationDto,
         @Req() req: RequestWithUser
     ): Promise<EventParticipation> {
@@ -100,15 +85,15 @@ export class EventParticipationsController extends BaseCrudController<
     }
 
     // DELETE /events/{eventId}/calendar-members/{id}
-    @Delete(':id')
-    async delete(@Param('id') id: number, @Req() req: RequestWithUser): Promise<void> {
+    @Delete(':calendarMemberId')
+    async delete(@Param('calendarMemberId') id: number, @Req() req: RequestWithUser): Promise<void> {
         return super.delete(id, req);
     }
 
     // POST /events/{eventId}/calendar-members/{id}/confirm-participation/{confirm-token}
     @Public()
     // @UseGuards(JwtConfirmEventParticipationGuard)
-    @Post(':id/confirm-participation/:confirm_token')
+    @Post(':calendarMemberId/confirm-participation/:confirm_token')
     async confirmEventParticipation(@Req() req: RequestWithUser): Promise<EventParticipation> {
         return await this.eventParticipationsService.confirmEventParticipation(
             // req.user.eventParticipationId

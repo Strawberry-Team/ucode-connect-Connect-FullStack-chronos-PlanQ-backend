@@ -13,7 +13,7 @@ import {EventParticipationsService} from "../../event-participation/event-partic
 import {EventParticipation} from "../../event-participation/entity/event-participation.entity";
 
 @Injectable()
-export class EventEditGuard implements CanActivate { //TODO: AccessCheckerService добавить и guard писать отдельно.
+export class EventGuard implements CanActivate { //TODO: AccessCheckerService добавить и guard писать отдельно.
     constructor(
         private readonly calendarMembersRepository: CalendarMembersRepository,
         private readonly eventsService: EventsService,
@@ -45,21 +45,21 @@ export class EventEditGuard implements CanActivate { //TODO: AccessCheckerServic
     }
 
     private async handleGetRequest(request: any, userId: number): Promise<boolean> {
-        const eventId = parseInt(request.params.id, 10);
-        if (isNaN(eventId)) {
-            throw new BadRequestException('eventId must be a number');
-        }
+        if (request.params.id) {
+            const eventId = parseInt(request.params.id, 10);
+            if (isNaN(eventId)) {
+                throw new BadRequestException('eventId must be a number');
+            }
 
-        const event = await this.eventsService.getEventByIdWithParticipations(eventId, true);
-        const isParticipant = event.participations.some(
-            participation => participation.calendarMember.userId === userId
-        );
+            const event = await this.eventsService.getEventByIdWithParticipations(eventId, true);
+            const isParticipant = event.participations.some(
+                participation => participation.calendarMember.userId === userId
+            );
 
-        if (!isParticipant) {
-            throw new BadRequestException('You are not a participant of this event');
-        }
-
-        if (request.params.userId) {
+            if (!isParticipant) {
+                throw new BadRequestException('You are not a participant of this event');
+            }
+        } else if (request.params.userId) {
             if (request.params.userId !== userId) {
                 throw new ForbiddenException('You do not have access to this event');
             }
@@ -108,8 +108,7 @@ export class EventEditGuard implements CanActivate { //TODO: AccessCheckerServic
     }
 
     private async handleModifyRequest(request: any, userId: number, method: string): Promise<boolean> {
-        //TODO: добавить calendar_member_id с парамтров
-        const paramCalendarMemberId = request.params.calendar_member_id
+        const paramCalendarMemberId = request.params.calendarMemberId
         if (paramCalendarMemberId) {
             const calendarMember = await this.calendarMembersRepository.findById(paramCalendarMemberId);
 

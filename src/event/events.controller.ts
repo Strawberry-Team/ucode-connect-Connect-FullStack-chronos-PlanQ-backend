@@ -7,7 +7,7 @@ import {
     Body,
     Req,
     UseInterceptors, BadRequestException,
-    Delete, Get
+    Delete, Get, UseGuards
 } from '@nestjs/common';
 import { BaseCrudController } from '../common/controller/base-crud.controller';
 import { Event } from './entity/event.entity';
@@ -17,6 +17,7 @@ import { EventParticipationsService } from '../event-participation/event-partici
 import { CreateEventContainerDto } from './dto/container/create-event-container.dto';
 import {EventBodyInterceptor} from "./interceptors/event-body.interceptor";
 import {UpdateEventContainerDto} from "./dto/container/update-event-container.dto";
+import {EventGuard} from "./guards/event.guard";
 
 @Controller('events')
 export class EventsController extends BaseCrudController<
@@ -58,12 +59,14 @@ export class EventsController extends BaseCrudController<
         return await this.eventsService.deleteEvent(id, req.user.userId);
     }
 
+    @UseGuards(EventGuard)
     @Get(':id')
     async getById(@Param('id') id: number, @Req() req: RequestWithUser): Promise<Event> {
         return await super.getById(id, req);
     }
 
     @UseInterceptors(EventBodyInterceptor)
+    @UseGuards(EventGuard)
     @Post()
     async create(@Body() dto: CreateEventContainerDto, @Req() req: RequestWithUser): Promise<Event> {
         return await super.create(dto, req);
