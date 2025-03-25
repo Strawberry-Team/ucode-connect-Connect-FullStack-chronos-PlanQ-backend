@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import {EventsRepository} from './events.repository';
 import {Event, EventCategory, EventType} from './entity/event.entity';
-import {CreateEventBaseDto} from './dto/create-event.dto';
+import {CreateEventBaseDto} from './dto/create-event-base.dto';
 import {CreateEventTaskDto} from './dto/create-event-task.dto';
 import {CreateEventArrangementDto} from './dto/create-event-arrangement.dto';
 import {CreateEventReminderDto} from './dto/create-event-reminder.dto';
@@ -71,8 +71,8 @@ export class EventsService {
             name: dto.name,
             description: dto.description,
             category: dto.category,
-            startedAt: dto.startedAt,
-            endedAt: dto.endedAt,
+            startedAt: new Date(dto.startedAt),
+            endedAt: new Date(dto.endedAt),
             type: dto.type
         });
 

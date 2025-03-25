@@ -42,7 +42,7 @@ export class EventParticipationsService {
         const participation = await this.eventParticipationsRepository.findById(id);
 
         if (!participation) {
-            throw new NotFoundException('Event participation not found');
+            throw new NotFoundException('Event participation not found1');
         }
 
         return participation;
@@ -52,7 +52,8 @@ export class EventParticipationsService {
         const participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(calendarMemberId, eventId);
 
         if (!participation) {
-            throw new NotFoundException('Event participation not found');
+            console.log("calendarMemberId eventId: ", calendarMemberId, " ", eventId)
+            throw new NotFoundException('Event participation not found2');
         }
 
         return participation;
@@ -128,7 +129,9 @@ export class EventParticipationsService {
 
         // Send invitation email
         const inviter = await this.usersService.getUserByIdWithoutPassword(inviterId);
-        const invitedUser = await this.usersService.getUserByIdWithoutPassword(userId);
+        const invitedUser = await this.usersService.getUserById(userId);
+
+        // console.log("invitedUser", invitedUser);
 
         if (!invitedUser.emailVerified) {
             throw new BadRequestException('User must verify their email first');
@@ -139,8 +142,10 @@ export class EventParticipationsService {
         // Create or update participation in shared calendar
         if (participation) {
             // User is already on the event, just update the status
-            if (participation.responseStatus !== null || participation.responseStatus !== ResponseStatus.INVITED) {
-                throw new BadRequestException('User is already a participant of this event');
+            console.log("participation", participation.responseStatus !== null);
+            console.log("participation",participation.responseStatus !== ResponseStatus.INVITED);
+            if (participation.responseStatus !== null && participation.responseStatus !== ResponseStatus.INVITED) {
+                throw new BadRequestException(`User is already a participant of this event, userId = ${participation.calendarMember.userId}`);
             }
             if (userId === inviterId) {
                 participation.responseStatus = ResponseStatus.PENDING;
@@ -269,7 +274,7 @@ export class EventParticipationsService {
                 eventId
             );
             if (!result) {
-                throw new NotFoundException('Event participation not found');
+                throw new NotFoundException('Event participation not found3');
             }
             return result;
         } else {
@@ -278,7 +283,7 @@ export class EventParticipationsService {
                 eventId
             );
             if (!result) {
-                throw new NotFoundException('Event participation not found');
+                throw new NotFoundException('Event participation not found4');
             }
             return result;
         }
@@ -292,7 +297,7 @@ export class EventParticipationsService {
 
         const participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(calendarMamberId, eventId);
         if (!participation) {
-            throw new NotFoundException('Event participation not found');
+            throw new NotFoundException('Event participation not found5');
         }
 
         const updateData: Partial<EventParticipation> = {};
@@ -315,7 +320,7 @@ export class EventParticipationsService {
 
         const updatedParticipation = await this.eventParticipationsRepository.findById(calendarMemberMemberToUpdate.userId);
 
-        if (!updatedParticipation) throw new NotFoundException('Event participation not found');
+        if (!updatedParticipation) throw new NotFoundException('Event participation not found6');
 
         return updatedParticipation;
     }
@@ -324,7 +329,7 @@ export class EventParticipationsService {
         const participation = await this.eventParticipationsRepository.findById(eventParticipationId);
 
         if (!participation) {
-            throw new NotFoundException('Event participation not found');
+            throw new NotFoundException('Event participation not found7');
         }
         const userId = participation.calendarMember.userId;
 
@@ -337,7 +342,7 @@ export class EventParticipationsService {
 
         const updatedParticipation = await this.eventParticipationsRepository.findById(userId);
 
-        if (!updatedParticipation) throw new NotFoundException('Event participation not found');
+        if (!updatedParticipation) throw new NotFoundException('Event participation not found8');
 
         return updatedParticipation;
     }
@@ -426,7 +431,7 @@ export class EventParticipationsService {
 
         const participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(calendarMamberId, eventId);
         if (!participation) {
-            throw new NotFoundException('Event participation not found');
+            throw new NotFoundException('Event participation not found9');
         }
 
         const calendarMembers = await this.calendarMembersService.getUserCalendars(calendarMemberMemberToDelete?.userId);

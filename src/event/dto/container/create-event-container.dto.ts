@@ -1,7 +1,7 @@
 // src/event/dto/create-event-container.dto.ts
 import {ValidateNested} from 'class-validator';
 import {EventType} from '../../entity/event.entity';
-import {CreateEventBaseDto} from '../create-event.dto';
+import {CreateEventBaseDto} from '../create-event-base.dto';
 import {CreateEventTaskDto} from '../create-event-task.dto';
 import {CreateEventArrangementDto} from '../create-event-arrangement.dto';
 import {CreateEventReminderDto} from '../create-event-reminder.dto';
@@ -31,9 +31,9 @@ export class CreateEventContainerDto {
     data: CreateEventBaseDto; // Это может быть один из наследников CreateEventBaseDto
 
     // Метод для преобразования объекта в плоскую структуру
-    @Transform(({ value }) => {
-        // Этот метод не будет вызван напрямую, он здесь для справки
-        return {...value.data, type: value.type};
-    })
-    flattened: any;
+    // @Transform(({ value }) => {
+    //     if (!value || !value.data || !value.type) return undefined;
+    //     return { ...value.data, type: value.type };
+    // })
+    // flattened: any;    
 }

@@ -19,14 +19,17 @@ export class EventBodyInterceptor implements NestInterceptor {
 
         // Для POST запросов (создание)
         if (method === 'POST' && body && body.type) {
+            // console.log("intercept: " , body, " ", body.type)
             const containerData = {
                 type: body.type,
-                data: {...body}
-            };
+                data: body.data ? { ...body.data } : { ...body },
+              };
+            
+              request.body = plainToInstance(CreateEventContainerDto, containerData, {
+                excludeExtraneousValues: false,
+              });
 
-            request.body = plainToInstance(CreateEventContainerDto, containerData, {
-                excludeExtraneousValues: false
-            });
+            // console.log("intercept request.body: ", request.body)
         }
         // Для PATCH запросов (обновление)
         else if (method === 'PATCH' && body) {
@@ -49,6 +52,7 @@ export class EventBodyInterceptor implements NestInterceptor {
             }
         }
 
+        // console.log("intercept 123: ", request.body)
         return next.handle();
     }
 }

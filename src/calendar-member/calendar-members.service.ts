@@ -47,10 +47,14 @@ export class CalendarMembersService {
     }
 
     async getCalendarMember(userId: number, calendarId: number): Promise<CalendarMember> {
+        console.log("userId: ", userId, "  calendarId: ", calendarId)
+        
         const result = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
 
+        console.log("result: ", result)
+
         if (!result) {
-            throw new NotFoundException('User does not have access to this calendar');
+            throw new NotFoundException('User does not have access to this calendar1');
         }
 
         return result;
@@ -118,7 +122,7 @@ export class CalendarMembersService {
         }, 'confirmCalendar');
 
         const link = this.frontUrl + 'calendars/confirm-calendar/' + AddUserToCalendarToken;
-        console.log("confirmCalendarLink: ", link);
+        // console.log("confirmCalendarLink: ", link);
 
         this.emailService.sendCalendarShareEmail(userToAdd.email, calendar.name, link, userInviter.email);
 
@@ -147,7 +151,7 @@ export class CalendarMembersService {
         );
 
         if (!calendarMemberToUpdate) {
-            throw new NotFoundException('User does not have access to this calendar');
+            throw new NotFoundException('User does not have access to this calendar2');
         }
 
         const result = await this.usersCalendarsRepository.updateCalendarMember(
@@ -181,7 +185,7 @@ export class CalendarMembersService {
         );
 
         if (!calendarMemberToRemove) {
-            throw new NotFoundException('User does not have access to this calendar');
+            throw new NotFoundException('User does not have access to this calendar3');
         }
 
         await this.usersCalendarsRepository.deleteCalendarMember(calendarMemberToRemove.id);

@@ -16,6 +16,7 @@ import { SchedulerTasksModule } from './schedulerTasks/tasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import {CalendarsModule} from "./calendar/calendars.module";
 import {APP_INTERCEPTOR} from "@nestjs/core";
+import { EventsModule } from './event/events.module';
 
 @Module({
     imports: [
@@ -47,7 +48,8 @@ import {APP_INTERCEPTOR} from "@nestjs/core";
         RefreshTokenNonceModule,
         CountryModule,
         SchedulerTasksModule,
-        CalendarsModule
+        CalendarsModule,
+        EventsModule
     ],
     controllers: [],
     providers: [

@@ -6,11 +6,11 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
-import {CalendarMembersRepository} from '../../calendar-member/calendar-members.repository';
-import {CalendarRole, CalendarType} from '../../calendar-member/entity/calendar-member.entity'
-import {EventsService} from '../events.service';
-import {EventParticipationsService} from "../../event-participation/event-participations.service";
-import {EventParticipation} from "../../event-participation/entity/event-participation.entity";
+import { CalendarMembersRepository } from '../../calendar-member/calendar-members.repository';
+import { CalendarRole, CalendarType } from '../../calendar-member/entity/calendar-member.entity'
+import { EventsService } from '../events.service';
+import { EventParticipationsService } from "../../event-participation/event-participations.service";
+import { EventParticipation } from "../../event-participation/entity/event-participation.entity";
 
 @Injectable()
 export class EventGuard implements CanActivate { //TODO: AccessCheckerService добавить и guard писать отдельно.
@@ -45,8 +45,8 @@ export class EventGuard implements CanActivate { //TODO: AccessCheckerService д
     }
 
     private async handleGetRequest(request: any, userId: number): Promise<boolean> {
-        if (request.params.id) {
-            const eventId = parseInt(request.params.id, 10);
+        if (request.params.id || request.params.eventId) {
+            const eventId = request.params.id ? parseInt(request.params.id, 10) : parseInt(request.params.eventId, 10);
             if (isNaN(eventId)) {
                 throw new BadRequestException('eventId must be a number');
             }
@@ -69,17 +69,22 @@ export class EventGuard implements CanActivate { //TODO: AccessCheckerService д
     }
 
     private async handlePostRequest(request: any, userId: number): Promise<boolean> {
-        if (!request.body?.data?.calendarId) {
+        // console.log("handlePostRequest ", request.body);
+        if (!request.body?.calendarId) {
             throw new BadRequestException('calendarId is required');
         }
 
-        const calendarId = parseInt(request.body.data.calendarId, 10);
+        const calendarId = parseInt(request.body.calendarId, 10);
         if (isNaN(calendarId)) {
             throw new BadRequestException('calendarId must be a number');
         }
 
         // Проверка прав доступа к календарю
+        // console.log({userId: userId, calendarId: calendarId});
         const calendarMember = await this.calendarMembersRepository.findByUserAndCalendar(userId, calendarId);
+        const userCalendars = await this.calendarMembersRepository.findCalendarUsers(calendarId, true);
+        // console.log(calendarMember);
+        // console.log(userCalendars);
         if (!calendarMember) {
             throw new ForbiddenException('You do not have access to this calendar');
         }
@@ -172,12 +177,17 @@ export class EventGuard implements CanActivate { //TODO: AccessCheckerService д
         const eventParticipations: any = [];
 
         for (const eventCreatorCalendar of eventCreatorCalendarsIds) {
-            const participation: EventParticipation = await this.eventParticipationsService.getEventParticipationByMemberAndEvent(
-                eventCreatorCalendar.id,
-                eventId
-            );
-            if (participation) {
-                eventParticipations.push(participation);
+            try {
+                const participation: EventParticipation = await this.eventParticipationsService.getEventParticipationByMemberAndEvent(
+                    eventCreatorCalendar.id,
+                    eventId
+                );
+                if (participation) {
+                    eventParticipations.push(participation);
+                }
+            }
+            catch (err) {
+                console.log(err);
             }
         }
 

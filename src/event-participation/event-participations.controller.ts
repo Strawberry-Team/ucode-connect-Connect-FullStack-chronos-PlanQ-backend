@@ -72,6 +72,7 @@ export class EventParticipationsController extends BaseCrudController<
     @UseGuards(EventGuard)
     @Post()
     async create(@Body() dto: CreateEventParticipationDto, @Req() req: RequestWithUser): Promise<EventParticipation> {
+        console.log("get access for create new participation")
         return super.create(dto, req);
     }
 

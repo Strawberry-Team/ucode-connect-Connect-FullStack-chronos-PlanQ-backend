@@ -9,6 +9,7 @@ import {IsISO8601Date} from "../../common/validators/date.validator";
 import {Transform} from "class-transformer";
 import {IsLaterThan} from "../../common/validators/date.validator";
 import {IsId} from "../../common/validators/id.validator";
+import { IsNotEmpty, isNotEmpty } from 'class-validator';
 
 export class CreateEventBaseDto {
     @IsCalendarAndEventName(false)
@@ -21,15 +22,21 @@ export class CreateEventBaseDto {
     category: EventCategory;
 
     @IsISO8601Date(false)
-    @Transform(({value}) => new Date(value))
-    startedAt: Date;
+    // @Transform(({value, obj}) => {
+    //     // console.log('Transform context startedAt:', { value, obj });
+    //     return new Date(value);
+    // })
+    startedAt: string;
 
-    @IsLaterThan('startedAt')
     @IsISO8601Date(false)
-    @Transform(({value}) => new Date(value)) //TODO: провериь везде что нет new Date()
-    endedAt: Date;
+    @IsLaterThan('startedAt')
+    // @Transform(({value, obj}) => {
+    //     // console.log('Transform context endedAt:', { value, obj });
+    //     return new Date(value);
+    // })
+    endedAt: string;
 
-    @IsCalendarAndEventDescription(false)
+    @IsCalendarAndEventDescription(false) 
     color: string;
 
     @IsEventType(false)

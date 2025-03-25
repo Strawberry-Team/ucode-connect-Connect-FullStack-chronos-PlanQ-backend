@@ -3,7 +3,7 @@ import { IsEnum, IsOptional, ValidateNested } from 'class-validator';
 import { EventType } from '../../entity/event.entity';
 import { UpdateEventDto } from '../update-event.dto';
 import { UpdateEventTaskDto } from '../update-event-task.dto';
-import {Transform, Type} from 'class-transformer';
+import {Exclude, Transform, Type} from 'class-transformer';
 import {IsEventType} from "../../events.validator";
 
 export class UpdateEventContainerDto {
@@ -25,9 +25,10 @@ export class UpdateEventContainerDto {
     })
     data: UpdateEventDto;
 
-    @Transform(({ value }) => {
-        // Этот метод не будет вызван напрямую, он здесь для справки
-        return {...value.data, type: value.type};
-    })
-    flattened: any;
+    // @Exclude()
+    // @Transform(({ value }) => {
+    //     // Этот метод не будет вызван напрямую, он здесь для справки
+    //     return {...value, type: value.type};
+    // })
+    // flattened: any;
 }

@@ -26,7 +26,7 @@ export class CalendarMemberGuard implements CanActivate {
         const calendarMember = await this.usersCalendarsService.getCalendarMember(userId, calendarId);
 
         if (!calendarMember || !calendarMember.isConfirmed) {
-            throw new NotFoundException('The user does not have access to this calendar');
+            throw new NotFoundException('The user does not have access to this calendar4');
         }
 
         return true;

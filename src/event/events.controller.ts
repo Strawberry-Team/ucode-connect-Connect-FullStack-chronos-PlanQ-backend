@@ -15,9 +15,10 @@ import { EventsService } from './events.service';
 import { RequestWithUser } from '../common/types/request.types';
 import { EventParticipationsService } from '../event-participation/event-participations.service';
 import { CreateEventContainerDto } from './dto/container/create-event-container.dto';
-import {EventBodyInterceptor} from "./interceptors/event-body.interceptor";
-import {UpdateEventContainerDto} from "./dto/container/update-event-container.dto";
-import {EventGuard} from "./guards/event.guard";
+import { EventBodyInterceptor } from "./interceptors/event-body.interceptor";
+import { UpdateEventContainerDto } from "./dto/container/update-event-container.dto";
+import { EventGuard } from "./guards/event.guard";
+import { TestDto } from './dto/testDTO';
 
 @Controller('events')
 export class EventsController extends BaseCrudController<
@@ -37,6 +38,7 @@ export class EventsController extends BaseCrudController<
     }
 
     protected async createEntity(dto: CreateEventContainerDto, req: RequestWithUser): Promise<Event> {
+        // console.log("createEntity dto.data: ", dto.data)
         return await this.eventsService.createEvent(req.user.userId, dto.data);
     }
 
@@ -69,9 +71,13 @@ export class EventsController extends BaseCrudController<
     @UseGuards(EventGuard)
     @Post()
     async create(@Body() dto: CreateEventContainerDto, @Req() req: RequestWithUser): Promise<Event> {
+        // console.log("create dto: ", dto);
+        // console.log("create dto.data: ", dto.data);
+        // console.log("create dto.data.startedAt: ", dto.data?.startedAt);
+        // console.log("create dto.data.endedAt: ", dto.data?.endedAt);
         return await super.create(dto, req);
     }
-
+    
     @UseGuards(EventGuard)
     @UseInterceptors(EventBodyInterceptor)
     @Patch(':id')

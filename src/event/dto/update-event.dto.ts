@@ -19,12 +19,12 @@ export class UpdateEventDto {
     category?: EventCategory;
 
     @IsISO8601Date(true)
-    @Transform(({value}) => new Date(value))
+    // @Transform(({value}) => new Date(value))
     startedAt?: Date;
 
     @IsLaterThan('startedAt')
     @IsISO8601Date(true)
-    @Transform(({value}) => new Date(value)) //TODO: провериь везде что нет new Date()
+    // @Transform(({value}) => new Date(value)) //TODO: провериь везде что нет new Date()
     endedAt?: Date;
 
     @ValidateDatePair()

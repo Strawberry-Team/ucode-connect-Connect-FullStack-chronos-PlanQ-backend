@@ -13,7 +13,10 @@ export function IsLaterThan(property: string, validationOptions?: ValidationOpti
             validator: {
                 validate(value: any, args: ValidationArguments) {
                     const [relatedPropertyName] = args.constraints;
-                    const relatedValue = (args.object as any)[relatedPropertyName];
+                    // console.log("args.object ", args.object);
+                    const relatedValue = (args.object as any)["startedAt"];
+                    // console.log(relatedPropertyName);
+                    // console.log(new Date(value), "  ", new Date(relatedValue));
                     return new Date(value) >= new Date(relatedValue);
                 },
                 defaultMessage(args: ValidationArguments) {

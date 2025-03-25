@@ -22,12 +22,12 @@ export class UsersService {
     ) {
     }
 
-    private async getUserById(id: number): Promise<User> {
+    public async getUserById(id: number): Promise<User> {
         const user = await this.usersRepository.findById(id);
         if (!user) {
             throw new NotFoundException('User not found');
         }
-        return plainToInstance(User, user, {groups: SERIALIZATION_GROUPS.BASIC});
+        return plainToInstance(User, user, {groups: SERIALIZATION_GROUPS.CONFIDENTIAL});
     }
 
     async getUserByIdWithoutPassword(id: number): Promise<User> {

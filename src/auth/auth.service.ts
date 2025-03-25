@@ -42,7 +42,7 @@ export class AuthService {
 
         const result = this.jwtUtils.generateToken({sub: user.id}, 'confirmEmail');
         const link = this.frontUrl + 'auth/confirm-email/' + result;
-        console.log("linkConfirmationEmail: ", link);
+        // console.log("linkConfirmationEmail: ", link);
         this.emailService.sendConfirmationEmail(user.email, link); 
 
         return {user: user};
@@ -132,7 +132,7 @@ export class AuthService {
         
         const link = this.frontUrl + "auth/reset-password/" + passwordResetToken; //localhost:5173/auth/reset-password/passwordResetToken
 
-        console.log("link", link)
+        // console.log("link", link)
 
         this.emailService.sendResetPasswordEmail(user.email, link)
     }

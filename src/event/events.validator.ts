@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {IsEnum, IsISO8601, IsOptional} from 'class-validator';
-import {EventCategory} from "./entity/event.entity";
+import {EventCategory, EventType} from "./entity/event.entity";
 import {TaskPriority} from "../event-task/entity/event-task.entity";
 
 export function IsEventCategory(isOptional: boolean) {
@@ -14,7 +14,7 @@ export function IsEventCategory(isOptional: boolean) {
 }
 
 export function IsEventType(isOptional: boolean) {
-    const decorators = [IsEnum(EventCategory)];
+    const decorators = [IsEnum(EventType)];
 
     if (isOptional) {
         return applyDecorators(IsOptional(), ...decorators);

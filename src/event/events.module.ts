@@ -11,7 +11,6 @@ import { EventTasksModule } from '../event-task/event-tasks.module';
 import { EventParticipationsModule } from '../event-participation/event-participations.module';
 import { EmailModule } from '../email/email.module';
 import {APP_INTERCEPTOR} from "@nestjs/core";
-import {EventBodyInterceptor} from "./interceptors/event-body.interceptor";
 
 @Module({
     imports: [
