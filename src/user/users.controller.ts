@@ -22,6 +22,8 @@ import {RequestWithUser} from "../common/types/request.types";
 import {CalendarMembersService} from "../calendar-member/calendar-members.service";
 import {CalendarMember} from "../calendar-member/entity/calendar-member.entity";
 import {EventsService} from "../event/events.service";
+import {GetUserEventsOffsetQueryDto} from "./dto/user.events.offset.query.dto";
+import {GetUserEventsCursorQueryDto} from "./dto/user.events.cursor.query.dto";
 
 @Controller('users')
 @SerializeOptions({
@@ -131,14 +133,23 @@ export class UsersController extends BaseCrudController<
         return this.usersCalendarsService.getUserCalendars(id);
     }
 
+    @Get(':id/events/offset')
+    @UseGuards(OwnAccountGuard)
+    async getUserEventsOffset(
+        @Param('id') id: number,
+        @Query() query: GetUserEventsOffsetQueryDto
+    ): Promise<{ events: any; total: number; page: number; limit: number; totalPages: number }> {
+        return this.eventsService.getUserEventsOffset(id, query.name, query.page, query.limit);
+    }
+
     @Get(':id/events')
     @UseGuards(OwnAccountGuard)
-    async getUserEvents(@Query('name') name: string, @Param('id') id: number, @Req() req: RequestWithUser): Promise<Event[]> {
-        if (!name || name.length < 3) {
-            throw new BadRequestException('Name parameter must be at least 3 characters long');
-        }
-        // return this.eventsService.getUserEvents(id, name);
-        return [];
+    async getUserEventsCursor(
+        @Param('id') id: number,
+        @Query() query: GetUserEventsCursorQueryDto
+    ): Promise<{ events: any; nextCursor: number | null; hasMore: boolean }> {
+        const afterCursor = query.after === undefined ? null : query.after;
+        return this.eventsService.getUserEventsCursor(id, query.name, afterCursor, query.limit);
     }
 
 }

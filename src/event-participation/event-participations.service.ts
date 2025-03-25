@@ -17,6 +17,7 @@ import { CalendarType } from '../calendar-member/entity/calendar-member.entity';
 import { EmailService } from '../email/email.service';
 import { JwtUtils } from '../jwt/jwt-token.utils';
 import { ConfigService } from '@nestjs/config';
+import {calculatePaginationMetadata} from "../common/utils/offset.pagination.utils";
 
 @Injectable()
 export class EventParticipationsService {
@@ -445,5 +446,77 @@ export class EventParticipationsService {
                 }
             }
         }
+    }
+
+// Private helper method for shared logic
+    private async prepareUserEventConditions(userId: number): Promise<{
+        mainConditions: { calendarMemberIds: number[], responseStatuses: (ResponseStatus | null)[] },
+        sharedConditions: { calendarMemberIds: number[], responseStatuses: (ResponseStatus | null)[] }
+    }> {
+        const calendarMembers = await this.calendarMembersService.getUserCalendars(userId);
+        const mainCalendarMembers = calendarMembers.filter(cm => cm.calendarType === CalendarType.MAIN);
+        const sharedCalendarMembers = calendarMembers.filter(cm => cm.calendarType !== CalendarType.MAIN);
+
+        return {
+            mainConditions: {
+                calendarMemberIds: mainCalendarMembers.map(cm => cm.id),
+                responseStatuses: [null, ResponseStatus.ACCEPTED, ResponseStatus.DECLINED, ResponseStatus.PENDING]
+            },
+            sharedConditions: {
+                calendarMemberIds: sharedCalendarMembers.map(cm => cm.id),
+                responseStatuses: [...Object.values(ResponseStatus), null]
+            }
+        };
+    }
+
+    async getUserEventsOffset(
+        userId: number,
+        name: string,
+        page: number,
+        limit: number
+    ): Promise<{ events: any; total: number; page: number; limit: number; totalPages: number }> {
+        const { mainConditions, sharedConditions } = await this.prepareUserEventConditions(userId);
+
+        const { eventParticipations, total } = await this.eventParticipationsRepository.findEventsByUserAndNameOffset(
+            name || '',
+            page,
+            limit,
+            mainConditions,
+            sharedConditions
+        );
+
+        const events = eventParticipations.map(ep => ({
+            ...ep.event,
+            calendarMemberId: ep.calendarMemberId,
+            calendarId: ep.calendarMember.calendarId
+        }));
+
+        const paginationMetadata = calculatePaginationMetadata(total, limit, page);
+        return { events, ...paginationMetadata };
+    }
+
+    async getUserEventsCursor(
+        userId: number,
+        name: string,
+        after: number | null,
+        limit: number
+    ): Promise<{ events: any; nextCursor: number | null; hasMore: boolean }> {
+        const { mainConditions, sharedConditions } = await this.prepareUserEventConditions(userId);
+
+        const { eventParticipations, nextCursor, hasMore } = await this.eventParticipationsRepository.findEventsByUserAndNameCursor(
+            name || '',
+            after,
+            limit,
+            mainConditions,
+            sharedConditions
+        );
+
+        const events = eventParticipations.map(ep => ({
+            ...ep.event,
+            calendarMemberId: ep.calendarMemberId,
+            calendarId: ep.calendarMember.calendarId
+        }));
+
+        return { events, nextCursor, hasMore };
     }
 }

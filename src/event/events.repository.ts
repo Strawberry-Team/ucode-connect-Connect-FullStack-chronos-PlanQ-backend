@@ -73,6 +73,34 @@ export class EventsRepository {
         });
     }
 
+    // Add to EventParticipationsRepository
+    // async findByCalendarMemberIdWithNameFilter(
+    //     calendarMemberId: number,
+    //     calendarType: CalendarType,
+    //     name: string
+    // ): Promise<EventParticipation[]> {
+    //     const queryBuilder = this.repo.createQueryBuilder('participation')
+    //         .innerJoinAndSelect('participation.event', 'event')
+    //         .innerJoinAndSelect('participation.calendarMember', 'calendarMember')
+    //         .leftJoinAndSelect('event.task', 'task')
+    //         .where('participation.calendarMemberId = :calendarMemberId', { calendarMemberId });
+    //
+    //     // Search for name anywhere in the event name
+    //     if (name && name.trim()) {
+    //         queryBuilder.andWhere('LOWER(event.name) LIKE LOWER(:name)', { name: `%${name}%` });
+    //     }
+    //
+    //     // Filter by status based on calendar type
+    //     if (calendarType === CalendarType.MAIN) {
+    //         queryBuilder.andWhere(
+    //             '(participation.responseStatus IS NULL OR participation.responseStatus IN (:...statuses))',
+    //             { statuses: [ResponseStatus.ACCEPTED, ResponseStatus.DECLINED, ResponseStatus.PENDING] }
+    //         );
+    //     }
+    //
+    //     return queryBuilder.getMany();
+    // }
+
     async createEvent(data: Partial<Event>): Promise<Event> {
         const event = this.repo.create(data);
         return this.repo.save(event);

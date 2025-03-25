@@ -6,20 +6,20 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
-import { EventsRepository } from './events.repository';
-import { Event, EventCategory, EventType } from './entity/event.entity';
-import { CreateEventBaseDto } from './dto/create-event.dto';
-import { CreateEventTaskDto } from './dto/create-event-task.dto';
-import { CreateEventArrangementDto } from './dto/create-event-arrangement.dto';
-import { CreateEventReminderDto } from './dto/create-event-reminder.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
-import { UpdateEventTaskDto } from './dto/update-event-task.dto';
-import { EventTasksService } from '../event-task/event-tasks.service';
-import { EventParticipationsService } from '../event-participation/event-participations.service';
-import { CalendarMembersService } from '../calendar-member/calendar-members.service';
-import { CalendarRole } from '../calendar-member/entity/calendar-member.entity';
-import { ResponseStatus } from '../event-participation/entity/event-participation.entity';
-import { UsersService } from '../user/users.service';
+import {EventsRepository} from './events.repository';
+import {Event, EventCategory, EventType} from './entity/event.entity';
+import {CreateEventBaseDto} from './dto/create-event.dto';
+import {CreateEventTaskDto} from './dto/create-event-task.dto';
+import {CreateEventArrangementDto} from './dto/create-event-arrangement.dto';
+import {CreateEventReminderDto} from './dto/create-event-reminder.dto';
+import {UpdateEventDto} from './dto/update-event.dto';
+import {UpdateEventTaskDto} from './dto/update-event-task.dto';
+import {EventTasksService} from '../event-task/event-tasks.service';
+import {EventParticipationsService} from '../event-participation/event-participations.service';
+import {CalendarMembersService} from '../calendar-member/calendar-members.service';
+import {CalendarRole} from '../calendar-member/entity/calendar-member.entity';
+import {ResponseStatus} from '../event-participation/entity/event-participation.entity';
+import {UsersService} from '../user/users.service';
 
 @Injectable()
 export class EventsService {
@@ -33,7 +33,8 @@ export class EventsService {
         private readonly calendarMembersService: CalendarMembersService,
         @Inject(forwardRef(() => UsersService))
         private readonly usersService: UsersService
-    ) {}
+    ) {
+    }
 
     async getEventByIdWithParticipations(id: number, isResponseStatusNull: boolean): Promise<Event> {
         const event = await this.eventsRepository.findEventWithParticipations(id, isResponseStatusNull);
@@ -229,34 +230,22 @@ export class EventsService {
         return this.eventsRepository.findEventsByType(type, startTime);
     }
 
-    // Добавить в src/event/events.service.ts
-    async getUserEvents(userId: number, name: string): Promise<Event[]> { //TODO: искать юзера ивент по name ивента
-        // // Get all user's calendar memberships
-        // const calendarMembers = await this.calendarMembersService.getUserCalendars(userId);
-        //
-        // // Get events for each calendar membership where user is a participant
-        // const events = [];
-        //
-        // for (const member of calendarMembers) {
-        //     const participations = await this.eventParticipationsService.findByCalendarMemberIdAndResponseStatus(
-        //         member.id,
-        //         [ResponseStatus.ACCEPTED, ResponseStatus.PENDING]
-        //     );
-        //
-        //     for (const participation of participations) {
-        //         if (participation.event.name.toLowerCase().includes(name.toLowerCase())) {
-        //             events.push(participation.event);
-        //         }
-        //     }
-        // }
-        //
-        // // Remove duplicates by event ID
-        // const uniqueEvents = events.filter((event, index, self) =>
-        //     index === self.findIndex(e => e.id === event.id)
-        // );
-        //
-        // return uniqueEvents;
-        return [];
+    async getUserEventsOffset(
+        userId: number,
+        name: string,
+        page: number,
+        limit: number
+    ): Promise<{ events: any; total: number; page: number; limit: number; totalPages: number }> {
+        return await this.eventParticipationsService.getUserEventsOffset(userId, name, page, limit);
+    }
+
+    async getUserEventsCursor(
+        userId: number,
+        name: string,
+        after: number | null,
+        limit: number
+    ): Promise<{ events: any; nextCursor: number | null; hasMore: boolean }> {
+        return await this.eventParticipationsService.getUserEventsCursor(userId, name, after, limit);
     }
 
 }

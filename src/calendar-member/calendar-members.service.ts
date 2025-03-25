@@ -235,14 +235,14 @@ export class CalendarMembersService {
 
         // Get user's main calendar
         const userCalendars = await this.getUserCalendars(userId);
-        const mainCalendar = userCalendars.find(c => c.calendarType === CalendarType.MAIN);
+        const mainCalendarMember = userCalendars.find(c => c.calendarType === CalendarType.MAIN);
 
-        if (!mainCalendar) {
+        if (!mainCalendarMember) {
             throw new NotFoundException('User main calendar not found');
         }
 
         // Check which events the user is already participating in through their main calendar
-        const mainParticipations = await this.eventParticipationsService.getMemberEvents(mainCalendar.id);
+        const mainParticipations = await this.eventParticipationsService.getMemberEvents(mainCalendarMember.id);
 
         // Add events to the shared calendar
         for (const participation of eventsToAdd) {
@@ -274,7 +274,7 @@ export class CalendarMembersService {
                         calendarMemberId: calendarMember.id,
                         eventId: participation.eventId,
                         color: participation.color,
-                        // responseStatus: null
+                        responseStatus: null
                     });
                 }
             }
