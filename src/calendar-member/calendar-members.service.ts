@@ -283,4 +283,7 @@ export class CalendarMembersService {
         return result;
     }
 
+    async getCalendarMenberById(memberId: number) {
+        return this.usersCalendarsRepository.findById(memberId)
+    }
 }

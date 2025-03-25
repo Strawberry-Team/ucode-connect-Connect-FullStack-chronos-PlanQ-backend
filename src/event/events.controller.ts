@@ -72,6 +72,7 @@ export class EventsController extends BaseCrudController<
         return await super.create(dto, req);
     }
 
+    @UseGuards(EventGuard)
     @UseInterceptors(EventBodyInterceptor)
     @Patch(':id')
     async update(
@@ -82,6 +83,7 @@ export class EventsController extends BaseCrudController<
         return await super.update(id, dto, req);
     }
 
+    @UseGuards(EventGuard)
     @Delete(':id')
     async delete(@Param('id') id: number, @Req() req: RequestWithUser): Promise<void> {
         return await super.delete(id, req);

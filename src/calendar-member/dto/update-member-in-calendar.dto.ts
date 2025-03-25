@@ -2,7 +2,7 @@ import {CalendarRole} from '../entity/calendar-member.entity';
 import {IsCalendarAndEventColor} from '../../common/validators/calendars.events.validator';
 import {IsCalendarRole} from "../../calendar/calendars.validator";
 import {IsBooleanField} from 'src/common/validators/is-boolean-field.validator';
-import {ValidateSingleFieldUpdate} from "../calendar-members.validator";
+import {ValidateSingleFieldUpdate} from "../../common/validators/only-one-field.validator";
 
 export class UpdateMemberInCalendarDto {
     @IsCalendarRole(true)

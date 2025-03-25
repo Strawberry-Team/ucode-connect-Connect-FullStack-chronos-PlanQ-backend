@@ -171,22 +171,22 @@ export class EventsService {
         }
 
         // Find the calendar this event belongs to
-        const participations = await this.eventParticipationsService.getEventParticipations(id);
-        if (!participations.length) {
-            throw new NotFoundException('Event participations not found');
-        }
+        // const participations = await this.eventParticipationsService.getEventParticipations(id);//TODO: У нас же event может быть и не в зашереном календаре, нужно найти календарь другим способом
+        // if (!participations.length) {
+        //     throw new NotFoundException('Event participations not found');
+        // }
 
-        const calendarId = participations[0].calendarMember.calendar.id;
+        // const calendarId = participations[0].calendarMember.calendar.id;
 
-        // Check permissions
-        const calendarMember = await this.calendarMembersService.getCalendarMember(userId, calendarId);
-        if (!calendarMember) {
-            throw new NotFoundException('Calendar not found or you do not have access');
-        }
+        // // Check permissions
+        // const calendarMember = await this.calendarMembersService.getCalendarMember(userId, calendarId);
+        // if (!calendarMember) {
+        //     throw new NotFoundException('Calendar not found or you do not have access');
+        // }
 
-        if (calendarMember.role !== CalendarRole.OWNER && calendarMember.role !== CalendarRole.EDITOR) {
-            throw new BadRequestException('You do not have permission to update events in this calendar');
-        }
+        // if (calendarMember.role !== CalendarRole.OWNER && calendarMember.role !== CalendarRole.EDITOR) {
+        //     throw new BadRequestException('You do not have permission to update events in this calendar');
+        // }
 
         // Update the event
         const updateData: Partial<Event> = {};
@@ -222,27 +222,7 @@ export class EventsService {
             throw new NotFoundException('Event not found');
         }
 
-        // Find the calendar this event belongs to
-        const participations = await this.eventParticipationsService.getEventParticipations(id);
-        if (!participations.length) {
-            throw new NotFoundException('Event participations not found');
-        }
-
-        const calendarId = participations[0].calendarMember.calendar.id;
-
-        // Check permissions
-        const calendarMember = await this.calendarMembersService.getCalendarMember(userId, calendarId);
-        if (!calendarMember) {
-            throw new NotFoundException('Calendar not found or you do not have access');
-        }
-
-        // Only owner can delete any event, editor can only delete their own events
-        if (calendarMember.role === CalendarRole.OWNER ||
-            (calendarMember.role === CalendarRole.EDITOR && event.creatorId === userId)) {
-            await this.eventsRepository.deleteEvent(id);
-        } else {
-            throw new BadRequestException('You do not have permission to delete this event');
-        }
+        await this.eventsRepository.deleteEvent(id);
     }
 
     async getEventsByStartTimeAndType(startTime: Date, type: EventType): Promise<Event[]> {

@@ -8,6 +8,7 @@ import {EventParticipationsService} from './event-participations.service';
 import {RequestWithUser} from '../common/types/request.types';
 import {Public} from '../common/decorators/public.decorator';
 import {EventGuard} from "../event/guards/event.guard";
+import { confirmParticipationGuard } from './guards/confirm-participation.guard';
 
 @Controller('events/:eventId/calendar-members')
 export class EventParticipationsController extends BaseCrudController<
@@ -44,19 +45,19 @@ export class EventParticipationsController extends BaseCrudController<
         dto: UpdateEventParticipationDto,
         req: RequestWithUser
     ): Promise<EventParticipation> {
-        const eventId = parseInt(req.params.eventId, 10); //TODO: оно надо?
+        const eventId = parseInt(req.params.eventId, 10); //TODO: оно надо? НАДО
         return await this.eventParticipationsService.updateEventParticipation(
             id,
-            req.user.userId,
+            eventId,
             dto
         );
     }
 
     protected async deleteEntity(id: number, req: RequestWithUser): Promise<void> {
-        const eventId = parseInt(req.params.eventId, 10); //TODO: оно надо?
+        const eventId = parseInt(req.params.eventId, 10);//TODO: оно надо? НАДО
         return await this.eventParticipationsService.deleteEventParticipation(
             id,
-            req.user.userId
+            eventId
         );
     }
 
@@ -92,12 +93,13 @@ export class EventParticipationsController extends BaseCrudController<
 
     // POST /events/{eventId}/calendar-members/{id}/confirm-participation/{confirm-token}
     @Public()
+    @UseGuards(EventGuard)
+    @UseGuards(confirmParticipationGuard)
     // @UseGuards(JwtConfirmEventParticipationGuard)
     @Post(':calendarMemberId/confirm-participation/:confirm_token')
     async confirmEventParticipation(@Req() req: RequestWithUser): Promise<EventParticipation> {
         return await this.eventParticipationsService.confirmEventParticipation(
-            // req.user.eventParticipationId
-            1
+            Number(req.user.eventParticipationId)
         );
     }
 }

@@ -147,7 +147,7 @@ export class EventGuard implements CanActivate { //TODO: AccessCheckerService д
             if (event.creatorId === userId) {
                 return true;
             } else {
-                throw new ForbiddenException('Creators can only delete their own events if you are not in shared calendar');
+                throw new ForbiddenException('Creators can only modify their own events if you are not in shared calendar');
             }
         }
 

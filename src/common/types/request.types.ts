@@ -9,5 +9,6 @@ export interface RequestWithUser extends Request {
         createdAt?: number;
         nonce?: string;
         calendarId?: number;
+        eventParticipationId?: number;
     };
 }

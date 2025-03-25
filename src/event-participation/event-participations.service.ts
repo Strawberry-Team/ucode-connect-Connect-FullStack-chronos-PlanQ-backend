@@ -6,17 +6,17 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
-import {EventParticipationsRepository} from './event-participations.repository';
-import {EventParticipation, ResponseStatus} from './entity/event-participation.entity';
-import {CreateEventParticipationDto} from './dto/create-event-participation.dto';
-import {UpdateEventParticipationDto} from './dto/update-event-participation.dto';
-import {CalendarMembersService} from '../calendar-member/calendar-members.service';
-import {UsersService} from '../user/users.service';
-import {EventsService} from '../event/events.service';
-import {CalendarType} from '../calendar-member/entity/calendar-member.entity';
-import {EmailService} from '../email/email.service';
-import {JwtUtils} from '../jwt/jwt-token.utils';
-import {ConfigService} from '@nestjs/config';
+import { EventParticipationsRepository } from './event-participations.repository';
+import { EventParticipation, ResponseStatus } from './entity/event-participation.entity';
+import { CreateEventParticipationDto } from './dto/create-event-participation.dto';
+import { UpdateEventParticipationDto } from './dto/update-event-participation.dto';
+import { CalendarMembersService } from '../calendar-member/calendar-members.service';
+import { UsersService } from '../user/users.service';
+import { EventsService } from '../event/events.service';
+import { CalendarType } from '../calendar-member/entity/calendar-member.entity';
+import { EmailService } from '../email/email.service';
+import { JwtUtils } from '../jwt/jwt-token.utils';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class EventParticipationsService {
@@ -148,7 +148,7 @@ export class EventParticipationsService {
             }
             await this.eventParticipationsRepository.updateEventParticipation(
                 participation.id,
-                {responseStatus: participation.responseStatus}
+                { responseStatus: participation.responseStatus }
             );
             participationId = participation.id;
         } else if (calendarMember && calendarMember.isConfirmed) {
@@ -195,7 +195,7 @@ export class EventParticipationsService {
             // Update status if already exists
             await this.eventParticipationsRepository.updateEventParticipation(
                 mainParticipation.id,
-                {responseStatus: mainParticipation.responseStatus}
+                { responseStatus: mainParticipation.responseStatus }
             );
         }
 
@@ -283,43 +283,40 @@ export class EventParticipationsService {
         }
     }
 
-    async updateEventParticipation(id: number, userId: number, dto: UpdateEventParticipationDto): Promise<EventParticipation> {
-        const participation = await this.eventParticipationsRepository.findById(id);
+    async updateEventParticipation(calendarMamberId: number, eventId: number, dto: UpdateEventParticipationDto): Promise<EventParticipation> { //calendarMemberId того, кого хотят обовить, userId того, кто хочет обновить
+        const calendarMemberMemberToUpdate= await this.calendarMembersService.getCalendarMenberById(calendarMamberId);
+        if (!calendarMemberMemberToUpdate) {
+            throw new NotFoundException('Calendar member not found');
+        }
 
+        const participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(calendarMamberId, eventId);
         if (!participation) {
             throw new NotFoundException('Event participation not found');
         }
 
-        // Check if the user owns this participation
-        const calendarMember = await this.calendarMembersService.getCalendarMember(
-            userId,
-            participation.calendarMember.calendarId
-        );
-
-        if (!calendarMember || calendarMember.id !== participation.calendarMemberId) {
-            throw new BadRequestException('You do not have permission to update this participation');
-        }
-
         const updateData: Partial<EventParticipation> = {};
 
-        if (dto.color !== undefined) updateData.color = dto.color;
-        if (dto.responseStatus !== undefined) {
-            updateData.responseStatus = dto.responseStatus;
+        if (dto.color !== undefined) {
+            updateData.color = dto.color;
+            await this.eventParticipationsRepository.updateEventParticipation(participation.id, updateData);
+        }
 
-            // If changing response status, also update in other calendars
-            if (dto.responseStatus === ResponseStatus.ACCEPTED || dto.responseStatus === ResponseStatus.DECLINED) {
+        if (dto.responseStatus !== undefined) {
+            if (dto.responseStatus === ResponseStatus.ACCEPTED || dto.responseStatus === ResponseStatus.DECLINED || dto.responseStatus === ResponseStatus.PENDING) {
                 await this.updateResponseStatusInAllCalendars(
-                    userId,
+                    calendarMemberMemberToUpdate.userId,
                     participation.eventId,
                     dto.responseStatus,
-                    participation.calendarMember.calendarType
+                    // participation.calendarMember.id
                 );
             }
         }
 
-        // const updatedParticipation = await this.eventParticipationsRepository.updateEventParticipation(id, updateData);
-        // return updatedParticipation;
-        return participation; //TODO: это неправильно
+        const updatedParticipation = await this.eventParticipationsRepository.findById(calendarMemberMemberToUpdate.userId);
+
+        if (!updatedParticipation) throw new NotFoundException('Event participation not found');
+
+        return updatedParticipation;
     }
 
     async confirmEventParticipation(eventParticipationId: number): Promise<EventParticipation> {
@@ -328,178 +325,124 @@ export class EventParticipationsService {
         if (!participation) {
             throw new NotFoundException('Event participation not found');
         }
-
-        // Update response status to PENDING
-        const updatedParticipation = await this.eventParticipationsRepository.updateEventParticipation(
-            eventParticipationId,
-            {responseStatus: ResponseStatus.PENDING}
-        );
-
-        // Get user's ID and calendar type
         const userId = participation.calendarMember.userId;
-        const calendarType = participation.calendarMember.calendarType;
 
-        // Update status in all related calendars
         await this.updateResponseStatusInAllCalendars(
             userId,
             participation.eventId,
             ResponseStatus.PENDING,
-            calendarType
+            //calendarType
         );
 
-        // return updatedParticipation;
-        return participation; //TODO: это неправильно
+        const updatedParticipation = await this.eventParticipationsRepository.findById(userId);
+
+        if (!updatedParticipation) throw new NotFoundException('Event participation not found');
+
+        return updatedParticipation;
     }
+
+    // private async updateResponseStatusInAllCalendars(
+    //     userId: number,
+    //     eventId: number,
+    //     status: ResponseStatus,
+    //     currentCalendarType: CalendarType
+    // ): Promise<void> {
+    //     // Get all user's calendar memberships
+    //     const calendars = await this.calendarMembersService.getUserCalendars(userId);
+
+    //     if (currentCalendarType === CalendarType.MAIN) {
+    //         // If updating from main calendar, update all other calendars
+    //         for (const calendar of calendars) {
+    //             if (calendar.calendarType !== CalendarType.MAIN) {
+    //                 try {
+    //                     const participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
+    //                         calendar.id,
+    //                         eventId
+    //                     );
+
+    //                     if (participation) {
+    //                         await this.eventParticipationsRepository.updateEventParticipation(
+    //                             participation.id,
+    //                             {responseStatus: status}
+    //                         );
+    //                     }
+    //                 } catch (error) {
+    //                     // Participation doesn't exist in this calendar, that's ok
+    //                 }
+    //             }
+    //         }
+    //     } else {
+    //         // If updating from shared calendar, update main calendar
+    //         const mainCalendar = calendars.find(c => c.calendarType === CalendarType.MAIN);
+
+    //         if (mainCalendar) {
+    //             try {
+    //                 const participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
+    //                     mainCalendar.id,
+    //                     eventId
+    //                 );
+
+    //                 if (participation) {
+    //                     await this.eventParticipationsRepository.updateEventParticipation(
+    //                         participation.id,
+    //                         {responseStatus: status}
+    //                     );
+    //                 }
+    //             } catch (error) {
+    //                 // Participation doesn't exist in main calendar, that's ok
+    //             }
+    //         }
+    //     }
+    // }
 
     private async updateResponseStatusInAllCalendars(
         userId: number,
         eventId: number,
         status: ResponseStatus,
-        currentCalendarType: CalendarType
+        currentCalendar?: number
     ): Promise<void> {
-        // Get all user's calendar memberships
-        const calendars = await this.calendarMembersService.getUserCalendars(userId);
+        const calendarMembers = await this.calendarMembersService.getUserCalendars(userId);
 
-        if (currentCalendarType === CalendarType.MAIN) {
-            // If updating from main calendar, update all other calendars
-            for (const calendar of calendars) {
-                if (calendar.calendarType !== CalendarType.MAIN) {
-                    try {
-                        const participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
-                            calendar.id,
-                            eventId
-                        );
-
-                        if (participation) {
-                            await this.eventParticipationsRepository.updateEventParticipation(
-                                participation.id,
-                                {responseStatus: status}
-                            );
-                        }
-                    } catch (error) {
-                        // Participation doesn't exist in this calendar, that's ok
-                    }
-                }
-            }
-        } else {
-            // If updating from shared calendar, update main calendar
-            const mainCalendar = calendars.find(c => c.calendarType === CalendarType.MAIN);
-
-            if (mainCalendar) {
-                try {
-                    const participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
-                        mainCalendar.id,
-                        eventId
-                    );
-
-                    if (participation) {
-                        await this.eventParticipationsRepository.updateEventParticipation(
-                            participation.id,
-                            {responseStatus: status}
-                        );
-                    }
-                } catch (error) {
-                    // Participation doesn't exist in main calendar, that's ok
-                }
+        for (const calendarMember of calendarMembers) {
+            const result = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(calendarMember.id, eventId); //Main и calendar  /Main
+            if (result && currentCalendar && result.id === currentCalendar) {
+                await this.eventParticipationsRepository.updateEventParticipation(result.id, {
+                    responseStatus: status,
+                });
+            } else if (result) {
+                await this.eventParticipationsRepository.updateEventParticipation(result.id, {
+                    responseStatus: status,
+                });
             }
         }
     }
 
-    async deleteEventParticipation(id: number, userId: number): Promise<void> {
-        const participation = await this.eventParticipationsRepository.findById(id);
+    async deleteEventParticipation(calendarMamberId: number, eventId: number): Promise<void> { //calendar_member_id(calendar_id и user_id) user_id того, кто удаляет
+        const calendarMemberMemberToDelete= await this.calendarMembersService.getCalendarMenberById(calendarMamberId);
+        if (!calendarMemberMemberToDelete) {
+            throw new NotFoundException('Calendar member not found');
+        }
 
+        const participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(calendarMamberId, eventId);
         if (!participation) {
             throw new NotFoundException('Event participation not found');
         }
 
-        // Check if user is deleting their own participation
-        const isSelfRemoval = participation.calendarMember.userId === userId;
+        const calendarMembers = await this.calendarMembersService.getUserCalendars(calendarMemberMemberToDelete?.userId);
 
-        if (isSelfRemoval) {
-            const calendarType = participation.calendarMember.calendarType;
-
-            if (calendarType === CalendarType.MAIN) {
-                // If it's main calendar, just delete the participation
-                await this.eventParticipationsRepository.deleteEventParticipation(id);
-            } else {
-                // If it's shared calendar, set response_status to null
-                await this.eventParticipationsRepository.updateEventParticipation(
-                    id,
-                    {
-                        // responseStatus: null
-                    }
-                );
-            }
-        } else {
-            // Someone else is trying to remove a user, check permissions
-            const eventId = participation.eventId;
-            const event = await this.eventsService.getEventByIdWithParticipations(eventId, false); //TODO: не знаем
-
-            // Only owner, editor or creator can remove others
-            if (event.creatorId === userId) {
-                // Event creator can remove anyone
-                const targetUserId = participation.calendarMember.userId;
-                const calendarType = participation.calendarMember.calendarType;
-
-                if (calendarType === CalendarType.MAIN) {
-                    // For main calendar, find all user's participations in other calendars
-                    const userCalendars = await this.calendarMembersService.getUserCalendars(targetUserId);
-
-                    // If user is in other calendars too, set their response_status to null
-                    for (const calendar of userCalendars) {
-                        if (calendar.calendarType !== CalendarType.MAIN) {
-                            try {
-                                const otherParticipation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
-                                    calendar.id,
-                                    eventId
-                                );
-
-                                if (otherParticipation) {
-                                    await this.eventParticipationsRepository.updateEventParticipation(
-                                        otherParticipation.id,
-                                        {
-                                            // responseStatus: null
-                                        }
-                                    );
-                                }
-                            } catch (error) {
-                                // Participation doesn't exist, that's ok
-                            }
-                        }
-                    }
-
-                    // Now delete the main calendar participation
-                    await this.eventParticipationsRepository.deleteEventParticipation(id);
+        for (const calendarMember of calendarMembers) {
+            const existingParticipation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
+                calendarMember.id,
+                eventId
+            );
+            if (existingParticipation) {
+                if (calendarMember.calendarType === CalendarType.MAIN) {
+                    await this.eventParticipationsRepository.deleteEventParticipation(existingParticipation.id);
                 } else {
-                    // For shared calendar, set response_status to null
-                    await this.eventParticipationsRepository.updateEventParticipation(
-                        id,
-                        {
-                            // responseStatus: null
-                        }
-                    );
-
-                    // Also find and delete the main calendar participation
-                    const userCalendars = await this.calendarMembersService.getUserCalendars(targetUserId);
-                    const mainCalendar = userCalendars.find(c => c.calendarType === CalendarType.MAIN);
-
-                    if (mainCalendar) {
-                        try {
-                            const mainParticipation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
-                                mainCalendar.id,
-                                eventId
-                            );
-
-                            if (mainParticipation) {
-                                await this.eventParticipationsRepository.deleteEventParticipation(mainParticipation.id);
-                            }
-                        } catch (error) {
-                            // Main participation doesn't exist, that's ok
-                        }
-                    }
+                    await this.eventParticipationsRepository.updateEventParticipation(existingParticipation.id, {
+                        responseStatus: null
+                    });
                 }
-            } else {
-                throw new BadRequestException('You do not have permission to remove this participant');
             }
         }
     }
