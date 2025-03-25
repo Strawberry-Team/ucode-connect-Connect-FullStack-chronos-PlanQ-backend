@@ -5,8 +5,8 @@ import {CreateEventBaseDto} from '../create-event-base.dto';
 import {CreateEventTaskDto} from '../create-event-task.dto';
 import {CreateEventArrangementDto} from '../create-event-arrangement.dto';
 import {CreateEventReminderDto} from '../create-event-reminder.dto';
-import {Expose, Transform, Type} from 'class-transformer';
-import {IsEventType} from "../../events.validator"; // Импортируем Type отсюда
+import {Type} from 'class-transformer';
+import {IsEventType} from "../../events.validator";
 
 export class CreateEventContainerDto {
     @IsEventType(false)

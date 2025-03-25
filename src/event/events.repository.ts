@@ -5,7 +5,6 @@ import {Repository, Between} from 'typeorm';
 import {Event, EventType} from './entity/event.entity';
 import {plainToInstance} from "class-transformer";
 import {SERIALIZATION_GROUPS, User} from "../user/entity/user.entity";
-import {ResponseStatus} from "../event-participation/entity/event-participation.entity";
 
 @Injectable()
 export class EventsRepository {
@@ -61,45 +60,17 @@ export class EventsRepository {
         return result;
     }
 
-    async findEventsByType(type: EventType, startDate: Date): Promise<Event[]> {
+    async findEventsByType(type: EventType, startedAtStart: Date, startedAtEnd: Date): Promise<Event[]> {
         return this.repo.find({
             where: {
                 type,
                 startedAt: Between(
-                    startDate,
-                    new Date(startDate.getTime() + 24 * 60 * 60 * 1000) // Next 24 hours
+                    startedAtStart,
+                    startedAtEnd
                 )
             }
         });
     }
-
-    // Add to EventParticipationsRepository
-    // async findByCalendarMemberIdWithNameFilter(
-    //     calendarMemberId: number,
-    //     calendarType: CalendarType,
-    //     name: string
-    // ): Promise<EventParticipation[]> {
-    //     const queryBuilder = this.repo.createQueryBuilder('participation')
-    //         .innerJoinAndSelect('participation.event', 'event')
-    //         .innerJoinAndSelect('participation.calendarMember', 'calendarMember')
-    //         .leftJoinAndSelect('event.task', 'task')
-    //         .where('participation.calendarMemberId = :calendarMemberId', { calendarMemberId });
-    //
-    //     // Search for name anywhere in the event name
-    //     if (name && name.trim()) {
-    //         queryBuilder.andWhere('LOWER(event.name) LIKE LOWER(:name)', { name: `%${name}%` });
-    //     }
-    //
-    //     // Filter by status based on calendar type
-    //     if (calendarType === CalendarType.MAIN) {
-    //         queryBuilder.andWhere(
-    //             '(participation.responseStatus IS NULL OR participation.responseStatus IN (:...statuses))',
-    //             { statuses: [ResponseStatus.ACCEPTED, ResponseStatus.DECLINED, ResponseStatus.PENDING] }
-    //         );
-    //     }
-    //
-    //     return queryBuilder.getMany();
-    // }
 
     async createEvent(data: Partial<Event>): Promise<Event> {
         const event = this.repo.create(data);

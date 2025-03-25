@@ -6,18 +6,17 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
-import { EventParticipationsRepository } from './event-participations.repository';
-import { EventParticipation, ResponseStatus } from './entity/event-participation.entity';
-import { CreateEventParticipationDto } from './dto/create-event-participation.dto';
-import { UpdateEventParticipationDto } from './dto/update-event-participation.dto';
-import { CalendarMembersService } from '../calendar-member/calendar-members.service';
-import { UsersService } from '../user/users.service';
-import { EventsService } from '../event/events.service';
-import { CalendarType } from '../calendar-member/entity/calendar-member.entity';
-import { EmailService } from '../email/email.service';
-import { JwtUtils } from '../jwt/jwt-token.utils';
-import { ConfigService } from '@nestjs/config';
-import {calculatePaginationMetadata} from "../common/utils/offset.pagination.utils";
+import {EventParticipationsRepository} from './event-participations.repository';
+import {EventParticipation, ResponseStatus} from './entity/event-participation.entity';
+import {UpdateEventParticipationDto} from './dto/update-event-participation.dto';
+import {CalendarMembersService} from '../calendar-member/calendar-members.service';
+import {UsersService} from '../user/users.service';
+import {EventsService} from '../event/events.service';
+import {CalendarMember, CalendarType} from '../calendar-member/entity/calendar-member.entity';
+import {EmailService} from '../email/email.service';
+import {JwtUtils} from '../jwt/jwt-token.utils';
+import {ConfigService} from '@nestjs/config';
+import {EventCursor} from "../common/types/cursor.pagination.types";
 
 @Injectable()
 export class EventParticipationsService {
@@ -65,10 +64,6 @@ export class EventParticipationsService {
             throw new NotFoundException('Event participations not found');
         }
         return result;
-    }
-
-    async getMemberEvents(calendarMemberId: number): Promise<EventParticipation[]> {
-        return this.eventParticipationsRepository.findByCalendarMemberId(calendarMemberId);
     }
 
     async createEventParticipation(data: Partial<EventParticipation>): Promise<EventParticipation> {
@@ -143,7 +138,7 @@ export class EventParticipationsService {
         if (participation) {
             // User is already on the event, just update the status
             console.log("participation", participation.responseStatus !== null);
-            console.log("participation",participation.responseStatus !== ResponseStatus.INVITED);
+            console.log("participation", participation.responseStatus !== ResponseStatus.INVITED);
             if (participation.responseStatus !== null && participation.responseStatus !== ResponseStatus.INVITED) {
                 throw new BadRequestException(`User is already a participant of this event, userId = ${participation.calendarMember.userId}`);
             }
@@ -154,7 +149,7 @@ export class EventParticipationsService {
             }
             await this.eventParticipationsRepository.updateEventParticipation(
                 participation.id,
-                { responseStatus: participation.responseStatus }
+                {responseStatus: participation.responseStatus}
             );
             participationId = participation.id;
         } else if (calendarMember && calendarMember.isConfirmed) {
@@ -201,7 +196,7 @@ export class EventParticipationsService {
             // Update status if already exists
             await this.eventParticipationsRepository.updateEventParticipation(
                 mainParticipation.id,
-                { responseStatus: mainParticipation.responseStatus }
+                {responseStatus: mainParticipation.responseStatus}
             );
         }
 
@@ -290,7 +285,7 @@ export class EventParticipationsService {
     }
 
     async updateEventParticipation(calendarMamberId: number, eventId: number, dto: UpdateEventParticipationDto): Promise<EventParticipation> { //calendarMemberId того, кого хотят обовить, userId того, кто хочет обновить
-        const calendarMemberMemberToUpdate= await this.calendarMembersService.getCalendarMenberById(calendarMamberId);
+        const calendarMemberMemberToUpdate = await this.calendarMembersService.getCalendarMenberById(calendarMamberId);
         if (!calendarMemberMemberToUpdate) {
             throw new NotFoundException('Calendar member not found');
         }
@@ -424,7 +419,7 @@ export class EventParticipationsService {
     }
 
     async deleteEventParticipation(calendarMamberId: number, eventId: number): Promise<void> { //calendar_member_id(calendar_id и user_id) user_id того, кто удаляет
-        const calendarMemberMemberToDelete= await this.calendarMembersService.getCalendarMenberById(calendarMamberId);
+        const calendarMemberMemberToDelete = await this.calendarMembersService.getCalendarMenberById(calendarMamberId);
         if (!calendarMemberMemberToDelete) {
             throw new NotFoundException('Calendar member not found');
         }
@@ -453,7 +448,6 @@ export class EventParticipationsService {
         }
     }
 
-// Private helper method for shared logic
     private async prepareUserEventConditions(userId: number): Promise<{
         mainConditions: { calendarMemberIds: number[], responseStatuses: (ResponseStatus | null)[] },
         sharedConditions: { calendarMemberIds: number[], responseStatuses: (ResponseStatus | null)[] }
@@ -480,9 +474,9 @@ export class EventParticipationsService {
         page: number,
         limit: number
     ): Promise<{ events: any; total: number; page: number; limit: number; totalPages: number }> {
-        const { mainConditions, sharedConditions } = await this.prepareUserEventConditions(userId);
+        const {mainConditions, sharedConditions} = await this.prepareUserEventConditions(userId);
 
-        const { eventParticipations, total } = await this.eventParticipationsRepository.findEventsByUserAndNameOffset(
+        const result = await this.eventParticipationsRepository.findEventsByUserAndNameOffset(
             name || '',
             page,
             limit,
@@ -490,25 +484,32 @@ export class EventParticipationsService {
             sharedConditions
         );
 
-        const events = eventParticipations.map(ep => ({
+        const events = result.eventParticipations.map(ep => ({
             ...ep.event,
             calendarMemberId: ep.calendarMemberId,
             calendarId: ep.calendarMember.calendarId
         }));
 
-        const paginationMetadata = calculatePaginationMetadata(total, limit, page);
-        return { events, ...paginationMetadata };
+        return {events, total: result.total, page: result.page, limit: result.limit, totalPages: result.totalPages};
     }
 
     async getUserEventsCursor(
         userId: number,
         name: string,
-        after: number | null,
+        after: EventCursor | null,
         limit: number
-    ): Promise<{ events: any; nextCursor: number | null; hasMore: boolean }> {
-        const { mainConditions, sharedConditions } = await this.prepareUserEventConditions(userId);
+    ): Promise<{
+        events: any;
+        nextCursor: EventCursor | null;
+        hasMore: boolean,
+        total: number,
+        after: EventCursor | null,
+        limit: number,
+        remaining: number
+    }> {
+        const {mainConditions, sharedConditions} = await this.prepareUserEventConditions(userId);
 
-        const { eventParticipations, nextCursor, hasMore } = await this.eventParticipationsRepository.findEventsByUserAndNameCursor(
+        const result = await this.eventParticipationsRepository.findEventsByUserAndNameCursor(
             name || '',
             after,
             limit,
@@ -516,12 +517,36 @@ export class EventParticipationsService {
             sharedConditions
         );
 
-        const events = eventParticipations.map(ep => ({
+        const events = result.eventParticipations.map(ep => ({
             ...ep.event,
             calendarMemberId: ep.calendarMemberId,
             calendarId: ep.calendarMember.calendarId
         }));
 
-        return { events, nextCursor, hasMore };
+        return {
+            events,
+            nextCursor: result.nextCursor,
+            hasMore: result.hasMore,
+            total: result.total,
+            after: result.after,
+            limit: result.limit,
+            remaining: result.remaining
+        };
+    }
+
+    async getMemberEvents(userId: number,
+                          calendarId: number,
+                          startDate?: Date,
+                          endDate?: Date
+    ): Promise<EventParticipation[]> {
+        const calendarMember: CalendarMember = await this.calendarMembersService.getCalendarMember(userId, calendarId);
+        let responseStatuses;
+        if (calendarMember.calendarType === CalendarType.MAIN) {
+            responseStatuses = [null, ResponseStatus.ACCEPTED, ResponseStatus.DECLINED, ResponseStatus.PENDING]
+        } else {
+            responseStatuses = [...Object.values(ResponseStatus), null]
+        }
+
+        return this.eventParticipationsRepository.findByCalendarMemberIdAndResponseStatus(calendarMember.id, responseStatuses, startDate, endDate);
     }
 }

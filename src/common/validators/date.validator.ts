@@ -1,5 +1,12 @@
 // src/common/validators/date.validator.ts
-import {registerDecorator, ValidationOptions, ValidationArguments, IsISO8601, IsOptional} from 'class-validator';
+import {
+    registerDecorator,
+    ValidationOptions,
+    ValidationArguments,
+    IsISO8601,
+    IsOptional,
+    ValidateIf
+} from 'class-validator';
 import {applyDecorators} from "@nestjs/common";
 
 export function IsLaterThan(property: string, validationOptions?: ValidationOptions) {
@@ -28,10 +35,16 @@ export function IsLaterThan(property: string, validationOptions?: ValidationOpti
     };
 }
 
-export function IsISO8601Date(isOptional: boolean) {
+export function IsISO8601Date(isOptional: boolean, allowNull: boolean = false) {
     const decorators = [IsISO8601({strict: true})];
 
-    if (isOptional) {
+    if (allowNull) {
+        return applyDecorators(
+            ValidateIf(value => value !== null),
+            ...decorators,
+            IsOptional()
+        );
+    } else if (isOptional) {
         return applyDecorators(IsOptional(), ...decorators);
     } else {
         return applyDecorators(...decorators);

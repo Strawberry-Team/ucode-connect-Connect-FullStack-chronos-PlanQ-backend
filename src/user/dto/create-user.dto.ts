@@ -14,6 +14,6 @@ export class CreateUserDto {
     @IsUserPassword(false)
     password: string;
 
-    @IsValidCountryCode({ message: 'Invalid country code, must be cca2' }, true)
+    @IsValidCountryCode({message: 'Invalid country code, must be cca2'}, true)
     countryCode: string;
 }

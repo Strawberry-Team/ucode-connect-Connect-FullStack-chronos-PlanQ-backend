@@ -8,7 +8,7 @@ import {UsersModule} from '../user/users.module';
 import {CalendarsModule} from '../calendar/calendars.module';
 import {UpdateCalendarMemberGuard} from "./guards/update.calendar-member.guard";
 import {OwnCalendarMemberGuard} from "./guards/own.calendar-member.guard";
-import { EmailModule } from 'src/email/email.module';
+import {EmailModule} from 'src/email/email.module';
 import {EventParticipationsService} from "../event-participation/event-participations.service";
 import {EventParticipationsModule} from "../event-participation/event-participations.module";
 import {EventsService} from "../event/events.service";

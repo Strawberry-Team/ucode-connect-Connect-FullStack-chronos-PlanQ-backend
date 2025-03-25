@@ -48,7 +48,7 @@ export class CalendarMembersService {
 
     async getCalendarMember(userId: number, calendarId: number): Promise<CalendarMember> {
         console.log("userId: ", userId, "  calendarId: ", calendarId)
-        
+
         const result = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
 
         console.log("result: ", result)
@@ -191,7 +191,6 @@ export class CalendarMembersService {
         await this.usersCalendarsRepository.deleteCalendarMember(calendarMemberToRemove.id);
     }
 
-    // Добавить в src/calendar-member/calendar-members.service.ts
     async confirmCalendar(
         userId: number,
         calendarId: number,
@@ -232,7 +231,7 @@ export class CalendarMembersService {
         }
 
         // Get all events from the creator's calendar (except tasks)
-        const creatorParticipations = await this.eventParticipationsService.getMemberEvents(creatorCalendarMember.id);
+        const creatorParticipations = await this.eventParticipationsService.getMemberEvents(creatorCalendarMember.userId, calendarMember.calendarId);
         const eventsToAdd = creatorParticipations.filter(p =>
             p.event.type === EventType.REMINDER || p.event.type === EventType.ARRANGEMENT
         );
@@ -246,7 +245,7 @@ export class CalendarMembersService {
         }
 
         // Check which events the user is already participating in through their main calendar
-        const mainParticipations = await this.eventParticipationsService.getMemberEvents(mainCalendarMember.id);
+        const mainParticipations = await this.eventParticipationsService.getMemberEvents(mainCalendarMember.userId, mainCalendarMember.calendarId);
 
         // Add events to the shared calendar
         for (const participation of eventsToAdd) {

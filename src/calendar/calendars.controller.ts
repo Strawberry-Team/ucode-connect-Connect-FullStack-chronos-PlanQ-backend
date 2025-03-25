@@ -16,7 +16,7 @@ import {CalendarsService} from './calendars.service';
 import {RequestWithUser} from "../common/types/request.types";
 import {CalendarOwnerGuard, OnlyCreator} from "./guards/own.calendar.guard";
 import {CalendarMemberGuard} from "../calendar-member/guards/calendar.member.guard";
-import { CalendarMainGuard } from './guards/main.calendar.guard';
+import {CalendarMainGuard} from './guards/main.calendar.guard';
 
 @Controller('calendars')
 export class CalendarsController extends BaseCrudController<
@@ -49,7 +49,8 @@ export class CalendarsController extends BaseCrudController<
     }
 
     @Get('holidays')
-    async getCountryHolidays(@Req() req: RequestWithUser): Promise<any> {;
+    async getCountryHolidays(@Req() req: RequestWithUser): Promise<any> {
+        ;
         //TODO: added another language support(apart from English)
         return await this.calendarsService.getCountryHolidays(req.user.userId);
     }
@@ -64,7 +65,7 @@ export class CalendarsController extends BaseCrudController<
     async create(@Body() dto: CreateCalendarDto, @Req() req: RequestWithUser): Promise<Calendar> {
         return await super.create(dto, req);
     }
-    
+
 
     @UseGuards(CalendarOwnerGuard)
     @UseGuards(CalendarMainGuard)

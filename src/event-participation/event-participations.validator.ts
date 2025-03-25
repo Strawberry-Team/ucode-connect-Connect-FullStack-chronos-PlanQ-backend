@@ -1,5 +1,5 @@
-import { IsEnum, IsOptional } from "class-validator";
-import { ResponseStatus } from "./entity/event-participation.entity";
+import {IsEnum, IsOptional} from "class-validator";
+import {ResponseStatus} from "./entity/event-participation.entity";
 import {applyDecorators} from "@nestjs/common";
 
 export function IsEventParticipationResponseStatus(isOptional: boolean) {

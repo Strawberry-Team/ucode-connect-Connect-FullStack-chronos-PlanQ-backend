@@ -1,13 +1,14 @@
 // src/event-task/event-tasks.service.ts
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { EventTasksRepository } from './event-tasks.repository';
-import { EventTask } from './entity/event-task.entity';
+import {Injectable} from '@nestjs/common';
+import {EventTasksRepository} from './event-tasks.repository';
+import {EventTask} from './entity/event-task.entity';
 
 @Injectable()
 export class EventTasksService {
     constructor(
         private readonly eventTasksRepository: EventTasksRepository
-    ) {}
+    ) {
+    }
 
     async getEventTask(eventId: number): Promise<EventTask | null> {
         return this.eventTasksRepository.findById(eventId);

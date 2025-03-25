@@ -6,7 +6,7 @@ import {
     NotFoundException,
     BadRequestException,
 } from '@nestjs/common';
-import { CalendarsService } from '../calendars.service';
+import {CalendarsService} from '../calendars.service';
 import {CalendarMembersRepository} from "../../calendar-member/calendar-members.repository";
 import {Reflector} from "@nestjs/core";
 import {CalendarType} from "../../calendar-member/entity/calendar-member.entity";
@@ -17,15 +17,16 @@ export class CalendarMainGuard implements CanActivate {
         private readonly calendarsService: CalendarsService,
         private readonly usersCalendarsRepository: CalendarMembersRepository,
         private readonly reflector: Reflector
-    ) {}
+    ) {
+    }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         const user = request.user;
-        const calendarId: number = parseInt(request.params.calendarId, 10) || parseInt(request.params.id, 10) ;
+        const calendarId: number = parseInt(request.params.calendarId, 10) || parseInt(request.params.id, 10);
         const userId = user?.userId;
 
-        if (!user){
+        if (!user) {
             throw new BadRequestException('User not found');
         }
 

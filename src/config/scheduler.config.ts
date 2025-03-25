@@ -1,5 +1,4 @@
 import {Injectable} from '@nestjs/common';
-import {ConfigService} from '@nestjs/config';
 import {CronExpression} from '@nestjs/schedule';
 import * as dotenv from 'dotenv';
 import {validateEnv} from '../common/utils/env.utils';

@@ -1,19 +1,20 @@
 // src/event-task/event-tasks.repository.ts
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { EventTask } from './entity/event-task.entity';
+import {Injectable} from '@nestjs/common';
+import {InjectRepository} from '@nestjs/typeorm';
+import {Repository} from 'typeorm';
+import {EventTask} from './entity/event-task.entity';
 
 @Injectable()
 export class EventTasksRepository {
     constructor(
         @InjectRepository(EventTask)
         private readonly repo: Repository<EventTask>,
-    ) {}
+    ) {
+    }
 
     async findById(eventId: number): Promise<EventTask | null> {
         return this.repo.findOne({
-            where: { eventId },
+            where: {eventId},
             relations: ['event']
         });
     }

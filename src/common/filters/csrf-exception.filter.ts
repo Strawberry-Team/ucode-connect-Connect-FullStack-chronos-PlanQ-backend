@@ -1,7 +1,6 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus } from '@nestjs/common';
-import { Request, Response } from 'express';
+import {ExceptionFilter, Catch, ArgumentsHost, HttpStatus} from '@nestjs/common';
+import {Request, Response} from 'express';
 
-// Создаем класс для CSRF ошибки
 export class CsrfError extends Error {
     code: string;
 

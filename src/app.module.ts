@@ -1,22 +1,20 @@
-import {ClassSerializerInterceptor, Module} from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from './user/users.module';
-import { AuthModule } from './auth/auth.module'
+import {Module} from '@nestjs/common';
+import {ConfigModule, ConfigService} from '@nestjs/config';
+import {TypeOrmModule} from '@nestjs/typeorm';
+import {UsersModule} from './user/users.module';
+import {AuthModule} from './auth/auth.module'
 import databaseConfig from './config/database.app.config';
 import jwtConfig from './config/jwt.config';
 import appConfig from "./config/app.config";
-import { RefreshTokenNonceModule } from './refresh-token-nonce/refresh-token-nonce.module';
-import { JwtConfigModule } from './jwt/jwt.module';
-import { CountryModule } from './country/country.module';
+import {RefreshTokenNonceModule} from './refresh-token-nonce/refresh-token-nonce.module';
+import {JwtConfigModule} from './jwt/jwt.module';
+import {CountryModule} from './country/country.module';
 import apiConfig from "./config/country.api.config";
 import calendarConfig from "./config/calendar.config";
-
-import { SchedulerTasksModule } from './schedulerTasks/tasks.module';
-import { ScheduleModule } from '@nestjs/schedule';
+import {SchedulerTasksModule} from './schedulerTasks/tasks.module';
+import {ScheduleModule} from '@nestjs/schedule';
 import {CalendarsModule} from "./calendar/calendars.module";
-import {APP_INTERCEPTOR} from "@nestjs/core";
-import { EventsModule } from './event/events.module';
+import {EventsModule} from './event/events.module';
 
 @Module({
     imports: [
@@ -52,12 +50,7 @@ import { EventsModule } from './event/events.module';
         EventsModule
     ],
     controllers: [],
-    providers: [
-        // {
-        //     provide: APP_INTERCEPTOR,
-        //     useClass: ClassSerializerInterceptor
-        // }
-    ],
+    providers: [],
 })
 export class AppModule {
 }

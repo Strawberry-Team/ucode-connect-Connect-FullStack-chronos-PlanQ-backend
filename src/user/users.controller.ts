@@ -1,7 +1,5 @@
 import {
     Controller,
-    UsePipes,
-    ValidationPipe,
     UseInterceptors,
     UploadedFile,
     BadRequestException, Post,
@@ -24,6 +22,7 @@ import {CalendarMember} from "../calendar-member/entity/calendar-member.entity";
 import {EventsService} from "../event/events.service";
 import {GetUserEventsOffsetQueryDto} from "./dto/user.events.offset.query.dto";
 import {GetUserEventsCursorQueryDto} from "./dto/user.events.cursor.query.dto";
+import {EventCursor} from "../common/types/cursor.pagination.types";
 
 @Controller('users')
 @SerializeOptions({
@@ -54,26 +53,6 @@ export class UsersController extends BaseCrudController<
         dto: UpdateUserDto,
         req: RequestWithUser
     ): Promise<User> {
-        // const dtoKeys = Object.keys(dto); //TODO: проверить
-        // const hasPasswordFields = dto.oldPassword !== undefined || dto.newPassword !== undefined;
-        // const nonPasswordFields = dtoKeys.filter(key => key !== 'oldPassword' && key !== 'newPassword');
-        //
-        // if (hasPasswordFields) {
-        //     if (!dto.oldPassword || !dto.newPassword) {
-        //         throw new BadRequestException(
-        //             'Both old and new passwords are required to update password',
-        //         );
-        //     }
-        //
-        //     if (nonPasswordFields.length > 0) {
-        //         throw new BadRequestException(
-        //             'Password update must be performed separately from other field updates',
-        //         );
-        //     }
-        // } else if (dtoKeys.length === 0) {
-        //     throw new BadRequestException('At least one field must be provided for update');
-        // }
-
         return await this.usersService.updateUser(id, dto);
     }
 
@@ -147,8 +126,16 @@ export class UsersController extends BaseCrudController<
     async getUserEventsCursor(
         @Param('id') id: number,
         @Query() query: GetUserEventsCursorQueryDto
-    ): Promise<{ events: any; nextCursor: number | null; hasMore: boolean }> {
-        const afterCursor = query.after === undefined ? null : query.after;
+    ): Promise<{
+        events: any;
+        nextCursor: EventCursor | null;
+        hasMore: boolean,
+        total: number,
+        after: EventCursor | null,
+        limit: number,
+        remaining: number
+    }> {
+        const afterCursor = query.after === undefined ? null : (query.after as EventCursor);
         return this.eventsService.getUserEventsCursor(id, query.name, afterCursor, query.limit);
     }
 

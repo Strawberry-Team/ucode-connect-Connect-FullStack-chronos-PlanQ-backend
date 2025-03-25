@@ -1,25 +1,23 @@
 // src/event/events.service.ts //TODO: добавить везде название файла вот так.
 import {
-    BadRequestException,
     forwardRef,
     Inject,
     Injectable,
     NotFoundException
 } from '@nestjs/common';
 import {EventsRepository} from './events.repository';
-import {Event, EventCategory, EventType} from './entity/event.entity';
+import {Event, EventType} from './entity/event.entity';
 import {CreateEventBaseDto} from './dto/create-event-base.dto';
 import {CreateEventTaskDto} from './dto/create-event-task.dto';
 import {CreateEventArrangementDto} from './dto/create-event-arrangement.dto';
-import {CreateEventReminderDto} from './dto/create-event-reminder.dto';
 import {UpdateEventDto} from './dto/update-event.dto';
 import {UpdateEventTaskDto} from './dto/update-event-task.dto';
 import {EventTasksService} from '../event-task/event-tasks.service';
 import {EventParticipationsService} from '../event-participation/event-participations.service';
 import {CalendarMembersService} from '../calendar-member/calendar-members.service';
-import {CalendarRole} from '../calendar-member/entity/calendar-member.entity';
 import {ResponseStatus} from '../event-participation/entity/event-participation.entity';
 import {UsersService} from '../user/users.service';
+import {EventCursor} from "../common/types/cursor.pagination.types";
 
 @Injectable()
 export class EventsService {
@@ -171,25 +169,6 @@ export class EventsService {
             throw new NotFoundException('Event not found');
         }
 
-        // Find the calendar this event belongs to
-        // const participations = await this.eventParticipationsService.getEventParticipations(id);//TODO: У нас же event может быть и не в зашереном календаре, нужно найти календарь другим способом
-        // if (!participations.length) {
-        //     throw new NotFoundException('Event participations not found');
-        // }
-
-        // const calendarId = participations[0].calendarMember.calendar.id;
-
-        // // Check permissions
-        // const calendarMember = await this.calendarMembersService.getCalendarMember(userId, calendarId);
-        // if (!calendarMember) {
-        //     throw new NotFoundException('Calendar not found or you do not have access');
-        // }
-
-        // if (calendarMember.role !== CalendarRole.OWNER && calendarMember.role !== CalendarRole.EDITOR) {
-        //     throw new BadRequestException('You do not have permission to update events in this calendar');
-        // }
-
-        // Update the event
         const updateData: Partial<Event> = {};
 
         if (dto.name !== undefined) updateData.name = dto.name;
@@ -200,7 +179,6 @@ export class EventsService {
 
         const updatedEvent = await this.eventsRepository.updateEvent(id, updateData);
 
-        // If it's a task, update task-specific properties
         if (event.type === EventType.TASK) {
             const taskDto = dto as UpdateEventTaskDto;
             const taskUpdateData: any = {};
@@ -226,8 +204,8 @@ export class EventsService {
         await this.eventsRepository.deleteEvent(id);
     }
 
-    async getEventsByStartTimeAndType(startTime: Date, type: EventType): Promise<Event[]> {
-        return this.eventsRepository.findEventsByType(type, startTime);
+    async getEventsByStartTimeAndType(type: EventType, startedAtStartTime: Date, startedAtEndTime: Date): Promise<Event[]> {
+        return this.eventsRepository.findEventsByType(type, startedAtStartTime, startedAtEndTime);
     }
 
     async getUserEventsOffset(
@@ -242,9 +220,17 @@ export class EventsService {
     async getUserEventsCursor(
         userId: number,
         name: string,
-        after: number | null,
+        after: EventCursor | null,
         limit: number
-    ): Promise<{ events: any; nextCursor: number | null; hasMore: boolean }> {
+    ): Promise<{
+        events: any;
+        nextCursor: EventCursor | null;
+        hasMore: boolean,
+        total: number,
+        after: EventCursor | null,
+        limit: number,
+        remaining: number
+    }> {
         return await this.eventParticipationsService.getUserEventsCursor(userId, name, after, limit);
     }
 

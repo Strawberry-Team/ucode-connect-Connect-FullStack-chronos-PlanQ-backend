@@ -1,4 +1,8 @@
-import {IsCalendarAndEventColor, IsCalendarAndEventDescription, IsCalendarAndEventName} from '../../common/validators/calendars.events.validator';
+import {
+    IsCalendarAndEventColor,
+    IsCalendarAndEventDescription,
+    IsCalendarAndEventName
+} from '../../common/validators/calendars.events.validator';
 
 export class CreateCalendarDto {
     @IsCalendarAndEventName(false)

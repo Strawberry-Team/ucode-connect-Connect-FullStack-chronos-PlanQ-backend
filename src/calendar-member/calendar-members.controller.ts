@@ -1,17 +1,4 @@
-import {
-    Controller,
-    Post,
-    Patch,
-    Delete,
-    Param,
-    Body,
-    Req,
-    UseGuards,
-    UsePipes,
-    ValidationPipe,
-    Get,
-    BadRequestException
-} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards} from '@nestjs/common';
 import {CalendarMembersService} from './calendar-members.service';
 import {AddMemberToCalendarDto} from './dto/add-member-to-calendar.dto';
 import {UpdateMemberInCalendarDto} from './dto/update-member-in-calendar.dto';
@@ -26,6 +13,7 @@ import {Public} from '../common/decorators/public.decorator';
 import {CalendarMemberRemovalGuard} from "./guards/calendar.member.removal.guard";
 import {EventParticipation} from "../event-participation/entity/event-participation.entity";
 import {EventParticipationsService} from "../event-participation/event-participations.service";
+import {GetMemberEventsDto} from "./dto/get-member-events.dto";
 
 @Controller('calendars/:calendarId/members') //TODO: REST API оформлено немного неправильно. Надо /calendar-members
 export class CalendarMembersController extends BaseCrudController<
@@ -36,8 +24,7 @@ export class CalendarMembersController extends BaseCrudController<
     constructor(
         private readonly usersCalendarsService: CalendarMembersService,
         private readonly eventParticipationsService: EventParticipationsService,
-        private readonly calendarMembersSevice: CalendarMembersService
-        ) {
+    ) {
         super();
     }
 
@@ -56,14 +43,6 @@ export class CalendarMembersController extends BaseCrudController<
         dto: UpdateMemberInCalendarDto,
         req: RequestWithUser
     ): Promise<CalendarMember> {
-        // const dtoEntries = Object.entries(dto).filter(([_, value]) => value !== undefined);
-        //
-        // if (dtoEntries.length > 1) {
-        //     throw new BadRequestException('You can update either role, color or isVisible, but not both at the same time');
-        // } else if (dtoEntries.length < 1) {
-        //     throw new BadRequestException('Either role, color or isVisible must be provided');
-        // }
-
         const calendarId = parseInt(req.params.calendarId, 10);
         return await this.usersCalendarsService.updateUserInCalendar(
             calendarId,
@@ -99,7 +78,6 @@ export class CalendarMembersController extends BaseCrudController<
         return super.create(dto, req);
     }
 
-
     @UseGuards(UpdateCalendarMemberGuard)
     @Patch(':id')
     async update(
@@ -110,7 +88,6 @@ export class CalendarMembersController extends BaseCrudController<
         return super.update(id, dto, req);
     }
 
-    //TODO: дать возможность человеку себя удалить с календаря, если он не владелец календрая.
     @UseGuards(CalendarMemberRemovalGuard)
     @OnlyCreator(true)
     @Delete(':id')
@@ -125,22 +102,16 @@ export class CalendarMembersController extends BaseCrudController<
         return this.usersCalendarsService.confirmCalendar(req.user.userId, Number(req.user.calendarId));
     }
 
-    // GET /members/{id}/events
     @Get(':userId/events')
-    async getMemberEvents( //TODO: По датам надо фильтровать все ивенты.
+    async getMemberEvents(
         @Param('userId') id: number,
-        @Req() req: RequestWithUser
+        @Req() req: RequestWithUser,
+        @Query() dateFilterDto: GetMemberEventsDto
     ): Promise<EventParticipation[]> {
         const calendarId = parseInt(req.params.calendarId, 10);
+        const startDate = dateFilterDto.startDate ? new Date(dateFilterDto.startDate) : undefined;
+        const endDate = dateFilterDto.endDate ? new Date(dateFilterDto.endDate) : undefined;
 
-        const calendarMember: CalendarMember = await this.calendarMembersSevice.getCalendarMember(id, calendarId);
-        const participations = await this.eventParticipationsService.getMemberEvents(calendarMember.id);
-
-        // Check first participation to verify ownership
-        if (participations.length > 0 && participations[0].calendarMember.userId !== req.user.userId) {
-            throw new BadRequestException('You do not have permission to access these events');
-        }
-
-        return participations;
+        return await this.eventParticipationsService.getMemberEvents(id, calendarId, startDate, endDate);
     }
 }

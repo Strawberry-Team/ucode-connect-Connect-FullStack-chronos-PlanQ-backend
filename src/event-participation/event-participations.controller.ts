@@ -8,7 +8,7 @@ import {EventParticipationsService} from './event-participations.service';
 import {RequestWithUser} from '../common/types/request.types';
 import {Public} from '../common/decorators/public.decorator';
 import {EventGuard} from "../event/guards/event.guard";
-import { confirmParticipationGuard } from './guards/confirm-participation.guard';
+import {confirmParticipationGuard} from './guards/confirm-participation.guard';
 
 @Controller('events/:eventId/calendar-members')
 export class EventParticipationsController extends BaseCrudController<
@@ -61,14 +61,12 @@ export class EventParticipationsController extends BaseCrudController<
         );
     }
 
-    // GET /events/{eventId}/calendar-members/{id}
     @UseGuards(EventGuard)
     @Get(':calendarMemberId')
     async getById(@Param('calendarMemberId') id: number, @Req() req: RequestWithUser): Promise<EventParticipation> {
         return super.getById(id, req);
     }
 
-    // POST /events/{eventId}/calendar-members
     @UseGuards(EventGuard)
     @Post()
     async create(@Body() dto: CreateEventParticipationDto, @Req() req: RequestWithUser): Promise<EventParticipation> {
@@ -76,7 +74,6 @@ export class EventParticipationsController extends BaseCrudController<
         return super.create(dto, req);
     }
 
-    // PATCH /events/{eventId}/calendar-members/{id}
     @Patch(':calendarMemberId')
     async update(
         @Param('calendarMemberId') id: number,
@@ -86,13 +83,11 @@ export class EventParticipationsController extends BaseCrudController<
         return super.update(id, dto, req);
     }
 
-    // DELETE /events/{eventId}/calendar-members/{id}
     @Delete(':calendarMemberId')
     async delete(@Param('calendarMemberId') id: number, @Req() req: RequestWithUser): Promise<void> {
         return super.delete(id, req);
     }
 
-    // POST /events/{eventId}/calendar-members/{id}/confirm-participation/{confirm-token}
     @Public()
     @UseGuards(EventGuard)
     @UseGuards(confirmParticipationGuard)

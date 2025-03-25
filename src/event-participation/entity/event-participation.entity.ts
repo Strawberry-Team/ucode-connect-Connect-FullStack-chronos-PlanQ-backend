@@ -9,8 +9,8 @@ import {
     JoinColumn,
     Unique,
 } from 'typeorm';
-import { CalendarMember } from '../../calendar-member/entity/calendar-member.entity';
-import { Event } from '../../event/entity/event.entity';
+import {CalendarMember} from '../../calendar-member/entity/calendar-member.entity';
+import {Event} from '../../event/entity/event.entity';
 
 export enum ResponseStatus {
     INVITED = 'invited',
@@ -25,13 +25,13 @@ export class EventParticipation {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ name: 'calendar_member_id' })
+    @Column({name: 'calendar_member_id'})
     calendarMemberId: number;
 
-    @Column({ name: 'event_id' })
+    @Column({name: 'event_id'})
     eventId: number;
 
-    @Column({ type: 'char', length: 7 })
+    @Column({type: 'char', length: 7})
     color: string;
 
     @Column({
@@ -42,17 +42,17 @@ export class EventParticipation {
     })
     responseStatus?: ResponseStatus | null;
 
-    @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+    @CreateDateColumn({name: 'created_at', type: 'timestamp'})
     createdAt: Date;
 
-    @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+    @UpdateDateColumn({name: 'updated_at', type: 'timestamp'})
     updatedAt: Date;
 
-    @ManyToOne(() => CalendarMember, (calendarMember) => calendarMember.eventParticipations, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'calendar_member_id' })
+    @ManyToOne(() => CalendarMember, (calendarMember) => calendarMember.eventParticipations, {onDelete: 'CASCADE'})
+    @JoinColumn({name: 'calendar_member_id'})
     calendarMember: CalendarMember;
 
-    @ManyToOne(() => Event, (event) => event.participations, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'event_id' })
+    @ManyToOne(() => Event, (event) => event.participations, {onDelete: 'CASCADE'})
+    @JoinColumn({name: 'event_id'})
     event: Event;
 }

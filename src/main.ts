@@ -11,10 +11,6 @@ import {CsrfError} from './common/filters/csrf-exception.filter';
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-    // app.useGlobalPipes(
-    //     new ValidationPipe({whitelist: true, transform: true}),
-    // );
-
     app.use(cookieParser());
 
     const configService = app.get(ConfigService);

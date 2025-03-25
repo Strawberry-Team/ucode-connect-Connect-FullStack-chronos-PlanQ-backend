@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsEnum, IsISO8601, IsOptional} from 'class-validator';
+import {IsEnum, IsOptional} from 'class-validator';
 import {EventCategory, EventType} from "./entity/event.entity";
 import {TaskPriority} from "../event-task/entity/event-task.entity";
 
@@ -33,7 +33,7 @@ export function IsEventTaskPriority(isOptional: boolean) {
     }
 }
 
-import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
+import {registerDecorator, ValidationOptions, ValidationArguments} from 'class-validator';
 
 export function ValidateDatePair(validationOptions?: ValidationOptions) {
     return function (object: Object, propertyName: string) {
@@ -44,13 +44,11 @@ export function ValidateDatePair(validationOptions?: ValidationOptions) {
             options: validationOptions,
             validator: {
                 validate(value: any, args: ValidationArguments) {
-                    // If the value is not an object, we can't validate further
                     if (!value || typeof value !== 'object') return true;
 
                     const hasStartDate = value.startedAt !== undefined;
                     const hasEndDate = value.endedAt !== undefined;
 
-                    // If one is defined, both must be defined
                     if (hasStartDate !== hasEndDate) {
                         return false;
                     }

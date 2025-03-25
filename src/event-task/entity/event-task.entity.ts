@@ -8,8 +8,8 @@ import {
     OneToOne,
     JoinColumn,
 } from 'typeorm';
-import { Event } from '../../event/entity/event.entity';
-import { BooleanTransformer } from '../../common/transformers/BooleanTransformer';
+import {Event} from '../../event/entity/event.entity';
+import {BooleanTransformer} from '../../common/transformers/BooleanTransformer';
 
 export enum TaskPriority {
     LOW = 'low',
@@ -19,7 +19,7 @@ export enum TaskPriority {
 
 @Entity('event_tasks')
 export class EventTask {
-    @PrimaryColumn({ name: 'event_id' })
+    @PrimaryColumn({name: 'event_id'})
     eventId: number;
 
     @Column({
@@ -38,13 +38,13 @@ export class EventTask {
     })
     priority?: TaskPriority;
 
-    @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+    @CreateDateColumn({name: 'created_at', type: 'timestamp'})
     createdAt: Date;
 
-    @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+    @UpdateDateColumn({name: 'updated_at', type: 'timestamp'})
     updatedAt: Date;
 
-    @OneToOne(() => Event, (event) => event.task, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'event_id' })
+    @OneToOne(() => Event, (event) => event.task, {onDelete: 'CASCADE'})
+    @JoinColumn({name: 'event_id'})
     event: Event;
 }

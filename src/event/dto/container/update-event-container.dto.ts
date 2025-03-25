@@ -1,9 +1,9 @@
 // src/event/dto/update-event-container.dto.ts
-import { IsEnum, IsOptional, ValidateNested } from 'class-validator';
-import { EventType } from '../../entity/event.entity';
-import { UpdateEventDto } from '../update-event.dto';
-import { UpdateEventTaskDto } from '../update-event-task.dto';
-import {Exclude, Transform, Type} from 'class-transformer';
+import {IsEnum, IsOptional, ValidateNested} from 'class-validator';
+import {EventType} from '../../entity/event.entity';
+import {UpdateEventDto} from '../update-event.dto';
+import {UpdateEventTaskDto} from '../update-event-task.dto';
+import {Type} from 'class-transformer';
 import {IsEventType} from "../../events.validator";
 
 export class UpdateEventContainerDto {

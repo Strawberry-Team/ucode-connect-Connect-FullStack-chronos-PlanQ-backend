@@ -49,7 +49,13 @@ export class User {
     @Expose({groups: ['basic']})
     profilePictureName: string;
 
-    @Column({name: 'email_verified', type: 'bit', width: 1, default: () => "b'0'", transformer: BooleanTransformer(false)})
+    @Column({
+        name: 'email_verified',
+        type: 'bit',
+        width: 1,
+        default: () => "b'0'",
+        transformer: BooleanTransformer(false)
+    })
     @Expose({groups: ['confidential']})
     emailVerified?: boolean;
 

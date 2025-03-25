@@ -6,11 +6,11 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
-import { CalendarMembersRepository } from '../../calendar-member/calendar-members.repository';
-import { CalendarRole, CalendarType } from '../../calendar-member/entity/calendar-member.entity'
-import { EventsService } from '../events.service';
-import { EventParticipationsService } from "../../event-participation/event-participations.service";
-import { EventParticipation } from "../../event-participation/entity/event-participation.entity";
+import {CalendarMembersRepository} from '../../calendar-member/calendar-members.repository';
+import {CalendarRole, CalendarType} from '../../calendar-member/entity/calendar-member.entity'
+import {EventsService} from '../events.service';
+import {EventParticipationsService} from "../../event-participation/event-participations.service";
+import {EventParticipation} from "../../event-participation/entity/event-participation.entity";
 
 @Injectable()
 export class EventGuard implements CanActivate { //TODO: AccessCheckerService добавить и guard писать отдельно.
@@ -69,7 +69,6 @@ export class EventGuard implements CanActivate { //TODO: AccessCheckerService д
     }
 
     private async handlePostRequest(request: any, userId: number): Promise<boolean> {
-        // console.log("handlePostRequest ", request.body);
         if (!request.body?.calendarId) {
             throw new BadRequestException('calendarId is required');
         }
@@ -79,12 +78,9 @@ export class EventGuard implements CanActivate { //TODO: AccessCheckerService д
             throw new BadRequestException('calendarId must be a number');
         }
 
-        // Проверка прав доступа к календарю
-        // console.log({userId: userId, calendarId: calendarId});
         const calendarMember = await this.calendarMembersRepository.findByUserAndCalendar(userId, calendarId);
         const userCalendars = await this.calendarMembersRepository.findCalendarUsers(calendarId, true);
-        // console.log(calendarMember);
-        // console.log(userCalendars);
+
         if (!calendarMember) {
             throw new ForbiddenException('You do not have access to this calendar');
         }
@@ -134,7 +130,6 @@ export class EventGuard implements CanActivate { //TODO: AccessCheckerService д
             throw new BadRequestException('eventId must be a number');
         }
 
-        // Получаем событие, чтобы узнать calendarId
         const event = await this.eventsService.getEventById(eventId);
         if (!event) {
             throw new NotFoundException('Event not found');
@@ -185,8 +180,7 @@ export class EventGuard implements CanActivate { //TODO: AccessCheckerService д
                 if (participation) {
                     eventParticipations.push(participation);
                 }
-            }
-            catch (err) {
+            } catch (err) {
                 console.log(err);
             }
         }
@@ -199,7 +193,6 @@ export class EventGuard implements CanActivate { //TODO: AccessCheckerService д
             return eventParticipations[0].calendarMember.calendarId;
         }
 
-        // Если у нас 2 участия, выбираем не основной календарь
         const nonMainCalendarParticipation = eventParticipations.find(
             p => p.calendarMember.calendarType !== CalendarType.MAIN
         );

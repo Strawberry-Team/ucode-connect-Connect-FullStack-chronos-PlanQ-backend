@@ -9,16 +9,15 @@ import {
     UseInterceptors, BadRequestException,
     Delete, Get, UseGuards
 } from '@nestjs/common';
-import { BaseCrudController } from '../common/controller/base-crud.controller';
-import { Event } from './entity/event.entity';
-import { EventsService } from './events.service';
-import { RequestWithUser } from '../common/types/request.types';
-import { EventParticipationsService } from '../event-participation/event-participations.service';
-import { CreateEventContainerDto } from './dto/container/create-event-container.dto';
-import { EventBodyInterceptor } from "./interceptors/event-body.interceptor";
-import { UpdateEventContainerDto } from "./dto/container/update-event-container.dto";
-import { EventGuard } from "./guards/event.guard";
-import { TestDto } from './dto/testDTO';
+import {BaseCrudController} from '../common/controller/base-crud.controller';
+import {Event} from './entity/event.entity';
+import {EventsService} from './events.service';
+import {RequestWithUser} from '../common/types/request.types';
+import {EventParticipationsService} from '../event-participation/event-participations.service';
+import {CreateEventContainerDto} from './dto/container/create-event-container.dto';
+import {EventBodyInterceptor} from "./interceptors/event-body.interceptor";
+import {UpdateEventContainerDto} from "./dto/container/update-event-container.dto";
+import {EventGuard} from "./guards/event.guard";
 
 @Controller('events')
 export class EventsController extends BaseCrudController<
@@ -28,7 +27,6 @@ export class EventsController extends BaseCrudController<
 > {
     constructor(
         private readonly eventsService: EventsService,
-        private readonly eventParticipationsService: EventParticipationsService
     ) {
         super();
     }
@@ -38,7 +36,6 @@ export class EventsController extends BaseCrudController<
     }
 
     protected async createEntity(dto: CreateEventContainerDto, req: RequestWithUser): Promise<Event> {
-        // console.log("createEntity dto.data: ", dto.data)
         return await this.eventsService.createEvent(req.user.userId, dto.data);
     }
 
@@ -48,12 +45,6 @@ export class EventsController extends BaseCrudController<
         req: RequestWithUser
     ): Promise<Event> {
         const dtoData = dto.data;
-        // if (
-        //     (dtoData.startedAt !== undefined && dtoData.endedAt === undefined) ||
-        //     (dtoData.startedAt === undefined && dtoData.endedAt !== undefined)
-        // ) {
-        //     throw new BadRequestException('Both startedAt and endedAt must be provided together');
-        // }
         return await this.eventsService.updateEvent(id, req.user.userId, dtoData);
     }
 
@@ -71,13 +62,9 @@ export class EventsController extends BaseCrudController<
     @UseGuards(EventGuard)
     @Post()
     async create(@Body() dto: CreateEventContainerDto, @Req() req: RequestWithUser): Promise<Event> {
-        // console.log("create dto: ", dto);
-        // console.log("create dto.data: ", dto.data);
-        // console.log("create dto.data.startedAt: ", dto.data?.startedAt);
-        // console.log("create dto.data.endedAt: ", dto.data?.endedAt);
         return await super.create(dto, req);
     }
-    
+
     @UseGuards(EventGuard)
     @UseInterceptors(EventBodyInterceptor)
     @Patch(':id')

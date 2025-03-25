@@ -61,7 +61,13 @@ export class CalendarMember {
     @Column({type: 'char', length: 7})
     color: string;
 
-    @Column({name: 'is_confirmed', type: 'bit', width: 1, default: () => "b'0'", transformer: BooleanTransformer(false)})
+    @Column({
+        name: 'is_confirmed',
+        type: 'bit',
+        width: 1,
+        default: () => "b'0'",
+        transformer: BooleanTransformer(false)
+    })
     isConfirmed: boolean;
 
     @CreateDateColumn({name: 'created_at', type: 'timestamp'})
