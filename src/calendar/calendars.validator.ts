@@ -1,4 +1,4 @@
-// /calendar/calendars.validator.ts
+// src/calendar/calendars.validator.ts
 
 import {applyDecorators} from '@nestjs/common';
 import {IsEnum, IsOptional} from 'class-validator';

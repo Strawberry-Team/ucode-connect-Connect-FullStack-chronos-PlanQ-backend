@@ -1,3 +1,4 @@
+// src/event/events.validator.ts
 import {applyDecorators} from '@nestjs/common';
 import {IsEnum, IsOptional} from 'class-validator';
 import {EventCategory, EventType} from "./entity/event.entity";

@@ -1,3 +1,4 @@
+// src/calendar-member/entity/calendar-member.entity.ts
 import {
     Entity,
     PrimaryGeneratedColumn,
@@ -11,7 +12,7 @@ import {
 } from 'typeorm';
 import {User} from '../../user/entity/user.entity';
 import {Calendar} from '../../calendar/entity/calendar.entity';
-import {BooleanTransformer} from 'src/common/transformers/BooleanTransformer';
+import {BooleanTransformer} from 'src/common/transformers/boolean.transformer';
 import {EventParticipation} from "../../event-participation/entity/event-participation.entity";
 
 export enum CalendarRole {

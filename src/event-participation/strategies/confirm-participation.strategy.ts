@@ -1,3 +1,4 @@
+// src/event-participation/strategies/confirm-participation.strategy.ts
 import {createJwtStrategy} from '../../jwt/jwt-strategy.factory';
 
 const confirmEmailExtractor = (req: any): string | null => {
@@ -8,12 +9,7 @@ const confirmEmailValidateFn = (payload: any) => {
     return {eventParticipationId: payload.eventParticipationId};
 };
 
-// const token = this.jwtUtils.generateToken({
-//     sub: userId,
-//     eventParticipationId: participationId
-// }, 'confirmArrangement');
-
-export const JwtConfirmEmailStrategy = createJwtStrategy({
+export const JwtConfirmArrangementStrategy = createJwtStrategy({
     strategyName: 'confirm-participation',
     tokenType: 'confirmArrangement',
     extractor: confirmEmailExtractor,

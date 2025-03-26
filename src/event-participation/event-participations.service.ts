@@ -12,7 +12,7 @@ import {UpdateEventParticipationDto} from './dto/update-event-participation.dto'
 import {CalendarMembersService} from '../calendar-member/calendar-members.service';
 import {UsersService} from '../user/users.service';
 import {EventsService} from '../event/events.service';
-import {CalendarMember, CalendarType} from '../calendar-member/entity/calendar-member.entity';
+import {CalendarType} from '../calendar-member/entity/calendar-member.entity';
 import {EmailService} from '../email/email.service';
 import {JwtUtils} from '../jwt/jwt-token.utils';
 import {ConfigService} from '@nestjs/config';
@@ -51,7 +51,6 @@ export class EventParticipationsService {
         const participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(calendarMemberId, eventId);
 
         if (!participation) {
-            console.log("calendarMemberId eventId: ", calendarMemberId, " ", eventId)
             throw new NotFoundException('Event participation not found2');
         }
 
@@ -76,26 +75,22 @@ export class EventParticipationsService {
         calendarId: number,
         inviterId: number,
     ): Promise<EventParticipation> {
-        // Check if event exists
         const event = await this.eventsService.getEventByIdWithParticipations(eventId, true);
         if (!event) {
             throw new NotFoundException('Event not found');
         }
 
-        // Find or create calendar membership for invited user
         let calendarMember = await this.calendarMembersService.getCalendarMember(userId, calendarId);
         let mainCalendarMember;
 
         // Always add to user's main calendar as well
-            const userCalendars = await this.calendarMembersService.getUserCalendars(userId);
-            mainCalendarMember = userCalendars.find(c => c.calendarType === CalendarType.MAIN);
+        const userCalendars = await this.calendarMembersService.getUserCalendars(userId);
+        mainCalendarMember = userCalendars.find(c => c.calendarType === CalendarType.MAIN);
 
-            if (!mainCalendarMember) {
-                throw new NotFoundException('User\'s main calendar not found');
-            }
+        if (!mainCalendarMember) {
+            throw new NotFoundException('User\'s main calendar not found');
+        }
 
-
-        // Find creator's participation to get color
         const inviterMember = await this.calendarMembersService.getCalendarMember(inviterId, calendarId);
         if (!inviterMember) {
             throw new NotFoundException("Inviter must be participant")
@@ -114,8 +109,6 @@ export class EventParticipationsService {
             participationColor = inviterParticipation.color;
         }
 
-
-        // Check if user is already a participant
         let participation;
 
         if (calendarMember && calendarMember.isConfirmed) {
@@ -125,11 +118,8 @@ export class EventParticipationsService {
             );
         }
 
-        // Send invitation email
         const inviter = await this.usersService.getUserByIdWithoutPassword(inviterId);
         const invitedUser = await this.usersService.getUserById(userId);
-
-        // console.log("invitedUser", invitedUser);
 
         if (!invitedUser.emailVerified) {
             throw new BadRequestException('User must verify their email first');
@@ -140,8 +130,6 @@ export class EventParticipationsService {
         // Create or update participation in shared calendar
         if (participation) {
             // User is already on the event, just update the status
-            console.log("participation", participation.responseStatus !== null);
-            console.log("participation", participation.responseStatus !== ResponseStatus.INVITED);
             if (participation.responseStatus !== null && participation.responseStatus !== ResponseStatus.INVITED) {
                 throw new BadRequestException(`User is already a participant of this event, userId = ${participation.calendarMember.userId}`);
             }
@@ -203,7 +191,6 @@ export class EventParticipationsService {
             );
         }
 
-        // Generate token for confirmation
         const token = this.jwtUtils.generateToken({
             sub: userId,
             eventParticipationId: participationId
@@ -252,7 +239,6 @@ export class EventParticipationsService {
             timeZone: 'UTC'
         });
 
-        // Send email
         this.emailService.sendEventInvitationEmail(
             invitedUser.email,
             inviter.email,
@@ -311,12 +297,10 @@ export class EventParticipationsService {
                     calendaMemberToUpdate.userId,
                     participation.eventId,
                     dto.responseStatus,
-                    // participation.calendarMember.id
                 );
             }
         }
 
-        console.log(calendaMemberToUpdate.userId)
         const updatedParticipation = await this.eventParticipationsRepository.findById(participation.id);
 
         if (!updatedParticipation) {
@@ -338,7 +322,6 @@ export class EventParticipationsService {
             userId,
             participation.eventId,
             ResponseStatus.PENDING,
-            //calendarType
         );
 
         const updatedParticipation = await this.eventParticipationsRepository.findById(participation.id);
@@ -347,60 +330,6 @@ export class EventParticipationsService {
 
         return updatedParticipation;
     }
-
-    // private async updateResponseStatusInAllCalendars(
-    //     userId: number,
-    //     eventId: number,
-    //     status: ResponseStatus,
-    //     currentCalendarType: CalendarType
-    // ): Promise<void> {
-    //     // Get all user's calendar memberships
-    //     const calendars = await this.calendarMembersService.getUserCalendars(userId);
-
-    //     if (currentCalendarType === CalendarType.MAIN) {
-    //         // If updating from main calendar, update all other calendars
-    //         for (const calendar of calendars) {
-    //             if (calendar.calendarType !== CalendarType.MAIN) {
-    //                 try {
-    //                     const participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
-    //                         calendar.id,
-    //                         eventId
-    //                     );
-
-    //                     if (participation) {
-    //                         await this.eventParticipationsRepository.updateEventParticipation(
-    //                             participation.id,
-    //                             {responseStatus: status}
-    //                         );
-    //                     }
-    //                 } catch (error) {
-    //                     // Participation doesn't exist in this calendar, that's ok
-    //                 }
-    //             }
-    //         }
-    //     } else {
-    //         // If updating from shared calendar, update main calendar
-    //         const mainCalendar = calendars.find(c => c.calendarType === CalendarType.MAIN);
-
-    //         if (mainCalendar) {
-    //             try {
-    //                 const participation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
-    //                     mainCalendar.id,
-    //                     eventId
-    //                 );
-
-    //                 if (participation) {
-    //                     await this.eventParticipationsRepository.updateEventParticipation(
-    //                         participation.id,
-    //                         {responseStatus: status}
-    //                     );
-    //                 }
-    //             } catch (error) {
-    //                 // Participation doesn't exist in main calendar, that's ok
-    //             }
-    //         }
-    //     }
-    // }
 
     private async updateResponseStatusInAllCalendars(
         userId: number,
@@ -445,10 +374,8 @@ export class EventParticipationsService {
             if (existingParticipation) {
                 console.log(calendarMember)
                 if (calendarMember.calendarType === CalendarType.MAIN) {
-                    console.log("delete")
                     await this.eventParticipationsRepository.deleteEventParticipation(existingParticipation.id);
                 } else {
-                    console.log("update")
                     await this.eventParticipationsRepository.updateEventParticipation(existingParticipation.id, {
                         responseStatus: null
                     });

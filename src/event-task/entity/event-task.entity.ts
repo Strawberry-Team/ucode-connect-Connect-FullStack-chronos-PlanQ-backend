@@ -9,7 +9,7 @@ import {
     JoinColumn,
 } from 'typeorm';
 import {Event} from '../../event/entity/event.entity';
-import {BooleanTransformer} from '../../common/transformers/BooleanTransformer';
+import {BooleanTransformer} from '../../common/transformers/boolean.transformer';
 
 export enum TaskPriority {
     LOW = 'low',

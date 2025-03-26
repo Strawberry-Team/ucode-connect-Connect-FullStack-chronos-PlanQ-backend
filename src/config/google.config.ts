@@ -1,5 +1,6 @@
+// src/config/google.config.ts
 import * as dotenv from 'dotenv';
-import { validateEnv } from '../common/utils/env.utils';
+import {validateEnv} from '../common/utils/env.utils';
 import appConfig from './app.config';
 
 dotenv.config();

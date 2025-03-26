@@ -1,4 +1,4 @@
-// auth/auth.service.ts
+// src/auth/auth.service.ts
 import {
     ForbiddenException,
     Injectable,
@@ -43,7 +43,6 @@ export class AuthService {
 
         const result = this.jwtUtils.generateToken({sub: user.id}, 'confirmEmail');
         const link = this.frontUrl + 'auth/confirm-email/' + result;
-        // console.log("linkConfirmationEmail: ", link);
         this.emailService.sendConfirmationEmail(user.email, link);
 
         return {user: user};

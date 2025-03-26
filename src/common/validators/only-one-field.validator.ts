@@ -1,3 +1,4 @@
+// src/common/validators/only-one-field.validator.ts
 import {registerDecorator, ValidationOptions, ValidationArguments} from 'class-validator';
 
 export function ValidateSingleFieldUpdate(validationOptions?: ValidationOptions) {
@@ -12,7 +13,6 @@ export function ValidateSingleFieldUpdate(validationOptions?: ValidationOptions)
                     const dto = args.object as any;
                     const definedFields = Object.entries(dto).filter(([_, value]) => value !== undefined);
 
-                    // Must have exactly one field defined
                     return definedFields.length === 1;
                 },
                 defaultMessage(args: ValidationArguments) {

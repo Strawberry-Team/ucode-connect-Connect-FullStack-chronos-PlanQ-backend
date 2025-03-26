@@ -1,3 +1,4 @@
+// src/calendar-member/guards/update.calendar-member.guard.ts
 import {Injectable} from '@nestjs/common';
 import {CanActivate, ExecutionContext} from '@nestjs/common';
 import {OwnCalendarMemberGuard} from './own.calendar-member.guard';

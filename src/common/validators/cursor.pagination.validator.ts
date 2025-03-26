@@ -1,4 +1,4 @@
-// src/common/dto/cursor-pagination.dto.ts
+// src/common/dto/cursor.pagination.dto.ts
 import {IsInt, IsOptional, Min, Max, IsPositive, IsObject, ValidateNested, IsEnum} from 'class-validator';
 import {applyDecorators} from '@nestjs/common';
 import {CursorType} from "../types/cursor.pagination.types";

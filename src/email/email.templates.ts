@@ -1,3 +1,4 @@
+// src/email/email.templates.ts
 export const getConfirmationEmailTemplate = (
   confirmationLink: string,
   projectName: string
@@ -6,7 +7,6 @@ export const getConfirmationEmailTemplate = (
   <div
     style="max-width:600px; margin:40px auto; background:#fff; padding:20px; border:1px solid #ddd;"
   >
-    <!-- Блок с логотипом -->
     <div style="text-align:center; margin-bottom:20px;">
       <img src="cid:logo@project" alt="${projectName} Logo" style="max-width:150px;">
     </div>
@@ -43,7 +43,6 @@ export const getResetPasswordEmailTemplate = (
 ) => `
 <div style="margin:0; padding:0; background-color:#f4f4f4;">
   <div style="max-width:600px; margin:40px auto; background:#fff; padding:20px; border:1px solid #ddd;">
-    <!-- Блок с логотипом -->
     <div style="text-align:center; margin-bottom:20px;">
       <img src="cid:logo@project" alt="${projectName} Logo" style="max-width:150px;">
     </div>
@@ -71,7 +70,6 @@ export const getCalendarShareEmailTemplate = (
 ) => `
 <div style="margin:0; padding:0; background-color:#f4f4f4;">
   <div style="max-width:600px; margin:40px auto; background:#fff; padding:20px; border:1px solid #ddd;">
-    <!-- Блок с логотипом -->
     <div style="text-align:center; margin-bottom:20px;">
       <img src="cid:logo@project" alt="${projectName} Logo" style="max-width:150px;">
     </div>
@@ -102,7 +100,6 @@ export const getEventInvitationEmailTemplate = ( //TODO: (not now) add timezone 
 ) => `
 <div style="margin:0; padding:0; background-color:#f4f4f4;">
   <div style="max-width:600px; margin:40px auto; background:#fff; padding:20px; border:1px solid #ddd;">
-    <!-- Блок с логотипом -->
     <div style="text-align:center; margin-bottom:20px;">
       <img src="cid:logo@project" alt="${projectName} Logo" style="max-width:150px;">
     </div>
@@ -136,7 +133,6 @@ export const getEventReminderEmailTemplate = (
 ) => `
 <div style="margin:0; padding:0; background-color:#f4f4f4;">
   <div style="max-width:600px; margin:40px auto; background:#fff; padding:20px; border:1px solid #ddd;">
-    <!-- Блок с логотипом -->
     <div style="text-align:center; margin-bottom:20px;">
       <img src="cid:logo@project" alt="${projectName} Logo" style="max-width:150px;">
     </div>
@@ -161,7 +157,6 @@ export const getCalendarReminderEmailTemplate = (
 ) => `
 <div style="margin:0; padding:0; background-color:#f4f4f4;">
   <div style="max-width:600px; margin:40px auto; background:#fff; padding:20px; border:1px solid #ddd;">
-    <!-- Блок с логотипом -->
     <div style="text-align:center; margin-bottom:20px;">
       <img src="cid:logo@project" alt="${projectName} Logo" style="max-width:150px;">
     </div>

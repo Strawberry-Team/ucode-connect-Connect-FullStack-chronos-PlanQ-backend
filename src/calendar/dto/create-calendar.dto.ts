@@ -1,4 +1,4 @@
-// calendar/dto/create-calendar.dto.ts
+// src/calendar/dto/create-calendar.dto.ts
 import {
     IsCalendarAndEventColor,
     IsCalendarAndEventDescription,

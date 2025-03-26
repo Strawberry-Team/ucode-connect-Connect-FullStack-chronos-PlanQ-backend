@@ -1,32 +1,6 @@
-// src/common/base-repository.ts
-import { ObjectLiteral, Repository, SelectQueryBuilder } from "typeorm";
-import { BaseCursor, EventCursor } from "../types/cursor.pagination.types";
-
-export interface PaginationResult<T, C> {
-    items: T[];
-    nextCursor: C | null;
-    hasMore: boolean;
-    total: number;
-    remaining: number;
-}
-
-export interface CursorConfig<T, C extends BaseCursor> {
-    // Основные настройки курсора
-    cursorFields: (keyof C)[];
-    entityAliases: Record<keyof C, string>;
-    sortDirections?: Record<keyof C, "ASC" | "DESC">;
-
-    // Обработка значений
-    getFieldValue?: (item: T, field: keyof C) => any;
-    fieldTypes?: Partial<Record<keyof C, "date" | "number" | "string">>;
-
-    // Дополнительные настройки
-    debug?: boolean; // Включение/выключение отладочных сообщений
-    customConditionBuilder?: (
-        after: C,
-        config: CursorConfig<T, C>
-    ) => { conditions: string; parameters: Record<string, any> };
-}
+// src/common/base.repository.ts
+import {ObjectLiteral, Repository, SelectQueryBuilder} from "typeorm";
+import {BaseCursor, CursorConfig, CursorPaginationResult} from "../types/cursor.pagination.types";
 
 export class BaseRepository<T extends ObjectLiteral> {
     protected readonly repo: Repository<T>;
@@ -44,7 +18,7 @@ export class BaseRepository<T extends ObjectLiteral> {
         const offset = (page - 1) * limit;
         const total = await queryBuilder.getCount();
         const items = await queryBuilder.skip(offset).take(limit).getMany();
-        return { items, total };
+        return {items, total};
     }
 
     async paginateCursor<C extends BaseCursor>(
@@ -52,16 +26,14 @@ export class BaseRepository<T extends ObjectLiteral> {
         after: C | null,
         limit: number,
         cursorConfig: CursorConfig<T, C>
-    ): Promise<PaginationResult<T, C>> {
-        const { debug = false } = cursorConfig;
+    ): Promise<CursorPaginationResult<T, C>> {
+        const {debug = false} = cursorConfig;
 
-        // Отладочные логи оригинального запроса
         if (debug) {
             console.log("BEFORE CURSOR - Raw SQL:", queryBuilder.getSql());
             console.log("BEFORE CURSOR - Parameters:", queryBuilder.getParameters());
         }
 
-        // Получаем общее количество записей без учета курсора
         const countQuery = queryBuilder.clone();
         const totalCount = await countQuery.getCount();
 
@@ -71,7 +43,6 @@ export class BaseRepository<T extends ObjectLiteral> {
 
         let remainingCount = totalCount;
 
-        // Применяем курсорное условие, если есть курсор
         if (after) {
             this.applyCursorCondition(queryBuilder, after, cursorConfig);
 
@@ -79,21 +50,19 @@ export class BaseRepository<T extends ObjectLiteral> {
                 console.log("AFTER CURSOR - Raw SQL:", queryBuilder.getSql());
                 console.log("AFTER CURSOR - Parameters:", queryBuilder.getParameters());
 
-                // Проверяем, будут ли найдены записи с этим курсором
+                // Check if records with this cursor will be found
                 const checkQuery = queryBuilder.clone();
                 const checkCount = await checkQuery.getCount();
                 console.log(`Records that match cursor conditions: ${checkCount}`);
             }
 
-            // Получаем количество оставшихся записей после применения курсора
+            // Get the number of remaining records after applying the cursor
             const remainingQuery = queryBuilder.clone();
             remainingCount = await remainingQuery.getCount();
         }
 
-        // Применяем лимит + 1 для определения hasMore
         queryBuilder.take(limit + 1);
 
-        // Выполняем запрос
         const items = await queryBuilder.getMany();
 
         if (debug) {
@@ -104,22 +73,18 @@ export class BaseRepository<T extends ObjectLiteral> {
             }
         }
 
-        // Определяем, есть ли еще элементы
         const hasMore = items.length > limit;
 
-        // Удаляем лишний элемент, который нужен был только для определения hasMore
         if (hasMore) {
             items.pop();
         }
 
-        // Формируем следующий курсор
         const nextCursor = this.buildNextCursor<C>(items, cursorConfig);
 
         if (debug && nextCursor) {
             console.log("Generated nextCursor:", nextCursor);
         }
 
-        // Вычисляем оставшиеся элементы
         const remaining = Math.max(0, remainingCount - limit);
 
         return {
@@ -131,16 +96,13 @@ export class BaseRepository<T extends ObjectLiteral> {
         };
     }
 
-    // Вспомогательные методы для работы с курсором
-
     private applyCursorCondition<C extends BaseCursor>(
         queryBuilder: SelectQueryBuilder<T>,
         after: C,
         config: CursorConfig<T, C>
     ): void {
-        // Используем пользовательский построитель условий, если он предоставлен
         if (config.customConditionBuilder) {
-            const { conditions, parameters } = config.customConditionBuilder(
+            const {conditions, parameters} = config.customConditionBuilder(
                 after,
                 config
             );
@@ -151,20 +113,12 @@ export class BaseRepository<T extends ObjectLiteral> {
         const fields = config.cursorFields;
         if (fields.length === 0) return;
 
-        // Собираем все возможные комбинации условий для курсорной пагинации
-        const { whereClause, parameters } = this.buildCursorWhereClause(after, config);
+        // Collect all possible combinations of conditions for cursor pagination
+        const {whereClause, parameters} = this.buildCursorWhereClause(after, config);
 
         queryBuilder.andWhere(whereClause, parameters);
     }
 
-    /**
-     * Строит условие WHERE для курсорной пагинации с произвольным количеством полей
-     *
-     * Например, для полей [createdAt, id, priority] создаст:
-     * (event.createdAt < :createdAt_0) OR
-     * (event.createdAt = :createdAt_eq_1 AND ep.id > :id_1) OR
-     * (event.createdAt = :createdAt_eq_2 AND ep.id = :id_eq_2 AND priority.priority > :priority_2)
-     */
     private buildCursorWhereClause<C extends BaseCursor>(
         after: C,
         config: CursorConfig<T, C>
@@ -173,7 +127,7 @@ export class BaseRepository<T extends ObjectLiteral> {
         const parameters: Record<string, any> = {};
         const conditions: string[] = [];
 
-        // Обрабатываем каждую позицию как отдельный "уровень" условий
+        // Treat each position as a separate "level" of conditions
         for (let i = 0; i < fields.length; i++) {
             const currentField = fields[i];
             const currentAlias = config.entityAliases[currentField];
@@ -182,7 +136,7 @@ export class BaseRepository<T extends ObjectLiteral> {
 
             const levelConditions: string[] = [];
 
-            // Для всех предыдущих полей добавляем условие равенства
+            // For all previous fields we add an equality condition
             for (let j = 0; j < i; j++) {
                 const prevField = fields[j];
                 const prevAlias = config.entityAliases[prevField];
@@ -192,12 +146,11 @@ export class BaseRepository<T extends ObjectLiteral> {
                 parameters[equalParam] = this.getTypedValue(after[prevField], config.fieldTypes?.[prevField]);
             }
 
-            // Для текущего поля добавляем условие сравнения
+            // Add a comparison condition for the current field
             const compareParam = `${String(currentField)}_${i}`;
             levelConditions.push(`${currentAlias}.${String(currentField)} ${currentOperator} :${compareParam}`);
             parameters[compareParam] = this.getTypedValue(after[currentField], config.fieldTypes?.[currentField]);
 
-            // Добавляем уровень условий в общий список
             conditions.push(`(${levelConditions.join(" AND ")})`);
         }
 

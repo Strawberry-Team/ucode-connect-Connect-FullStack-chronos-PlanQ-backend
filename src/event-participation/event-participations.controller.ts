@@ -70,7 +70,6 @@ export class EventParticipationsController extends BaseCrudController<
     @UseGuards(EventGuard)
     @Post()
     async create(@Body() dto: CreateEventParticipationDto, @Req() req: RequestWithUser): Promise<EventParticipation> {
-        console.log("get access for create new participation")
         return super.create(dto, req);
     }
 
@@ -89,9 +88,7 @@ export class EventParticipationsController extends BaseCrudController<
     }
 
     @Public()
-    // @UseGuards(EventGuard)
     @UseGuards(confirmParticipationGuard)
-    // @UseGuards(JwtConfirmEventParticipationGuard)
     @Post(':calendarMemberId/confirm-participation/:confirm_token')
     async confirmEventParticipation(@Req() req: RequestWithUser): Promise<EventParticipation> {
         console.log("req.user.eventParticipationId: ", req.user.eventParticipationId);

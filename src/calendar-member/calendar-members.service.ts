@@ -1,3 +1,4 @@
+// src/calendar-member/calendar-members.service.ts
 import {
     BadRequestException,
     ConflictException,
@@ -47,11 +48,7 @@ export class CalendarMembersService {
     }
 
     async getCalendarMember(userId: number, calendarId: number): Promise<CalendarMember | null> {
-        console.log("userId: ", userId, "  calendarId: ", calendarId)
-
         const result = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
-
-        console.log("result: ", result)
 
         return result;
     }
@@ -118,7 +115,6 @@ export class CalendarMembersService {
         }, 'confirmCalendar');
 
         const link = this.frontUrl + `calendars/${calendarId}/confirm-calendar/` + AddUserToCalendarToken;
-        // console.log("confirmCalendarLink: ", link);
 
         this.emailService.sendCalendarShareEmail(userToAdd.email, calendar.name, link, userInviter.email);
 
@@ -203,14 +199,12 @@ export class CalendarMembersService {
             throw new BadRequestException("Cannot confirm the calendar");
         }
 
-        // Add events to the newly confirmed calendar member
         const calendarMember = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
 
         if (!calendarMember) {
             throw new NotFoundException('Calendar member not found');
         }
 
-        // Find the calendar creator's calendar member
         const calendar = await this.calendarsRepository.findById(calendarId);
 
         if (!calendar) {

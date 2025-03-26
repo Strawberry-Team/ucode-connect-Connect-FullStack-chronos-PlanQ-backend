@@ -28,7 +28,7 @@ export class CreateEventContainerDto {
         }
         return CreateEventBaseDto;
     })
-    data: CreateEventBaseDto; // Это может быть один из наследников CreateEventBaseDto
+    data: CreateEventBaseDto;
 
     // Метод для преобразования объекта в плоскую структуру
     // @Transform(({ value }) => {

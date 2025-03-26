@@ -1,3 +1,4 @@
+// src/email/email.service.ts
 import {Injectable} from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import {ConfigService} from '@nestjs/config';

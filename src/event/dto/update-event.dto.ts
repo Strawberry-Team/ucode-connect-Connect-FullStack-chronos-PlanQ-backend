@@ -6,7 +6,6 @@ import {
 } from "../../common/validators/calendars.events.validator";
 import {IsEventCategory, ValidateDatePair} from "../events.validator";
 import {IsISO8601Date, IsLaterThan} from "../../common/validators/date.validator";
-import {Transform} from "class-transformer";
 
 export class UpdateEventDto {
     @IsCalendarAndEventName(true)

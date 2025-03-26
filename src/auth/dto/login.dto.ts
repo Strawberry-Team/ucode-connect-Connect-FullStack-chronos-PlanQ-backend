@@ -1,4 +1,4 @@
-// auth/dto/login.dto.ts
+// src/auth/dto/login.dto.ts
 import {IsUserEmail, IsUserPassword} from "../../user/users.validator";
 
 export class LoginDto {

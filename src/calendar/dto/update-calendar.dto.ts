@@ -1,4 +1,4 @@
-// calendar/dto/update-calendar.dto.ts
+// src/calendar/dto/update-calendar.dto.ts
 import {
     IsCalendarAndEventDescription,
     IsCalendarAndEventName

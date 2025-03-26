@@ -1,3 +1,4 @@
+// src/calendar-member/calendar-members.module.ts
 import {Module, forwardRef} from '@nestjs/common';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import {CalendarMembersController} from './calendar-members.controller';

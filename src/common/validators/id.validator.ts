@@ -1,6 +1,6 @@
+// src/common/validators/id.validator.ts
 import {applyDecorators} from "@nestjs/common";
 import {IsArray, IsInt, IsOptional, IsPositive, ValidateIf} from "class-validator";
-
 
 export function IsId(isOptional: boolean, allowNull: boolean = false) {
     const decorators = [IsInt(), IsPositive()];

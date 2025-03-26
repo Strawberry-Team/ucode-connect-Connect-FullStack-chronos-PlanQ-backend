@@ -1,14 +1,12 @@
+// src/calendar-member/guards/calendar.member.removal.guard.ts
 import {
-    CanActivate,
     ExecutionContext,
     Injectable,
     ForbiddenException,
     BadRequestException,
-    SetMetadata, NotFoundException
+    NotFoundException
 } from '@nestjs/common';
-import {CalendarOwnerGuard, ONLY_CREATOR} from '../../calendar/guards/own.calendar.guard';
-import { CalendarRole } from "../../calendar-member/entity/calendar-member.entity";
-import { CalendarMembersService } from '../calendar-members.service';
+import {CalendarOwnerGuard} from '../../calendar/guards/own.calendar.guard';
 
 @Injectable()
 export class CalendarMemberRemovalGuard extends CalendarOwnerGuard {

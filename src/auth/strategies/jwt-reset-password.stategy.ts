@@ -1,4 +1,4 @@
-// auth/strategies/jwt-reset-password.stategy.ts
+// src/auth/strategies/jwt-reset-password.stategy.ts
 import {createJwtStrategy} from '../../jwt/jwt-strategy.factory';
 
 const passwordResetExtractor = (req: any): string | null => {

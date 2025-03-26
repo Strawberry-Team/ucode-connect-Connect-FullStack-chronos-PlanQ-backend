@@ -1,4 +1,4 @@
-// src/common/dto/cursor-pagination.dto.ts
+// src/common/dto/cursor.pagination.dto.ts
 import {
     IsCursorPaginationAfter,
     IsCursorPaginationLimit,

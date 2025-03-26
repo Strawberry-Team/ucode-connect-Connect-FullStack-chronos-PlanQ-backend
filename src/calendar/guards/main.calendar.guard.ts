@@ -1,4 +1,4 @@
-// calendar/guards/main.calendar.guard.ts
+// src/calendar/guards/main.calendar.guard.ts
 import {
     CanActivate,
     ExecutionContext,

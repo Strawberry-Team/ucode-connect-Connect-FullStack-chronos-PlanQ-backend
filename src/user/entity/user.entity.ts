@@ -12,7 +12,7 @@ import { RefreshTokenNonce } from 'src/refresh-token-nonce/entity/refresh-token-
 import { Expose } from 'class-transformer';
 import { Calendar } from 'src/calendar/entity/calendar.entity';
 import { CalendarMember } from 'src/calendar-member/entity/calendar-member.entity';
-import { BooleanTransformer } from 'src/common/transformers/BooleanTransformer';
+import { BooleanTransformer } from 'src/common/transformers/boolean.transformer';
 import { Event } from 'src/event/entity/event.entity';
 
 export const SERIALIZATION_GROUPS = {

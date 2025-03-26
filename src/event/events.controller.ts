@@ -13,7 +13,6 @@ import {BaseCrudController} from '../common/controller/base-crud.controller';
 import {Event} from './entity/event.entity';
 import {EventsService} from './events.service';
 import {RequestWithUser} from '../common/types/request.types';
-import {EventParticipationsService} from '../event-participation/event-participations.service';
 import {CreateEventContainerDto} from './dto/container/create-event-container.dto';
 import {EventBodyInterceptor} from "./interceptors/event-body.interceptor";
 import {UpdateEventContainerDto} from "./dto/container/update-event-container.dto";

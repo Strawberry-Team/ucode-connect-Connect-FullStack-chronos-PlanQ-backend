@@ -1,3 +1,4 @@
+// src/common/transformers/boolean.transformer.ts
 export const BooleanTransformer = (defaultValue: boolean) => ({
     to: (entityValue: boolean): number =>
         (entityValue === undefined ? defaultValue : entityValue) ? 1 : 0,

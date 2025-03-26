@@ -17,7 +17,6 @@ export class EventBodyInterceptor implements NestInterceptor {
         const method = request.method;
         const userId = request.user?.userId;
 
-        // Для POST запросов (создание)
         if (method === 'POST' && body && body.type) {
             const containerData = {
                 type: body.type,
@@ -29,7 +28,6 @@ export class EventBodyInterceptor implements NestInterceptor {
             });
 
         }
-        // Для PATCH запросов (обновление)
         else if (method === 'PATCH' && body) {
             const eventId = request.params.id;
 

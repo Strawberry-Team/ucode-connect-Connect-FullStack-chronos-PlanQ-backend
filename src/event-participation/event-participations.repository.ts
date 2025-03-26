@@ -73,7 +73,6 @@ export class EventParticipationsRepository extends BaseRepository<EventParticipa
         startDate?: Date,
         endDate?: Date
     ): Promise<EventParticipation[]> {
-        // Separate null and non-null statuses
         const statusesNotNull = responseStatuses.filter(status => status !== null) as ResponseStatus[];
         const hasNull = responseStatuses.includes(null);
 
@@ -82,7 +81,6 @@ export class EventParticipationsRepository extends BaseRepository<EventParticipa
             .leftJoinAndSelect('event.task', 'task')
             .where('ep.calendarMemberId = :calendarMemberId', {calendarMemberId});
 
-        // Handle both null and non-null status conditions
         if (statusesNotNull.length > 0 && hasNull) {
             queryBuilder.andWhere('(ep.responseStatus IN (:...statusesNotNull) OR ep.responseStatus IS NULL)', {
                 statusesNotNull
@@ -95,7 +93,6 @@ export class EventParticipationsRepository extends BaseRepository<EventParticipa
             queryBuilder.andWhere('ep.responseStatus IS NULL');
         }
 
-        // Add date filtering if dates are provided
         if (startDate && endDate) {
             queryBuilder.andWhere(
                 '(event.startedAt <= :endDate AND event.endedAt >= :startDate)',

@@ -1,4 +1,4 @@
-// /calendar/strategies/jwt-confirm-calendar.strategy.ts
+// src/calendar/strategies/jwt-confirm-calendar.strategy.ts
 import {createJwtStrategy} from '../../jwt/jwt-strategy.factory';
 
 const confirmCalendarExtractor = (req: any): string | null => {

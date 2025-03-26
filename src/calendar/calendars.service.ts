@@ -1,4 +1,4 @@
-// /calendar/calendars.service.ts
+// src/calendar/calendars.service.ts
 import {forwardRef, Inject, Injectable, NotFoundException} from '@nestjs/common';
 import {CalendarsRepository} from './calendars.repository';
 import {CalendarMembersRepository} from '../calendar-member/calendar-members.repository';

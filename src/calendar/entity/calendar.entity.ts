@@ -1,4 +1,4 @@
-// calendar/entity/calendar.entity.ts
+// src/calendar/entity/calendar.entity.ts
 import {
     Entity,
     PrimaryGeneratedColumn,

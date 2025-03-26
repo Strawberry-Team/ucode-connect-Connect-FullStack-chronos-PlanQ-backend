@@ -1,3 +1,4 @@
+// src/common/interceptor/file-upload.interceptor.ts
 import {BadRequestException} from '@nestjs/common';
 import {FileInterceptor} from '@nestjs/platform-express';
 import {diskStorage} from 'multer';

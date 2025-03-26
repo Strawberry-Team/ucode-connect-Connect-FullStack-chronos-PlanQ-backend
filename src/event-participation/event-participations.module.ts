@@ -9,7 +9,7 @@ import {UsersModule} from '../user/users.module';
 import {CalendarMembersModule} from '../calendar-member/calendar-members.module';
 import {EventsModule} from '../event/events.module';
 import {EmailModule} from '../email/email.module';
-import { JwtConfirmEmailStrategy } from './strategies/confirm-participation.strategy';
+import {JwtConfirmArrangementStrategy} from './strategies/confirm-participation.strategy';
 
 @Module({
     imports: [
@@ -23,7 +23,7 @@ import { JwtConfirmEmailStrategy } from './strategies/confirm-participation.stra
     providers: [
         EventParticipationsService,
         EventParticipationsRepository,
-        JwtConfirmEmailStrategy
+        JwtConfirmArrangementStrategy
     ],
     exports: [EventParticipationsService, EventParticipationsRepository]
 })

@@ -1,4 +1,4 @@
-// calendar-member/dto/get-member-events.dto.ts
+// src/calendar-member/dto/get-member-events.dto.ts
 import {IsISO8601Date} from "../../common/validators/date.validator";
 
 export class GetMemberEventsDto {

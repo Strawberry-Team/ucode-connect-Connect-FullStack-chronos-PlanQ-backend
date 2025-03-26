@@ -1,3 +1,4 @@
+// src/common/utils/time.utils.ts
 export function convertToSeconds(time: string): number {
     const separateTime = parseTimeString(time);
 

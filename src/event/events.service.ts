@@ -1,10 +1,5 @@
 // src/event/events.service.ts
-import {
-    forwardRef,
-    Inject,
-    Injectable,
-    NotFoundException
-} from '@nestjs/common';
+import {forwardRef, Inject, Injectable, NotFoundException} from '@nestjs/common';
 import {EventsRepository} from './events.repository';
 import {Event, EventType} from './entity/event.entity';
 import {CreateEventBaseDto} from './dto/create-event-base.dto';
@@ -16,8 +11,8 @@ import {EventTasksService} from '../event-task/event-tasks.service';
 import {EventParticipationsService} from '../event-participation/event-participations.service';
 import {CalendarMembersService} from '../calendar-member/calendar-members.service';
 import {ResponseStatus} from '../event-participation/entity/event-participation.entity';
-import {UsersService} from '../user/users.service';
 import {EventCursor} from "../common/types/cursor.pagination.types";
+import {CalendarType} from "../calendar-member/entity/calendar-member.entity";
 
 @Injectable()
 export class EventsService {
@@ -29,8 +24,6 @@ export class EventsService {
         private readonly eventParticipationsService: EventParticipationsService,
         @Inject(forwardRef(() => CalendarMembersService))
         private readonly calendarMembersService: CalendarMembersService,
-        @Inject(forwardRef(() => UsersService))
-        private readonly usersService: UsersService
     ) {
     }
 
@@ -57,8 +50,6 @@ export class EventsService {
     async createEvent(userId: number, dto: CreateEventBaseDto): Promise<Event> {
         const calendarMember = await this.calendarMembersService.getCalendarMember(userId, dto.calendarId);
 
-        console.log("createEvent 1");
-
         if (!calendarMember) {
             throw new NotFoundException('Calendar not found or you do not have access');
         }
@@ -76,9 +67,6 @@ export class EventsService {
             type: dto.type
         });
 
-        console.log("createEvent 2");
-
-        // Handle specific event type logic
         switch (dto.type) {
             case EventType.TASK:
                 const taskDto = dto as CreateEventTaskDto;
@@ -88,8 +76,6 @@ export class EventsService {
                     priority: taskDto.priority
                 });
 
-                console.log("createEvent 3");
-
                 // Add task to the creator's participation
                 await this.eventParticipationsService.createEventParticipation({
                     calendarMemberId: calendarMember.id,
@@ -97,7 +83,6 @@ export class EventsService {
                     color: dto.color,
                     responseStatus: ResponseStatus.ACCEPTED
                 });
-                console.log("createEvent 4");
                 break;
             case EventType.ARRANGEMENT:
                 const arrangementDto = dto as CreateEventArrangementDto;
@@ -110,7 +95,7 @@ export class EventsService {
                         color: dto.color,
                         responseStatus: ResponseStatus.PENDING
                     });
-                } else if ((arrangementDto.participantIds && !arrangementDto.participantIds.includes(userId)) || (!arrangementDto.participantIds)){
+                } else if ((arrangementDto.participantIds && !arrangementDto.participantIds.includes(userId)) || (!arrangementDto.participantIds)) {
                     await this.eventParticipationsService.createEventParticipation({
                         calendarMemberId: calendarMember.id,
                         eventId: event.id,
@@ -118,8 +103,23 @@ export class EventsService {
                         responseStatus: null
                     });
                 }
+                if (calendarMember.calendarType === CalendarType.ADDITIONAL) {
+                    const userCalendars = await this.calendarMembersService.getUserCalendars(userId);
+                    const mainCalendarMember = userCalendars.find(c => c.calendarType === CalendarType.MAIN);
 
-                console.log("createEvent 5");
+                    if (!mainCalendarMember) {
+                        throw new NotFoundException('Main calendar not found');
+                    }
+
+                    if (arrangementDto.participantIds && arrangementDto.participantIds.includes(userId)) {
+                        await this.eventParticipationsService.createEventParticipation({
+                            calendarMemberId: mainCalendarMember.id,
+                            eventId: event.id,
+                            color: dto.color,
+                            responseStatus: ResponseStatus.PENDING
+                        });
+                    }
+                }
 
                 // Add all other calendar members with null response status
                 const calendarMembers = await this.calendarMembersService.getCalendarUsers(dto.calendarId, userId);
@@ -134,8 +134,6 @@ export class EventsService {
                     }
                 }
 
-                console.log("createEvent 5");
-
                 // Add specified participants
                 if (arrangementDto.participantIds && arrangementDto.participantIds.length > 0) {
                     for (const participantId of arrangementDto.participantIds) {
@@ -145,13 +143,10 @@ export class EventsService {
                                 participantId,
                                 dto.calendarId,
                                 userId,
-                                // dto.color
                             );
                         }
                     }
                 }
-
-                console.log("createEvent 5");
 
                 break;
 
@@ -163,8 +158,6 @@ export class EventsService {
                     color: dto.color,
                     responseStatus: ResponseStatus.ACCEPTED
                 });
-
-                console.log("createEvent 6");
 
                 // Add reminder to all calendar members
                 const reminderCalendarMembers = await this.calendarMembersService.getCalendarUsers(dto.calendarId, userId);
@@ -178,8 +171,6 @@ export class EventsService {
                         });
                     }
                 }
-
-                console.log("createEvent 7");
                 break;
         }
 
