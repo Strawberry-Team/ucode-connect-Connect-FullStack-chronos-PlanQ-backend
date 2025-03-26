@@ -57,6 +57,8 @@ export class EventsService {
     async createEvent(userId: number, dto: CreateEventBaseDto): Promise<Event> {
         const calendarMember = await this.calendarMembersService.getCalendarMember(userId, dto.calendarId);
 
+        console.log("createEvent 1");
+
         if (!calendarMember) {
             throw new NotFoundException('Calendar not found or you do not have access');
         }
@@ -74,6 +76,8 @@ export class EventsService {
             type: dto.type
         });
 
+        console.log("createEvent 2");
+
         // Handle specific event type logic
         switch (dto.type) {
             case EventType.TASK:
@@ -84,6 +88,8 @@ export class EventsService {
                     priority: taskDto.priority
                 });
 
+                console.log("createEvent 3");
+
                 // Add task to the creator's participation
                 await this.eventParticipationsService.createEventParticipation({
                     calendarMemberId: calendarMember.id,
@@ -91,8 +97,8 @@ export class EventsService {
                     color: dto.color,
                     responseStatus: ResponseStatus.ACCEPTED
                 });
+                console.log("createEvent 4");
                 break;
-
             case EventType.ARRANGEMENT:
                 const arrangementDto = dto as CreateEventArrangementDto;
 
@@ -104,7 +110,16 @@ export class EventsService {
                         color: dto.color,
                         responseStatus: ResponseStatus.PENDING
                     });
+                } else if ((arrangementDto.participantIds && !arrangementDto.participantIds.includes(userId)) || (!arrangementDto.participantIds)){
+                    await this.eventParticipationsService.createEventParticipation({
+                        calendarMemberId: calendarMember.id,
+                        eventId: event.id,
+                        color: dto.color,
+                        responseStatus: null
+                    });
                 }
+
+                console.log("createEvent 5");
 
                 // Add all other calendar members with null response status
                 const calendarMembers = await this.calendarMembersService.getCalendarUsers(dto.calendarId, userId);
@@ -118,6 +133,8 @@ export class EventsService {
                         });
                     }
                 }
+
+                console.log("createEvent 5");
 
                 // Add specified participants
                 if (arrangementDto.participantIds && arrangementDto.participantIds.length > 0) {
@@ -133,6 +150,9 @@ export class EventsService {
                         }
                     }
                 }
+
+                console.log("createEvent 5");
+
                 break;
 
             case EventType.REMINDER:
@@ -143,6 +163,8 @@ export class EventsService {
                     color: dto.color,
                     responseStatus: ResponseStatus.ACCEPTED
                 });
+
+                console.log("createEvent 6");
 
                 // Add reminder to all calendar members
                 const reminderCalendarMembers = await this.calendarMembersService.getCalendarUsers(dto.calendarId, userId);
@@ -156,6 +178,8 @@ export class EventsService {
                         });
                     }
                 }
+
+                console.log("createEvent 7");
                 break;
         }
 
