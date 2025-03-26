@@ -101,7 +101,7 @@ export class UsersController extends BaseCrudController<
     async uploadAvatar(
         @UploadedFile() file: Express.Multer.File,
     ): Promise<{ server_filename: string }> {
-        //TODO: Удалять старые фотки(которые человек просто загружал) сделать в Scheduler
+        //TODO: (not now) Delete old pictures (that a person just uploaded) do in Scheduler
         if (!file) {
             throw new BadRequestException('No file uploaded.');
         }

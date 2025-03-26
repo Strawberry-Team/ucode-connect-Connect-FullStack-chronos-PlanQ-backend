@@ -34,7 +34,7 @@ import {EventsModule} from './event/events.module';
                 password: configService.get<string>('database.password'),
                 database: configService.get<string>('database.name'),
                 entities: [__dirname + '/**/*.entity{.ts,.js}'],
-                synchronize: true, // TODO: For production, disable this option
+                synchronize: true, // TODO: (not now) For production, disable this option
             }),
         }),
         ConfigModule.forRoot({

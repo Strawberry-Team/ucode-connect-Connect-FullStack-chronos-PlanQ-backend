@@ -19,7 +19,7 @@ export enum ResponseStatus {
     DECLINED = 'declined'
 }
 
-@Entity('event_participations') //TODO: переименовать все на event_participants
+@Entity('event_participations') //TODO: (not now) rename everything to event_participants
 @Unique('calendar_members_events_calendar_member_id_event_id_uq', ['calendarMemberId', 'eventId'])
 export class EventParticipation {
     @PrimaryGeneratedColumn()

@@ -1,3 +1,4 @@
+// auth/auth.module.ts
 import {forwardRef, Module} from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {AuthController} from './auth.controller';
@@ -13,7 +14,7 @@ import {
     JwtResetPasswordGuard,
     JwtConfirmEmailGuard
 } from 'src/auth/guards/auth.jwt-guards';
-import { EmailModule } from 'src/email/email.module';
+import {EmailModule} from 'src/email/email.module';
 
 @Module({
     imports: [
@@ -21,7 +22,7 @@ import { EmailModule } from 'src/email/email.module';
         EmailModule,
         forwardRef(() => RefreshTokenNonceModule),
     ],
-    controllers: [AuthController], 
+    controllers: [AuthController],
     providers: [AuthService,
         JwtAccessStrategy,
         JwtResetPasswordStrategy,

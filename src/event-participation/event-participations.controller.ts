@@ -45,7 +45,7 @@ export class EventParticipationsController extends BaseCrudController<
         dto: UpdateEventParticipationDto,
         req: RequestWithUser
     ): Promise<EventParticipation> {
-        const eventId = parseInt(req.params.eventId, 10); //TODO: оно надо? НАДО
+        const eventId = parseInt(req.params.eventId, 10);
         return await this.eventParticipationsService.updateEventParticipation(
             id,
             eventId,
@@ -54,7 +54,7 @@ export class EventParticipationsController extends BaseCrudController<
     }
 
     protected async deleteEntity(id: number, req: RequestWithUser): Promise<void> {
-        const eventId = parseInt(req.params.eventId, 10);//TODO: оно надо? НАДО
+        const eventId = parseInt(req.params.eventId, 10);
         return await this.eventParticipationsService.deleteEventParticipation(
             id,
             eventId

@@ -1,4 +1,3 @@
-//TODO: нет кнопки на почте
 export const getConfirmationEmailTemplate = (
   confirmationLink: string,
   projectName: string
@@ -92,7 +91,7 @@ export const getCalendarShareEmailTemplate = (
 </div>
 `;
 
-export const getEventInvitationEmailTemplate = ( //TODO: add timezone and change UTC to local time
+export const getEventInvitationEmailTemplate = ( //TODO: (not now) add timezone and change UTC to local time
   inviter: string,
   eventTitle: string,
   eventDateTimeStartedAt: string,
@@ -152,7 +151,7 @@ export const getEventReminderEmailTemplate = (
 </div>
 `;
 
-//TODO: add reminder for task(when it starts)
+//TODO: (not now) add reminder for task(when it starts)
 
 export const getCalendarReminderEmailTemplate = (
   reminderName: string,

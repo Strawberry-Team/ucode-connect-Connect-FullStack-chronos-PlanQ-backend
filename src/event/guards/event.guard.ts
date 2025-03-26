@@ -13,7 +13,7 @@ import {EventParticipationsService} from "../../event-participation/event-partic
 import {EventParticipation} from "../../event-participation/entity/event-participation.entity";
 
 @Injectable()
-export class EventGuard implements CanActivate { //TODO: AccessCheckerService добавить и guard писать отдельно.
+export class EventGuard implements CanActivate { //TODO: (not now) AccessCheckerService to add and write separately.
     constructor(
         private readonly calendarMembersRepository: CalendarMembersRepository,
         private readonly eventsService: EventsService,
@@ -142,7 +142,6 @@ export class EventGuard implements CanActivate { //TODO: AccessCheckerService д
             throw new ForbiddenException('You do not have access to this calendar');
         }
 
-        // Проверка для личного календаря
         if (calendarMember.calendarType === CalendarType.MAIN) {
             if (event.creatorId === userId) {
                 return true;
@@ -151,12 +150,10 @@ export class EventGuard implements CanActivate { //TODO: AccessCheckerService д
             }
         }
 
-        // Для владельца календаря разрешены все действия
         if (calendarMember.role === CalendarRole.OWNER) {
             return true;
         }
 
-        // Для редактора календаря
         if (calendarMember.role === CalendarRole.EDITOR) {
             if (method === 'DELETE' && event.creatorId !== userId && !paramCalendarMemberId) {
                 throw new ForbiddenException('Editors can only delete their own events');

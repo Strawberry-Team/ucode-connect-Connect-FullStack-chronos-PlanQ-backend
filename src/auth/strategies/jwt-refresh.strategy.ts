@@ -1,3 +1,4 @@
+// auth/strategies/jwt-refresh.strategy.ts
 import {createJwtStrategy} from '../../jwt/jwt-strategy.factory';
 
 const refreshTokenExtractor = (req: any): string | null => {

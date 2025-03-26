@@ -1,3 +1,4 @@
+// auth/auth.service.ts
 import {
     ForbiddenException,
     Injectable,
@@ -14,9 +15,9 @@ import {RefreshTokenNonceService} from 'src/refresh-token-nonce/refresh-token-no
 import {JwtUtils} from '../jwt/jwt-token.utils';
 import {PasswordService} from "../user/passwords.service";
 import {convertToSeconds} from "../common/utils/time.utils";
-import { EmailService } from 'src/email/email.service';
+import {EmailService} from 'src/email/email.service';
 import {ConfigService} from '@nestjs/config';
-import { NonceUtils } from 'src/common/utils/nonce.utils';
+import {NonceUtils} from 'src/common/utils/nonce.utils';
 
 
 @Injectable()
@@ -43,7 +44,7 @@ export class AuthService {
         const result = this.jwtUtils.generateToken({sub: user.id}, 'confirmEmail');
         const link = this.frontUrl + 'auth/confirm-email/' + result;
         // console.log("linkConfirmationEmail: ", link);
-        this.emailService.sendConfirmationEmail(user.email, link); 
+        this.emailService.sendConfirmationEmail(user.email, link);
 
         return {user: user};
     }
@@ -51,7 +52,7 @@ export class AuthService {
 
     async login(loginDto: LoginDto) {
         const user = await this.usersService.getUserByEmail(loginDto.email);
-    
+
         const passwordValid = await this.passwordService.compare(loginDto.password, String(user.password));
 
         if (!passwordValid) {
@@ -66,7 +67,7 @@ export class AuthService {
 
         const accessToken = this.jwtUtils.generateToken({sub: user.id}, 'access');
         const refreshToken = this.jwtUtils.generateToken({sub: user.id, nonce: newNonce}, 'refresh');
-        
+
         await this.refreshTokenNonceService.createRefreshTokenNonce({
             userId: user.id,
             nonce: newNonce,
@@ -96,12 +97,12 @@ export class AuthService {
     async refreshToken(userId: number, createdAt: number, refreshNonce: string) {
         const accessToken = this.jwtUtils.generateToken({sub: userId}, 'access');
         const time: number = new Date().getTime() / 1000;
-        
+
         if (time - createdAt > convertToSeconds("1d")) {
-            
+
             const newNonce = this.nonceUtils.generateNonce();
-            const newRefreshToken = this.jwtUtils.generateToken({sub: userId, nonce: newNonce}, 'refresh'); 
-            
+            const newRefreshToken = this.jwtUtils.generateToken({sub: userId, nonce: newNonce}, 'refresh');
+
             await this.refreshTokenNonceService.createRefreshTokenNonce({
                 userId: userId,
                 nonce: newNonce,
@@ -129,10 +130,8 @@ export class AuthService {
         }
 
         const passwordResetToken = this.jwtUtils.generateToken({sub: user.id}, 'resetPassword');
-        
-        const link = this.frontUrl + "auth/reset-password/" + passwordResetToken; //localhost:5173/auth/reset-password/passwordResetToken
 
-        // console.log("link", link)
+        const link = this.frontUrl + "auth/reset-password/" + passwordResetToken;
 
         this.emailService.sendResetPasswordEmail(user.email, link)
     }

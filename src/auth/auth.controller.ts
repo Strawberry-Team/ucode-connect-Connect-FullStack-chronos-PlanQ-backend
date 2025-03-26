@@ -1,3 +1,4 @@
+// auth/auth.controller.ts
 import {Body, Controller, Post, UseGuards, Request, UsePipes, ValidationPipe, HttpCode, Get, Req} from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {CreateUserDto} from '../user/dto/create-user.dto';
@@ -45,12 +46,12 @@ export class AuthController {
     }
 
     @UseGuards(JwtResetPasswordGuard)
-    @Post('reset-password/:confirm_token') //TODO: add guard for 1 time use(redis)
+    @Post('reset-password/:confirm_token') //TODO: (not now) add guard for 1 time use(redis)
     async resetPasswordWithConfirmToken(@Body() newPasswordDto: newPasswordDto, @Request() req: RequestWithUser) {
         return this.authService.resetPasswordWithConfirmToken(newPasswordDto, req.user.userId);
     }
 
-    //TODO: add email verification guard for 1 time use(redis)
+    //TODO: (not now) add email verification guard for 1 time use(redis)
     @UseGuards(JwtConfirmEmailGuard)
     @Post('confirm-email/:confirm_token')
     async verifyEmailWithConfirmToken(@Request() req: RequestWithUser) {

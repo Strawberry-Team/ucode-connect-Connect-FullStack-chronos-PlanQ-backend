@@ -1,5 +1,5 @@
 // src/event/dto/update-event-container.dto.ts
-import {IsEnum, IsOptional, ValidateNested} from 'class-validator';
+import {ValidateNested} from 'class-validator';
 import {EventType} from '../../entity/event.entity';
 import {UpdateEventDto} from '../update-event.dto';
 import {UpdateEventTaskDto} from '../update-event-task.dto';
@@ -10,14 +10,13 @@ export class UpdateEventContainerDto {
     @IsEventType(false)
     type: EventType;
 
-    @ValidateNested() //TODO: проверить Валидируем вложенный объект
+    @ValidateNested()
     @Type((options) => {
-        // Безопасно проверяем наличие объекта и свойства type
         if (options?.object && 'type' in options.object) {
             if (options.object.type === EventType.TASK) {
                 return UpdateEventTaskDto;
             }
-            // В будущем можно добавить другие типы обновлений, например:
+            // Other types of updates can be added in the future, such as:
             // if (options.object.type === EventType.ARRANGEMENT) return UpdateEventArrangementDto;
             // if (options.object.type === EventType.REMINDER) return UpdateEventReminderDto;
         }
@@ -27,7 +26,7 @@ export class UpdateEventContainerDto {
 
     // @Exclude()
     // @Transform(({ value }) => {
-    //     // Этот метод не будет вызван напрямую, он здесь для справки
+    //     // This method will not be called directly, it is here for reference
     //     return {...value, type: value.type};
     // })
     // flattened: any;

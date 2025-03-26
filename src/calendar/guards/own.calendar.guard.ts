@@ -1,3 +1,4 @@
+// /calendar/guards/own.calendar.guard.ts
 import {
     CanActivate,
     ExecutionContext,
@@ -19,7 +20,7 @@ export const OnlyCreator = (check: boolean) => SetMetadata(ONLY_CREATOR, check);
 export class CalendarOwnerGuard implements CanActivate {
     constructor(
         protected readonly calendarsService: CalendarsService,
-        private readonly usersCalendarsRepository: CalendarMembersRepository, //TODO: использовать сервис
+        private readonly usersCalendarsRepository: CalendarMembersRepository,
         private readonly reflector: Reflector,
     ) {
     }

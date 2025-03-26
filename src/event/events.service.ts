@@ -1,4 +1,4 @@
-// src/event/events.service.ts //TODO: добавить везде название файла вот так.
+// src/event/events.service.ts
 import {
     forwardRef,
     Inject,

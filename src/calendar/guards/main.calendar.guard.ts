@@ -1,3 +1,4 @@
+// calendar/guards/main.calendar.guard.ts
 import {
     CanActivate,
     ExecutionContext,
@@ -8,7 +9,6 @@ import {
 } from '@nestjs/common';
 import {CalendarsService} from '../calendars.service';
 import {CalendarMembersRepository} from "../../calendar-member/calendar-members.repository";
-import {Reflector} from "@nestjs/core";
 import {CalendarType} from "../../calendar-member/entity/calendar-member.entity";
 
 @Injectable()
@@ -16,7 +16,6 @@ export class CalendarMainGuard implements CanActivate {
     constructor(
         private readonly calendarsService: CalendarsService,
         private readonly usersCalendarsRepository: CalendarMembersRepository,
-        private readonly reflector: Reflector
     ) {
     }
 

@@ -17,7 +17,7 @@ import {Event} from 'src/event/entity/event.entity';
 export const SERIALIZATION_GROUPS = {
     BASIC: ['basic'],
     CONFIDENTIAL: ['basic', 'confidential'], // confidential include basic
-}; //TODO: Как можно всегда возвращать BASIC, но при необходимости добавлять CONFIDENTIAL
+};
 
 @Entity('users')
 export class User {

@@ -27,7 +27,7 @@ import {EventParticipation} from "../event-participation/entity/event-participat
 import {EventParticipationsService} from "../event-participation/event-participations.service";
 import {GetMemberEventsDto} from "./dto/get-member-events.dto";
 
-@Controller('calendars/:calendarId/members') //TODO: REST API оформлено немного неправильно. Надо /calendar-members
+@Controller('calendars/:calendarId/members') //TODO: (not now) REST API misfiled
 export class CalendarMembersController extends BaseCrudController<
     CalendarMember,
     AddMemberToCalendarDto,

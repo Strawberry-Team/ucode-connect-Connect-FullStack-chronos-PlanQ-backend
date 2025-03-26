@@ -33,8 +33,7 @@ export class EventTask {
 
     @Column({
         type: 'enum',
-        enum: TaskPriority,
-        nullable: true //TODO: remove nullable
+        enum: TaskPriority
     })
     priority?: TaskPriority;
 

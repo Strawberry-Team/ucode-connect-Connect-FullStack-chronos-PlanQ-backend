@@ -1,3 +1,4 @@
+// auth/strategies/jwt-confirm-email.strategy.ts
 import {createJwtStrategy} from '../../jwt/jwt-strategy.factory';
 
 const confirmEmailExtractor = (req: any): string | null => {
