@@ -104,13 +104,13 @@ export class EventParticipationsService {
             inviterMember.id,
             eventId
         );
-
+        let participationColor;
         if (!inviterParticipation) {
-            throw new BadRequestException('Inviter is not a participant of this event');
+            participationColor = calendarMember.color;
+        } else {
+            participationColor = inviterParticipation.color;
         }
 
-        // Get the color from creator's participation or use provided color
-        const participationColor = inviterParticipation.color;
 
         // Check if user is already a participant
         let participation;
