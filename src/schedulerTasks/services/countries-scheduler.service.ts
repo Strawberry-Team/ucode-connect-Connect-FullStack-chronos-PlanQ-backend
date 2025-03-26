@@ -1,7 +1,8 @@
-import {Injectable} from '@nestjs/common';
-import {Cron, Timeout} from '@nestjs/schedule';
-import {SchedulerConfig} from 'src/config/scheduler.config';
-import {CountryService} from 'src/country/country.service';
+// src/schedulerTasks/services/countries-scheduler.service.ts
+import { Injectable } from '@nestjs/common';
+import { Cron, Timeout } from '@nestjs/schedule';
+import { SchedulerConfig } from 'src/config/scheduler.config';
+import { CountryService } from 'src/country/country.service';
 
 @Injectable()
 export class CountriesSchedulerService {

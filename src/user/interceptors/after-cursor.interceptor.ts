@@ -1,3 +1,4 @@
+// src/user/interceptor/after-cursor.interceptor.ts
 import {
   Injectable,
   NestInterceptor,
@@ -11,17 +12,12 @@ import * as qs from 'qs';
 export class AfterCursorQueryParseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
-
-    // Если originalUrl присутствует, то берём часть после "?"
     const originalUrl = request.originalUrl ?? '';
     const queryString = originalUrl.split('?')[1] || '';
 
     if (queryString) {
       try {
-        // Парсим query-строку с помощью qs
         const parsedQuery = qs.parse(queryString);
-        // Переопределяем свойство req.query с новым значением,
-        // используя Object.defineProperty, чтобы сделать его перезаписываемым.
         Object.defineProperty(request, 'query', {
           value: parsedQuery,
           writable: true,

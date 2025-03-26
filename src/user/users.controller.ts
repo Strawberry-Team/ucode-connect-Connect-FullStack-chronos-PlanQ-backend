@@ -1,3 +1,4 @@
+// src/user/users.controller.ts
 import {
     Controller,
     UseInterceptors,
@@ -9,22 +10,22 @@ import {
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
-import {BaseCrudController} from '../common/controller/base-crud.controller';
-import {SERIALIZATION_GROUPS, User} from './entity/user.entity';
-import {CreateUserDto} from './dto/create-user.dto';
-import {UpdateUserDto} from './dto/update-user.dto';
-import {UsersService} from './users.service';
-import {Express} from 'express';
-import {createFileUploadInterceptor} from "../common/interceptor/file-upload.interceptor";
-import {AvatarConfig} from '../config/avatar.config';
-import {OwnAccountGuard} from './guards/own-account.guard';
-import {RequestWithUser} from "../common/types/request.types";
-import {CalendarMembersService} from "../calendar-member/calendar-members.service";
-import {CalendarMember} from "../calendar-member/entity/calendar-member.entity";
-import {EventsService} from "../event/events.service";
-import {GetUserEventsOffsetQueryDto} from "./dto/user.events.offset.query.dto";
-import {GetUserEventsCursorQueryDto} from "./dto/user.events.cursor.query.dto";
-import {EventCursor} from "../common/types/cursor.pagination.types";
+import { BaseCrudController } from '../common/controller/base-crud.controller';
+import { SERIALIZATION_GROUPS, User } from './entity/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersService } from './users.service';
+import { Express } from 'express';
+import { createFileUploadInterceptor } from "../common/interceptor/file-upload.interceptor";
+import { AvatarConfig } from '../config/avatar.config';
+import { OwnAccountGuard } from './guards/own-account.guard';
+import { RequestWithUser } from "../common/types/request.types";
+import { CalendarMembersService } from "../calendar-member/calendar-members.service";
+import { CalendarMember } from "../calendar-member/entity/calendar-member.entity";
+import { EventsService } from "../event/events.service";
+import { GetUserEventsOffsetQueryDto } from "./dto/user.events.offset.query.dto";
+import { GetUserEventsCursorQueryDto } from "./dto/user.events.cursor.query.dto";
+import { EventCursor } from "../common/types/cursor.pagination.types";
 import { AfterCursorQueryParseInterceptor } from './interceptors/after-cursor.interceptor';
 
 @Controller('users')
@@ -105,7 +106,7 @@ export class UsersController extends BaseCrudController<
         if (!file) {
             throw new BadRequestException('No file uploaded.');
         }
-        return {server_filename: file.filename};
+        return { server_filename: file.filename };
     }
 
     @Get(':id/calendars')

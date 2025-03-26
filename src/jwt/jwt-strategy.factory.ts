@@ -1,10 +1,11 @@
-import {Injectable, Type} from '@nestjs/common';
-import {PassportStrategy} from '@nestjs/passport';
-import {Strategy, StrategyOptions} from 'passport-jwt';
-import {ConfigService} from '@nestjs/config';
-import {Algorithm} from 'jsonwebtoken';
+// src/jwt/jwt-strategy.factory.ts
+import { Injectable, Type } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { Strategy, StrategyOptions } from 'passport-jwt';
+import { ConfigService } from '@nestjs/config';
+import { Algorithm } from 'jsonwebtoken';
 
-import {TokenType, JwtContext, TOKEN_CONTEXT_MAP} from './jwt.types';
+import { TokenType, JwtContext, TOKEN_CONTEXT_MAP } from './jwt.types';
 
 export interface JwtStrategyConfig {
     strategyName: string;

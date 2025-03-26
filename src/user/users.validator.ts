@@ -1,4 +1,5 @@
-import {applyDecorators} from '@nestjs/common';
+// src/user/users.validator.ts
+import { applyDecorators } from '@nestjs/common';
 import {
     IsEmail,
     IsOptional,
@@ -7,7 +8,7 @@ import {
     ValidationArguments,
     ValidationOptions,
 } from 'class-validator';
-import {AvatarConfig} from '../config/avatar.config';
+import { AvatarConfig } from '../config/avatar.config';
 
 export function IsUserName(isOptional: boolean, allowNull: boolean = false) {
     const baseDecorators = [Matches(/^[a-zA-Z-]+$/), Length(3, 100)];
@@ -80,13 +81,13 @@ export function ValidatePasswordUpdate(validationOptions?: ValidationOptions) {
 
                     if (hasPasswordFields) {
                         if (!dto.oldPassword || !dto.newPassword) {
-                            return false; // Both passwords required
+                            return false;
                         }
                         if (nonPasswordFields.length > 0) {
-                            return false; // No other fields allowed with password update
+                            return false;
                         }
                     } else if (dtoKeys.length === 0) {
-                        return false; // At least one field required
+                        return false;
                     }
 
                     return true;

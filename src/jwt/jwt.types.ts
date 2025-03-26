@@ -1,3 +1,4 @@
+// src/jwt/jwt.types.ts
 export type TokenType =
     'access'
     | 'refresh'

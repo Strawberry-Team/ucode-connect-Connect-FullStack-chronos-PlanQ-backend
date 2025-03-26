@@ -1,5 +1,6 @@
-import {IsOptional, IsString, Length} from "class-validator";
-import {applyDecorators} from "@nestjs/common";
+// src/user/users.query.validator.ts
+import { IsOptional, IsString, Length } from "class-validator";
+import { applyDecorators } from "@nestjs/common";
 
 export function IsQueryUserEventsName(isOptional: boolean) {
     const decorators = [

@@ -1,4 +1,5 @@
-import {CanActivate, ExecutionContext, Injectable, ForbiddenException} from '@nestjs/common';
+// src/user/guards/own-account.guard.ts
+import { CanActivate, ExecutionContext, Injectable, ForbiddenException } from '@nestjs/common';
 
 @Injectable()
 export class OwnAccountGuard implements CanActivate {

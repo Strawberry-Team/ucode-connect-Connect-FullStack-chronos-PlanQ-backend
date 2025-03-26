@@ -1,11 +1,12 @@
-import {Injectable} from '@nestjs/common';
-import {Cron, Timeout} from '@nestjs/schedule';
-import {EventsService} from '../../event/events.service';
-import {EmailService} from '../../email/email.service';
-import {EventType} from '../../event/entity/event.entity';
-import {ResponseStatus} from '../../event-participation/entity/event-participation.entity';
-import {SchedulerConfig} from '../../config/scheduler.config';
-import {CalendarType} from "../../calendar-member/entity/calendar-member.entity";
+// src/schedulerTasks/services/notification.arrangment.scheduler.service.ts
+import { Injectable } from '@nestjs/common';
+import { Cron, Timeout } from '@nestjs/schedule';
+import { EventsService } from '../../event/events.service';
+import { EmailService } from '../../email/email.service';
+import { EventType } from '../../event/entity/event.entity';
+import { ResponseStatus } from '../../event-participation/entity/event-participation.entity';
+import { SchedulerConfig } from '../../config/scheduler.config';
+import { CalendarType } from "../../calendar-member/entity/calendar-member.entity";
 
 @Injectable()
 export class ArrangementSchedulerService {
@@ -28,11 +29,9 @@ export class ArrangementSchedulerService {
                 new Date().getUTCMinutes(),
                 new Date().getUTCSeconds()
             ));
-            // 30 minutes from now
             const thirtyMinutesFromNow = new Date(now.getTime() + 30 * 60 * 1000);
-            const endTime = new Date(thirtyMinutesFromNow.getTime() + 59000); // +59 seconds
+            const endTime = new Date(thirtyMinutesFromNow.getTime() + 59000);
 
-            // Get arrangements starting 30 minutes from now
             const arrangements = await this.eventsService.getEventsByStartTimeAndType(
                 EventType.ARRANGEMENT,
                 thirtyMinutesFromNow,
@@ -42,13 +41,11 @@ export class ArrangementSchedulerService {
             console.log(`Found ${arrangements.length} arrangements to process`);
 
             for (const arrangement of arrangements) {
-                // Get full event with participants
                 const event = await this.eventsService.getEventByIdWithParticipations(
                     arrangement.id,
-                    false // isResponseStatusNull=false
+                    false
                 );
 
-                // Format event time
                 const eventTime = event.startedAt.toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -58,23 +55,19 @@ export class ArrangementSchedulerService {
                     timeZone: 'UTC',
                 });
 
-                // Track processed emails to avoid duplicates
                 const processedEmails = new Set<string>();
 
-                // Get ACCEPTED or PENDING participants
                 const relevantParticipations = event.participations
                     .filter(p =>
                         p.responseStatus === ResponseStatus.ACCEPTED ||
                         p.responseStatus === ResponseStatus.PENDING
                     );
 
-                // Process non-main calendars first
                 for (const participation of relevantParticipations) {
                     const user = participation.calendarMember.user;
                     const email = user.email;
                     const calendarType = participation.calendarMember.calendarType;
 
-                    // Skip main calendars for now
                     if (calendarType === CalendarType.MAIN) continue;
                     if (processedEmails.has(email)) continue;
 
@@ -90,7 +83,6 @@ export class ArrangementSchedulerService {
                     );
                 }
 
-                // Now process main calendars, skipping already processed emails
                 for (const participation of relevantParticipations) {
                     const user = participation.calendarMember.user;
                     const email = user.email;

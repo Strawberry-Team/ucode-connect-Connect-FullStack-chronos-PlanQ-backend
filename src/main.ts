@@ -1,12 +1,13 @@
-import {NestFactory} from '@nestjs/core';
-import {AppModule} from './app.module';
-import {ValidationPipe} from '@nestjs/common';
-import {NestExpressApplication} from '@nestjs/platform-express';
-import {ConfigService} from '@nestjs/config';
+// src/main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import * as csurf from 'csurf';
-import {CsrfExceptionFilter} from './common/filters/csrf-exception.filter';
-import {CsrfError} from './common/filters/csrf-exception.filter';
+import { CsrfExceptionFilter } from './common/filters/csrf-exception.filter';
+import { CsrfError } from './common/filters/csrf-exception.filter';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);

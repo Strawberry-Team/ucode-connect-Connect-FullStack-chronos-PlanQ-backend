@@ -1,3 +1,4 @@
+// src/user/users.service.ts
 import {
     BadRequestException,
     ConflictException,
@@ -5,13 +6,13 @@ import {
     NotFoundException,
     UnauthorizedException,
 } from '@nestjs/common';
-import {UsersRepository} from './users.repository';
-import {CreateUserDto} from './dto/create-user.dto';
-import {UpdateUserDto} from './dto/update-user.dto';
-import {SERIALIZATION_GROUPS, User} from './entity/user.entity';
-import {PasswordService} from "./passwords.service";
-import {CalendarsService} from "../calendar/calendars.service";
-import {plainToClass, plainToInstance} from "class-transformer";
+import { UsersRepository } from './users.repository';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { SERIALIZATION_GROUPS, User } from './entity/user.entity';
+import { PasswordService } from "./passwords.service";
+import { CalendarsService } from "../calendar/calendars.service";
+import { plainToClass, plainToInstance } from "class-transformer";
 
 @Injectable()
 export class UsersService {
@@ -27,12 +28,12 @@ export class UsersService {
         if (!user) {
             throw new NotFoundException('User not found');
         }
-        return plainToInstance(User, user, {groups: SERIALIZATION_GROUPS.CONFIDENTIAL});
+        return plainToInstance(User, user, { groups: SERIALIZATION_GROUPS.CONFIDENTIAL });
     }
 
     async getUserByIdWithoutPassword(id: number): Promise<User> {
         const result = await this.getUserById(id);
-        return plainToInstance(User, result, {groups: SERIALIZATION_GROUPS.BASIC});
+        return plainToInstance(User, result, { groups: SERIALIZATION_GROUPS.BASIC });
     }
 
 
@@ -41,12 +42,12 @@ export class UsersService {
         if (!result) {
             throw new NotFoundException('User with this email not found');
         }
-        return plainToInstance(User, result, {groups: SERIALIZATION_GROUPS.CONFIDENTIAL});
+        return plainToInstance(User, result, { groups: SERIALIZATION_GROUPS.CONFIDENTIAL });
     }
 
     async getUserByEmailWithoutPassword(email: string): Promise<User> {
         const result = await this.getUserByEmail(email);
-        return plainToInstance(User, result, {groups: SERIALIZATION_GROUPS.BASIC});
+        return plainToInstance(User, result, { groups: SERIALIZATION_GROUPS.BASIC });
     }
 
 
@@ -60,7 +61,7 @@ export class UsersService {
 
         await this.calendarsService.createDefaultCalendars(result.id);
 
-        return plainToInstance(User, result, {groups: SERIALIZATION_GROUPS.BASIC});
+        return plainToInstance(User, result, { groups: SERIALIZATION_GROUPS.BASIC });
     }
 
     async updateUser(id: number, dto: UpdateUserDto): Promise<User> {
@@ -78,7 +79,7 @@ export class UsersService {
             const hashedNewPassword = await this.passwordService.hash(String(dto.newPassword));
             delete dto.oldPassword;
             delete dto.newPassword;
-            const updateData: Partial<User> = {...dto};
+            const updateData: Partial<User> = { ...dto };
             updateData.password = hashedNewPassword;
             result = await this.usersRepository.updateUser(id, updateData);
         } else {
@@ -87,17 +88,17 @@ export class UsersService {
         if (!result) {
             throw new NotFoundException('User not found');
         }
-        return plainToInstance(User, result, {groups: SERIALIZATION_GROUPS.BASIC});
+        return plainToInstance(User, result, { groups: SERIALIZATION_GROUPS.BASIC });
     }
 
     async updatePassword(id: number, newPassword: string): Promise<User> {
         const hashedPassword = await this.passwordService.hash(newPassword);
-        const updateData: Partial<User> = {password: hashedPassword};
+        const updateData: Partial<User> = { password: hashedPassword };
         const result = await this.usersRepository.updateUser(id, updateData);
         if (!result) {
             throw new NotFoundException('User not found');
         }
-        return plainToInstance(User, result, {groups: SERIALIZATION_GROUPS.BASIC});
+        return plainToInstance(User, result, { groups: SERIALIZATION_GROUPS.BASIC });
     }
 
     async deleteUser(id: number): Promise<void> {
@@ -105,13 +106,13 @@ export class UsersService {
     }
 
     async confirmEmail(userId: number) {
-        const updateData: Partial<User> = {emailVerified: true};
+        const updateData: Partial<User> = { emailVerified: true };
         const result = await this.usersRepository.updateUser(userId, updateData);
-        return plainToInstance(User, result, {groups: SERIALIZATION_GROUPS.BASIC});
+        return plainToInstance(User, result, { groups: SERIALIZATION_GROUPS.BASIC });
     }
 
     async getAllUnactivatedUsers(time: number): Promise<User[]> {
         const users = await this.usersRepository.getAllUnactivatedUsers(time);
-        return users.map(user => plainToInstance(User, user, {groups: SERIALIZATION_GROUPS.CONFIDENTIAL}));
+        return users.map(user => plainToInstance(User, user, { groups: SERIALIZATION_GROUPS.CONFIDENTIAL }));
     }
 }

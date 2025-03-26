@@ -1,9 +1,10 @@
+// src/user/dto/update-user.dto.ts
 import {
     IsUserEmail,
     IsUserName, IsUserPassword, IsUserProfilePicture, ValidatePasswordUpdate,
 } from '../users.validator';
 
-import {IsValidCountryCode} from "../../country/country.validator"
+import { IsValidCountryCode } from "../../country/country.validator"
 
 export class UpdateUserDto {
     @IsUserName(true)
@@ -21,7 +22,7 @@ export class UpdateUserDto {
     @IsUserPassword(true)
     newPassword?: string;
 
-    @IsValidCountryCode({message: 'Invalid country code, must be cca2'}, true)
+    @IsValidCountryCode({ message: 'Invalid country code, must be cca2' }, true)
     countryCode?: string;
 
     @IsUserProfilePicture(true)

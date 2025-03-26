@@ -1,10 +1,11 @@
-import {Injectable} from '@nestjs/common';
-import {ConfigService} from '@nestjs/config';
-import {Cron} from '@nestjs/schedule';
-import {convertToSeconds} from 'src/common/utils/time.utils';
-import {User} from 'src/user/entity/user.entity';
-import {UsersService} from 'src/user/users.service';
-import {SchedulerConfig} from '../../config/scheduler.config';
+// src/schedulerTasks/services/notification-scheduler.service.ts
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Cron } from '@nestjs/schedule';
+import { convertToSeconds } from 'src/common/utils/time.utils';
+import { User } from 'src/user/entity/user.entity';
+import { UsersService } from 'src/user/users.service';
+import { SchedulerConfig } from '../../config/scheduler.config';
 
 @Injectable()
 export class NotificationSchedulerService {
