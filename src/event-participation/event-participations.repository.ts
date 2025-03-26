@@ -207,29 +207,44 @@ export class EventParticipationsRepository extends BaseRepository<EventParticipa
         const sharedStatusesNotNull = sharedConditions.responseStatuses.filter(status => status !== null) as ResponseStatus[];
         const sharedHasNull = sharedConditions.responseStatuses.includes(null);
 
-        return this.repo.createQueryBuilder('ep')
+        const queryBuilder = this.repo.createQueryBuilder('ep')
             .innerJoinAndSelect('ep.event', 'event')
-            .innerJoinAndSelect('ep.calendarMember', 'calendarMember')
-            .where(
-                '(ep.calendarMemberId IN (:...mainIds) AND ' +
-                (mainStatusesNotNull.length > 0
+            .innerJoinAndSelect('ep.calendarMember', 'calendarMember');
+
+        // Сначала создаем базовые условия доступа к календарям с правильной группировкой
+        queryBuilder.where(
+            // Оборачиваем всё условие в скобки для правильного приоритета операций
+            `(
+            (ep.calendarMemberId IN (:...mainIds) AND ${
+                mainStatusesNotNull.length > 0
                     ? `(ep.responseStatus IN (:...mainStatusesNotNull)${mainHasNull ? ' OR ep.responseStatus IS NULL' : ''})`
-                    : (mainHasNull ? 'ep.responseStatus IS NULL' : 'FALSE')) + ') OR ' +
-                '(ep.calendarMemberId IN (:...sharedIds) AND ' +
-                (sharedStatusesNotNull.length > 0
+                    : (mainHasNull ? 'ep.responseStatus IS NULL' : 'FALSE')
+            }) 
+            OR 
+            (ep.calendarMemberId IN (:...sharedIds) AND ${
+                sharedStatusesNotNull.length > 0
                     ? `(ep.responseStatus IN (:...sharedStatusesNotNull)${sharedHasNull ? ' OR ep.responseStatus IS NULL' : ''})`
-                    : (sharedHasNull ? 'ep.responseStatus IS NULL' : 'FALSE')) + ')',
-                {
-                    mainIds: mainConditions.calendarMemberIds.length ? mainConditions.calendarMemberIds : [0],
-                    mainStatusesNotNull,
-                    sharedIds: sharedConditions.calendarMemberIds.length ? sharedConditions.calendarMemberIds : [0],
-                    sharedStatusesNotNull
-                }
-            )
-            .andWhere('LOWER(event.name) LIKE LOWER(:name)', {name: `%${name}%`})
-            .orderBy('event.createdAt', 'DESC')
+                    : (sharedHasNull ? 'ep.responseStatus IS NULL' : 'FALSE')
+            })
+        )`,
+            {
+                mainIds: mainConditions.calendarMemberIds.length ? mainConditions.calendarMemberIds : [0],
+                mainStatusesNotNull,
+                sharedIds: sharedConditions.calendarMemberIds.length ? sharedConditions.calendarMemberIds : [0],
+                sharedStatusesNotNull
+            }
+        );
+
+        // Затем добавляем фильтр по имени как отдельное условие
+        queryBuilder.andWhere('LOWER(event.name) LIKE LOWER(:name)', {name: `%${name}%`});
+
+        // Сортировка
+        queryBuilder.orderBy('event.createdAt', 'DESC')
             .addOrderBy('ep.id', 'ASC');
+
+        return queryBuilder;
     }
+
 
     async findEventsByUserAndNameOffset(
         name: string,
@@ -281,12 +296,70 @@ export class EventParticipationsRepository extends BaseRepository<EventParticipa
     }
 
     // Cursor-based method
+    // async findEventsByUserAndNameCursor(
+    //     name: string,
+    //     after: EventCursor | null,
+    //     limit: number,
+    //     mainConditions: { calendarMemberIds: number[], responseStatuses: (ResponseStatus | null)[] },
+    //     sharedConditions: { calendarMemberIds: number[], responseStatuses: (ResponseStatus | null)[] }
+    // ): Promise<{
+    //     eventParticipations: EventParticipation[],
+    //     nextCursor: EventCursor | null,
+    //     hasMore: boolean,
+    //     total: number,
+    //     after: EventCursor | null,
+    //     limit: number,
+    //     remaining: number
+    // }> {
+    //     console.log("findEventsByUserAndNameCursor after: ", after);
+    //     const queryBuilder = this.buildQueryBuilder(name, mainConditions, sharedConditions);
+    //
+    //     const result = await this.paginateCursor<EventCursor>(
+    //         queryBuilder,
+    //         after,
+    //         limit,
+    //         {
+    //             cursorFields: ['createdAt', 'id'],
+    //             entityAliases: {
+    //                 'createdAt': 'event',
+    //                 'id': 'ep'
+    //             },
+    //             sortDirections: {
+    //                 'createdAt': 'DESC',
+    //                 'id': 'ASC'
+    //             },
+    //             getFieldValue: (item: EventParticipation, field: keyof EventCursor) => {
+    //                 if (field === 'createdAt') {
+    //                     return item.event.createdAt instanceof Date
+    //                         ? item.event.createdAt.toISOString()
+    //                         : item.event.createdAt;
+    //                 } else if (field === 'id') {
+    //                     return item.id;
+    //                 }
+    //                 return null as any;
+    //             }
+    //         }
+    //     );
+    //
+    //     return {
+    //         eventParticipations: result.items,
+    //         nextCursor: result.nextCursor,
+    //         hasMore: result.hasMore,
+    //         total: result.total,
+    //         after,
+    //         limit,
+    //         remaining: result.remaining
+    //     };
+    // }
+
     async findEventsByUserAndNameCursor(
         name: string,
         after: EventCursor | null,
         limit: number,
         mainConditions: { calendarMemberIds: number[], responseStatuses: (ResponseStatus | null)[] },
-        sharedConditions: { calendarMemberIds: number[], responseStatuses: (ResponseStatus | null)[] }
+        sharedConditions: { calendarMemberIds: number[], responseStatuses: (ResponseStatus | null)[] },
+        startDate?: Date,
+        endDate?: Date
     ): Promise<{
         eventParticipations: EventParticipation[],
         nextCursor: EventCursor | null,
@@ -296,48 +369,66 @@ export class EventParticipationsRepository extends BaseRepository<EventParticipa
         limit: number,
         remaining: number
     }> {
-        console.log("findEventsByUserAndNameCursor after: ", after);
         const queryBuilder = this.buildQueryBuilder(name, mainConditions, sharedConditions);
 
-        // const mainStatusesNotNull = mainConditions.responseStatuses.filter(status => status !== null) as ResponseStatus[];
-        // const mainHasNull = mainConditions.responseStatuses.includes(null);
-        // const sharedStatusesNotNull = sharedConditions.responseStatuses.filter(status => status !== null) as ResponseStatus[];
-        // const sharedHasNull = sharedConditions.responseStatuses.includes(null);
+        if (after) {
+            console.log("Cursor details - id:", after.id, "createdAt:", after.createdAt);
+            console.log("createdAt is of type:", typeof after.createdAt);
+        }
 
-        // const queryBuilder = this.repo.createQueryBuilder('ep')
-        //     .innerJoinAndSelect('ep.event', 'event')
-        //     .innerJoinAndSelect('ep.calendarMember', 'calendarMember')
-        //     .where(
-        //         '(ep.calendarMemberId IN (:...mainIds) AND ' +
-        //         (mainStatusesNotNull.length > 0
-        //             ? `(ep.responseStatus IN (:...mainStatusesNotNull)${mainHasNull ? ' OR ep.responseStatus IS NULL' : ''})`
-        //             : (mainHasNull ? 'ep.responseStatus IS NULL' : 'FALSE')) + ') OR ' +
-        //         '(ep.calendarMemberId IN (:...sharedIds) AND ' +
-        //         (sharedStatusesNotNull.length > 0
-        //             ? `(ep.responseStatus IN (:...sharedStatusesNotNull)${sharedHasNull ? ' OR ep.responseStatus IS NULL' : ''})`
-        //             : (sharedHasNull ? 'ep.responseStatus IS NULL' : 'FALSE')) + ')',
-        //         {
-        //             mainIds: mainConditions.calendarMemberIds.length ? mainConditions.calendarMemberIds : [0],
-        //             mainStatusesNotNull,
-        //             sharedIds: sharedConditions.calendarMemberIds.length ? sharedConditions.calendarMemberIds : [0],
-        //             sharedStatusesNotNull
-        //         }
-        //     )
-        //     .andWhere('LOWER(event.name) LIKE LOWER(:name)', {name: `%${name}%`})
-        //     .orderBy('event.created_at', 'DESC')
-        //     .addOrderBy('ep.id', 'ASC');
+        if (startDate && endDate) {
+            queryBuilder.andWhere(
+                '(event.startedAt <= :endDate AND event.endedAt >= :startDate)',
+                { startDate, endDate }
+            );
+        } else if (startDate) {
+            queryBuilder.andWhere('event.endedAt >= :startDate', { startDate });
+        } else if (endDate) {
+            queryBuilder.andWhere('event.startedAt <= :endDate', { endDate });
+        }
 
-        // Сортировка по ID для стабильности курсора
+        // Прежде чем применять курсор, выполним запрос для просмотра данных
+        if (after) {
+            const debugQuery = queryBuilder.clone();
+            const testItems = await debugQuery.limit(5).getMany();
+            console.log("Debug - Items without cursor condition:",
+                testItems.map(ep => ({
+                    ep_id: ep.id,
+                    event_id: ep.event.id,
+                    event_createdAt: ep.event.createdAt,
+                    calendarMemberId: ep.calendarMemberId
+                }))
+            );
+        }
 
         const result = await this.paginateCursor<EventCursor>(
             queryBuilder,
             after,
             limit,
             {
-                cursorFields: ['createdAt', 'id'], // В порядке важности для сортировки
+                cursorFields: ['createdAt', 'id'],
                 entityAliases: {
                     'createdAt': 'event',
                     'id': 'ep'
+                },
+                sortDirections: {
+                    'createdAt': 'DESC',
+                    'id': 'ASC'
+                },
+                getFieldValue: (item: EventParticipation, field: keyof EventCursor) => {
+                    if (field === 'createdAt') {
+                        // Важно: убедимся что возвращаем строку в ISO формате
+                        const date = item.event.createdAt;
+                        const dateStr = date instanceof Date
+                            ? date.toISOString()
+                            : String(date);
+                        console.log(`Extracting createdAt: ${dateStr} from`, item.event);
+                        return dateStr;
+                    } else if (field === 'id') {
+                        console.log(`Extracting id: ${item.id} from`, item);
+                        return item.id;
+                    }
+                    return null as any;
                 }
             }
         );
@@ -351,9 +442,6 @@ export class EventParticipationsRepository extends BaseRepository<EventParticipa
             limit,
             remaining: result.remaining
         };
-
-        // const { items, nextCursor, hasMore, total, remaining } = await this.paginateCursor(queryBuilder, after, limit);
-        // return { eventParticipations: items, nextCursor, hasMore, total, after, limit, remaining };
     }
 
     async createEventParticipation(data: Partial<EventParticipation>): Promise<EventParticipation> {
