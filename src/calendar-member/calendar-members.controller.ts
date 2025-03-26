@@ -1,4 +1,16 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards} from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    NotFoundException,
+    Param,
+    Patch,
+    Post,
+    Query,
+    Req,
+    UseGuards
+} from '@nestjs/common';
 import {CalendarMembersService} from './calendar-members.service';
 import {AddMemberToCalendarDto} from './dto/add-member-to-calendar.dto';
 import {UpdateMemberInCalendarDto} from './dto/update-member-in-calendar.dto';
@@ -30,7 +42,11 @@ export class CalendarMembersController extends BaseCrudController<
 
     protected async findById(id: number, req: RequestWithUser): Promise<CalendarMember> {
         const calendarId = parseInt(req.params.calendarId, 10);
-        return await this.usersCalendarsService.getCalendarMember(id, calendarId);
+        const result = await this.usersCalendarsService.getCalendarMember(id, calendarId);
+        if (!result) {
+            throw new NotFoundException("Calendar-member is not found")
+        }
+        return result;
     }
 
     protected async createEntity(dto: AddMemberToCalendarDto, req: RequestWithUser): Promise<CalendarMember> {

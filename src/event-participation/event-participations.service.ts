@@ -87,26 +87,29 @@ export class EventParticipationsService {
         let mainCalendarMember;
 
         // Always add to user's main calendar as well
-        try {
             const userCalendars = await this.calendarMembersService.getUserCalendars(userId);
             mainCalendarMember = userCalendars.find(c => c.calendarType === CalendarType.MAIN);
 
             if (!mainCalendarMember) {
                 throw new NotFoundException('User\'s main calendar not found');
             }
-        } catch (error) {
-            throw new BadRequestException('Failed to find user\'s main calendar');
-        }
+
 
         // Find creator's participation to get color
         const inviterMember = await this.calendarMembersService.getCalendarMember(inviterId, calendarId);
+        if (!inviterMember) {
+            throw new NotFoundException("Inviter must be participant")
+        }
         const inviterParticipation = await this.eventParticipationsRepository.findByCalendarMemberAndEvent(
             inviterMember.id,
             eventId
         );
         let participationColor;
         if (!inviterParticipation) {
-            participationColor = calendarMember.color;
+            if (calendarMember !== null) {
+                participationColor = calendarMember.color;
+            }
+            participationColor = mainCalendarMember.color
         } else {
             participationColor = inviterParticipation.color;
         }
@@ -545,7 +548,10 @@ export class EventParticipationsService {
                           startDate?: Date,
                           endDate?: Date
     ): Promise<EventParticipation[]> {
-        const calendarMember: CalendarMember = await this.calendarMembersService.getCalendarMember(userId, calendarId);
+        const calendarMember = await this.calendarMembersService.getCalendarMember(userId, calendarId);
+        if (!calendarMember) {
+            throw new NotFoundException("Calendar member not found")
+        }
         let responseStatuses;
         if (calendarMember.calendarType === CalendarType.MAIN) {
             responseStatuses = [null, ResponseStatus.ACCEPTED, ResponseStatus.DECLINED, ResponseStatus.PENDING]

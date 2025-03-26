@@ -46,16 +46,12 @@ export class CalendarMembersService {
         return this.usersCalendarsRepository.findUserCalendars(userId);
     }
 
-    async getCalendarMember(userId: number, calendarId: number): Promise<CalendarMember> {
+    async getCalendarMember(userId: number, calendarId: number): Promise<CalendarMember | null> {
         console.log("userId: ", userId, "  calendarId: ", calendarId)
 
         const result = await this.usersCalendarsRepository.findByUserAndCalendar(userId, calendarId);
 
         console.log("result: ", result)
-
-        if (!result) {
-            throw new NotFoundException('User does not have access to this calendar1');
-        }
 
         return result;
     }
