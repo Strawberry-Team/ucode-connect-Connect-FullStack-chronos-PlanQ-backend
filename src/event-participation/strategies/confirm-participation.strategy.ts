@@ -5,8 +5,13 @@ const confirmEmailExtractor = (req: any): string | null => {
 };
 
 const confirmEmailValidateFn = (payload: any) => {
-    return {eventParticipationId: payload.sub};
+    return {eventParticipationId: payload.eventParticipationId};
 };
+
+// const token = this.jwtUtils.generateToken({
+//     sub: userId,
+//     eventParticipationId: participationId
+// }, 'confirmArrangement');
 
 export const JwtConfirmEmailStrategy = createJwtStrategy({
     strategyName: 'confirm-participation',

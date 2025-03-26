@@ -227,7 +227,7 @@ export class EventParticipationsRepository extends BaseRepository<EventParticipa
                 }
             )
             .andWhere('LOWER(event.name) LIKE LOWER(:name)', {name: `%${name}%`})
-            .orderBy('event.created_at', 'DESC')
+            .orderBy('event.createdAt', 'DESC')
             .addOrderBy('ep.id', 'ASC');
     }
 
@@ -296,6 +296,7 @@ export class EventParticipationsRepository extends BaseRepository<EventParticipa
         limit: number,
         remaining: number
     }> {
+        console.log("findEventsByUserAndNameCursor after: ", after);
         const queryBuilder = this.buildQueryBuilder(name, mainConditions, sharedConditions);
 
         // const mainStatusesNotNull = mainConditions.responseStatuses.filter(status => status !== null) as ResponseStatus[];
@@ -333,9 +334,9 @@ export class EventParticipationsRepository extends BaseRepository<EventParticipa
             after,
             limit,
             {
-                cursorFields: ['created_at', 'id'], // В порядке важности для сортировки
+                cursorFields: ['createdAt', 'id'], // В порядке важности для сортировки
                 entityAliases: {
-                    'created_at': 'event',
+                    'createdAt': 'event',
                     'id': 'ep'
                 }
             }

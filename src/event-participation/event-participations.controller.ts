@@ -89,11 +89,12 @@ export class EventParticipationsController extends BaseCrudController<
     }
 
     @Public()
-    @UseGuards(EventGuard)
+    // @UseGuards(EventGuard)
     @UseGuards(confirmParticipationGuard)
     // @UseGuards(JwtConfirmEventParticipationGuard)
     @Post(':calendarMemberId/confirm-participation/:confirm_token')
     async confirmEventParticipation(@Req() req: RequestWithUser): Promise<EventParticipation> {
+        console.log("req.user.eventParticipationId: ", req.user.eventParticipationId);
         return await this.eventParticipationsService.confirmEventParticipation(
             Number(req.user.eventParticipationId)
         );

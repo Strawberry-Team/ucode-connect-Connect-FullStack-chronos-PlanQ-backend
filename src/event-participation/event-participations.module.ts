@@ -9,6 +9,7 @@ import {UsersModule} from '../user/users.module';
 import {CalendarMembersModule} from '../calendar-member/calendar-members.module';
 import {EventsModule} from '../event/events.module';
 import {EmailModule} from '../email/email.module';
+import { JwtConfirmEmailStrategy } from './strategies/confirm-participation.strategy';
 
 @Module({
     imports: [
@@ -21,7 +22,8 @@ import {EmailModule} from '../email/email.module';
     controllers: [EventParticipationsController],
     providers: [
         EventParticipationsService,
-        EventParticipationsRepository
+        EventParticipationsRepository,
+        JwtConfirmEmailStrategy
     ],
     exports: [EventParticipationsService, EventParticipationsRepository]
 })

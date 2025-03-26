@@ -6,6 +6,8 @@ import {
     Body, Req, NotImplementedException, Param, Patch, Delete,
     UseGuards, Get, SerializeOptions,
     Query,
+    UsePipes,
+    ValidationPipe,
 } from '@nestjs/common';
 import {BaseCrudController} from '../common/controller/base-crud.controller';
 import {SERIALIZATION_GROUPS, User} from './entity/user.entity';
@@ -23,6 +25,7 @@ import {EventsService} from "../event/events.service";
 import {GetUserEventsOffsetQueryDto} from "./dto/user.events.offset.query.dto";
 import {GetUserEventsCursorQueryDto} from "./dto/user.events.cursor.query.dto";
 import {EventCursor} from "../common/types/cursor.pagination.types";
+import { AfterCursorQueryParseInterceptor } from './interceptors/after-cursor.interceptor';
 
 @Controller('users')
 @SerializeOptions({
@@ -95,7 +98,6 @@ export class UsersController extends BaseCrudController<
             maxSize: 5 * 1024 * 1024,
         })
     )
-
     async uploadAvatar(
         @UploadedFile() file: Express.Multer.File,
     ): Promise<{ server_filename: string }> {
@@ -123,6 +125,7 @@ export class UsersController extends BaseCrudController<
 
     @Get(':id/events')
     @UseGuards(OwnAccountGuard)
+    @UseInterceptors(AfterCursorQueryParseInterceptor)
     async getUserEventsCursor(
         @Param('id') id: number,
         @Query() query: GetUserEventsCursorQueryDto

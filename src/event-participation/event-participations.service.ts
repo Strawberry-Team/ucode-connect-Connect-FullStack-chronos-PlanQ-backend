@@ -250,7 +250,7 @@ export class EventParticipationsService {
         });
 
         // Send email
-        await this.emailService.sendEventInvitationEmail(
+        this.emailService.sendEventInvitationEmail(
             invitedUser.email,
             inviter.email,
             event.name,
@@ -285,8 +285,8 @@ export class EventParticipationsService {
     }
 
     async updateEventParticipation(calendarMamberId: number, eventId: number, dto: UpdateEventParticipationDto): Promise<EventParticipation> { //calendarMemberId того, кого хотят обовить, userId того, кто хочет обновить
-        const calendarMemberMemberToUpdate = await this.calendarMembersService.getCalendarMenberById(calendarMamberId);
-        if (!calendarMemberMemberToUpdate) {
+        const calendaMemberToUpdate = await this.calendarMembersService.getCalendarMenberById(calendarMamberId);
+        if (!calendaMemberToUpdate) {
             throw new NotFoundException('Calendar member not found');
         }
 
@@ -305,7 +305,7 @@ export class EventParticipationsService {
         if (dto.responseStatus !== undefined) {
             if (dto.responseStatus === ResponseStatus.ACCEPTED || dto.responseStatus === ResponseStatus.DECLINED || dto.responseStatus === ResponseStatus.PENDING) {
                 await this.updateResponseStatusInAllCalendars(
-                    calendarMemberMemberToUpdate.userId,
+                    calendaMemberToUpdate.userId,
                     participation.eventId,
                     dto.responseStatus,
                     // participation.calendarMember.id
@@ -313,9 +313,12 @@ export class EventParticipationsService {
             }
         }
 
-        const updatedParticipation = await this.eventParticipationsRepository.findById(calendarMemberMemberToUpdate.userId);
+        console.log(calendaMemberToUpdate.userId)
+        const updatedParticipation = await this.eventParticipationsRepository.findById(participation.id);
 
-        if (!updatedParticipation) throw new NotFoundException('Event participation not found6');
+        if (!updatedParticipation) {
+            throw new NotFoundException('Event participation not found6');
+        }
 
         return updatedParticipation;
     }
@@ -335,7 +338,7 @@ export class EventParticipationsService {
             //calendarType
         );
 
-        const updatedParticipation = await this.eventParticipationsRepository.findById(userId);
+        const updatedParticipation = await this.eventParticipationsRepository.findById(participation.id);
 
         if (!updatedParticipation) throw new NotFoundException('Event participation not found8');
 
@@ -437,9 +440,12 @@ export class EventParticipationsService {
                 eventId
             );
             if (existingParticipation) {
+                console.log(calendarMember)
                 if (calendarMember.calendarType === CalendarType.MAIN) {
+                    console.log("delete")
                     await this.eventParticipationsRepository.deleteEventParticipation(existingParticipation.id);
                 } else {
+                    console.log("update")
                     await this.eventParticipationsRepository.updateEventParticipation(existingParticipation.id, {
                         responseStatus: null
                     });

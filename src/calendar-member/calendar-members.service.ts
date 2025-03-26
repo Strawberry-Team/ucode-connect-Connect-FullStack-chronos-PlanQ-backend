@@ -121,7 +121,7 @@ export class CalendarMembersService {
             calendarId: calendarId
         }, 'confirmCalendar');
 
-        const link = this.frontUrl + 'calendars/confirm-calendar/' + AddUserToCalendarToken;
+        const link = this.frontUrl + `calendars/${calendarId}/confirm-calendar/` + AddUserToCalendarToken;
         // console.log("confirmCalendarLink: ", link);
 
         this.emailService.sendCalendarShareEmail(userToAdd.email, calendar.name, link, userInviter.email);

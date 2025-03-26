@@ -8,7 +8,7 @@ export class BaseCursor {
 
 export class EventCursor extends BaseCursor {
     @IsISO8601Date(false, true)
-    created_at: string;
+    createdAt: string;
 }
 
 export enum CursorType {
