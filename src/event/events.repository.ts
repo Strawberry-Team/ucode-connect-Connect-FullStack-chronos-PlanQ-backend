@@ -34,7 +34,7 @@ export class EventsRepository {
     async findEventWithParticipations(id: number, isResponseStatusNull: boolean): Promise<Event | null> {
         const result = await this.repo.findOne({
             where: {id},
-            relations: ['creator', 'task', 'participations', 'participations.calendarMember', 'participations.calendarMember.user']
+            relations: ['creator', 'task', 'participations', 'participations.calendarMember', 'participations.calendarMember.user', 'participations.calendarMember.calendar']
         });
 
         if (!result) {

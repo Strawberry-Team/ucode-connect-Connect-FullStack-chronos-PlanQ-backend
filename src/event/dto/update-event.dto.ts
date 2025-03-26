@@ -19,11 +19,11 @@ export class UpdateEventDto {
     category?: EventCategory;
 
     @IsISO8601Date(true)
-    startedAt?: Date;
+    startedAt?: string;
 
     @IsLaterThan('startedAt')
     @IsISO8601Date(true)
-    endedAt?: Date;
+    endedAt?: string;
 
     @ValidateDatePair()
     __dummyField?: never;

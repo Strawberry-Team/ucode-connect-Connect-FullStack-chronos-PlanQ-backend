@@ -24,7 +24,6 @@ export class JwtCleanSchedulerService {
             await Promise.all(nonces.map(nonce =>
                 this.refreshTokenNonceService.deleteRefreshTokenNonceByNonceId(nonce.id)
             ));
-        } else {
         }
     }
 }

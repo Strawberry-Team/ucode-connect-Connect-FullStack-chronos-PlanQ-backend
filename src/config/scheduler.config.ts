@@ -22,4 +22,12 @@ export class SchedulerConfig {
     get updateCountries(): string {
         return CronExpression[validateEnv('SCHEDULER_UPDATE_COUNTRIES')];
     }
+
+    get checkReminders(): string {
+        return CronExpression[validateEnv('SCHEDULER_CHECK_REMINDERS')];
+    }
+
+    get checkArrangements(): string {
+        return CronExpression[validateEnv('SCHEDULER_CHECK_ARRANGEMENTS')];
+    }
 }
