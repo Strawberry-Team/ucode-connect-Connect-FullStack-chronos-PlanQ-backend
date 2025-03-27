@@ -203,7 +203,7 @@ export class EventParticipationsService {
 
         // Get all participants for the email
         const allParticipations = await this.getEventParticipations(eventId);
-        const participantEmails = await Promise.all(
+        let participantEmails = await Promise.all(
             allParticipations
                 .filter(p => p.responseStatus !== null)
                 .map(async p => {
@@ -211,6 +211,8 @@ export class EventParticipationsService {
                     return user.email;
                 })
         );
+
+        participantEmails = [...new Set(participantEmails)];
 
         // Format with ISO string (2023-04-05T12:30:00.000Z)
         // const eventDateTimeStartedAt = event.startedAt.toISOString();
@@ -258,7 +260,7 @@ export class EventParticipationsService {
                 eventId
             );
             if (!result) {
-                throw new NotFoundException('Event participation not found3');
+                throw new NotFoundException('Event participation not found');
             }
             return result;
         } else {
@@ -267,7 +269,7 @@ export class EventParticipationsService {
                 eventId
             );
             if (!result) {
-                throw new NotFoundException('Event participation not found4');
+                throw new NotFoundException('Event participation not found');
             }
             return result;
         }
