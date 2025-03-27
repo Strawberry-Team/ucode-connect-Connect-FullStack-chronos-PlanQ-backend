@@ -15,7 +15,7 @@ export class RefreshTokenNonce {
     @JoinColumn({ name: 'user_id' })
     user: User;
 
-    @Column({ name: 'nonce', length: 64 })
+    @Column({ name: 'nonce', type: 'char',  length: 32 })
     nonce: string;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', name: 'created_at' })
